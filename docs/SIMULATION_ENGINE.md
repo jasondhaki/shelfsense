@@ -118,6 +118,8 @@ Baseline RH comes from the NOAA snapshot. A rainstorm sets `RH = min(98, RH_base
 - `dow_weight` averages 1.0 over the week.
 - `traffic(tick) = traffic_rain_mult` during a storm, else 1.0 (or the NOAA-derived modifier, §7.3).
 
+Realised demand also carries a day-level shock `s(sku, day) ~ Gamma(mean 1, CV = demand_daily_cv)` drawn from rng stream `"demand_shock"`, shared by both stores. **No forecast includes it** — it is the forecast error (Decisions log 2026-11-16).
+
 `V_forecast` for pricing is the **average over the risk horizon** `H = ceil(RSL_known)` hours:
 ```
 V_forecast = Σ_{h=tick}^{tick+H−1} λ(sku, h) / H
@@ -224,7 +226,7 @@ W_X        = Σ wasted units × unit_weight_kg                 (per store, kg)
 waste_reduction_pct = (W_A − W_B) / W_A × 100                (show "—" if W_A == 0)
 food_diverted_kg    = W_A − W_B                              (waste avoided vs baseline)
 co2e_avoided_kg     = food_diverted_kg × co2e_factor[category]   (FAO-derived, per category)
-GM_X       = revenue_X − Σ (units received × unit_cost)
+GM_X       = revenue_X − (Σ units received × unit_cost − closing stock at cost)   # COGS; see Decisions log 2026-11-16
 net_margin_recovered_usd = GM_B − GM_A
 ```
 Also track per store: units sold, revenue, units wasted, $ written off (`wasted × unit_cost`), plus an hourly series for charts.

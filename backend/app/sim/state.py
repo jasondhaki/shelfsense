@@ -82,6 +82,7 @@ class SimConfig:
     camera_skus: tuple[str, ...] = ("STRW-01", "BANA-01")
     emergency_delivery_days: float = 0.5  # immediate cold-chain delivery size, days of demand
     fresh_picker_share: float = 0.5  # shoppers taking the newest unit, both stores (assumed)
+    demand_daily_cv: float = 0.3  # day-level forecast error, Gamma(mean 1) per SKU-day (assumed)
 
     def __post_init__(self) -> None:
         self.sku_by_id = {s.sku_id: s for s in self.skus}
@@ -141,6 +142,23 @@ class StoreState:
 
     def on_hand(self, sku_id: str) -> int:
         return sum(b.qty for b in self.batches[sku_id])
+
+    def closing_stock_usd(self, sku_by_id: dict[str, SkuConfig]) -> float:
+        """Unsold units still on hand or in listed boxes, valued at unit cost."""
+        shelf = sum(
+            b.qty * sku_by_id[s].unit_cost_usd for s, bs in self.batches.items() for b in bs
+        )
+        boxed = sum(
+            i.qty * sku_by_id[i.sku_id].unit_cost_usd
+            for bx in self.boxes
+            if bx.status == "listed"
+            for i in bx.items
+        )
+        return shelf + boxed
+
+    def gross_margin_usd(self, sku_by_id: dict[str, SkuConfig]) -> float:
+        """Revenue − COGS, COGS = goods received − closing stock at cost."""
+        return self.revenue_usd - (self.cost_received_usd - self.closing_stock_usd(sku_by_id))
 
     def in_boxes(self, sku_id: str) -> int:
         return sum(

@@ -5,11 +5,19 @@ import math
 
 import numpy as np
 
-STREAMS = {"demand": 1, "bundles": 2}
+STREAMS = {"demand": 1, "bundles": 2, "demand_shock": 3}
 
 
 def uniform(seed: int, stream: str, *keys: int) -> float:
     return float(np.random.default_rng([seed, STREAMS[stream], *keys]).random())
+
+
+def gamma_mean1(cv: float, seed: int, stream: str, *keys: int) -> float:
+    """Keyed Gamma draw with mean 1 and coefficient of variation `cv` (cv <= 0 -> 1.0)."""
+    if cv <= 0:
+        return 1.0
+    shape = 1 / cv**2
+    return float(np.random.default_rng([seed, STREAMS[stream], *keys]).gamma(shape, 1 / shape))
 
 
 def poisson_inv_cdf(u: float, lam: float) -> int:

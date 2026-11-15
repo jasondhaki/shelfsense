@@ -230,3 +230,24 @@ def test_unknown_event_rejected():
 )
 def test_alpha_from_vision(q, defects, alpha):
     assert alpha_from_vision(q, defects) == pytest.approx(alpha, abs=1e-3)
+
+
+# --- forecast error + margin accounting -----------------------------------------
+
+
+def test_margin_is_zero_before_any_sale():
+    """Opening stock is received at cost and still on hand: COGS = 0, GM = 0."""
+    state = engine.new_sim(load_config(1))
+    assert state.a.gross_margin_usd(state.config.sku_by_id) == pytest.approx(0)
+    assert kpi.kpis(state)["net_margin_recovered_usd"] == pytest.approx(0)
+
+
+def test_day_shock_mean_one_and_constant_within_day():
+    from app.sim.demand import day_shock
+
+    state = engine.new_sim(load_config(1))
+    sku = state.config.skus[0]
+    assert day_shock(state, sku, 30) == day_shock(state, sku, 47)  # same day
+    draws = [rng.gamma_mean1(0.3, s, "demand_shock", 0, 0) for s in range(4000)]
+    assert sum(draws) / len(draws) == pytest.approx(1.0, abs=0.02)
+    assert rng.gamma_mean1(0.0, 1, "demand_shock", 0, 0) == 1.0

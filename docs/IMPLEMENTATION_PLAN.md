@@ -107,11 +107,16 @@ Phase 2 results (2026-11-16; OFF + NOAA snapshot + FAO + OWID merged; FoodKeeper
   No-event waste reduction, seeds 1–20: 98.0% ± 1.4
   Demo scenario, seed 42: reduction 93.9%, diverted 220.0 kg, CO2e 390.8 kg, margin recovered $2,331.60
 
-  Open issue: Store B is implausibly good (≈0.1–0.7% waste). Main causes in the model:
-    (1) Store B's forecast λ equals the true demand mean (no forecast error),
-    (2) price cuts create demand with no pull-forward from later hours,
-    (3) GM counts Store A's larger closing stock as cost with no inventory credit.
-  Decide before Phase 3 whether to add forecast error / closing-stock credit.
+  Store B looked implausibly good (≈0.1–0.7% waste, margin $2,331 inflated by Store A's closing stock).
+
+  Update 2026-11-16 — added forecast error (day-level demand shock, CV 0.3, unseen by Store B's
+  forecast) + closing-stock credit in GM; recalibrated (best fit unchanged: 0.5 / 2.0, |A−FAO| 1.7 pp):
+    Store A / Store B waste %: berries 14.6 / 2.7 · avocados 12.6 / 2.3 · leafy_greens 11.4 / 1.5
+      bananas 9.6 / 0.3 · vegetables 9.6 / 0.5 · seafood 5.0 / 0.8 · bakery 2.5 / 0.9 · dairy 1.0 / 0.0
+    No-event waste reduction, seeds 1–20: 92.7% ± 6.9
+    Demo scenario, seed 42: reduction 93.1%, diverted 227.6 kg, CO2e 362.6 kg, margin recovered $696.85
+    Trade-off now visible: Store B sells ~6% fewer units (lean stock → stock-outs), revenue $11.6k vs $12.5k.
+  Remaining known optimism: price cuts create demand with no pull-forward from later hours.
 ```
 
 ---
@@ -219,7 +224,7 @@ Phase 2 results (2026-11-16; OFF + NOAA snapshot + FAO + OWID merged; FoodKeeper
 ## Results log
 ```
 Phase 1: engine complete; baseline waste ≈ 0 with spec parameters (calibration open)
-Phase 2: Store A calibrated to FAO retail ranges; no-event reduction 98.0% ± 1.4 (pending FoodKeeper + Favorita; Store B realism open)
+Phase 2: Store A calibrated to FAO retail ranges; no-event reduction 92.7% ± 6.9 with forecast error (pending FoodKeeper + Favorita)
 Final (deployed build, demo scenario seed 42): waste reduction __%, diverted __ kg, CO₂e __ kg, margin $__
 ```
 

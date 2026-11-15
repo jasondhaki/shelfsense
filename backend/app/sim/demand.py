@@ -47,7 +47,22 @@ def price_mult(price: float, sku: SkuConfig, max_mult: float) -> float:
 
 
 def realised(state: SimState, sku: SkuConfig, tick: int, price: float) -> int:
+    return rng.poisson_inv_cdf(_u(state, sku, tick), true_mean(state, sku, tick, price))
+
+
+def _u(state: SimState, sku: SkuConfig, tick: int) -> float:
+    return rng.uniform(state.config.seed, "demand", state.config.sku_index[sku.sku_id], tick)
+
+
+def day_shock(state: SimState, sku: SkuConfig, tick: int) -> float:
+    """Unforecastable day-level demand multiplier (mean 1). Shared by both stores (CRN);
+    neither store's forecast λ sees it — this is the forecast error."""
     cfg = state.config
-    u = rng.uniform(cfg.seed, "demand", cfg.sku_index[sku.sku_id], tick)
-    mean = lam(state, sku, tick) * price_mult(price, sku, cfg.max_demand_mult)
-    return rng.poisson_inv_cdf(u, mean)
+    return rng.gamma_mean1(
+        cfg.demand_daily_cv, cfg.seed, "demand_shock", cfg.sku_index[sku.sku_id], tick // 24
+    )
+
+
+def true_mean(state: SimState, sku: SkuConfig, tick: int, price: float) -> float:
+    m = price_mult(price, sku, state.config.max_demand_mult)
+    return lam(state, sku, tick) * day_shock(state, sku, tick) * m

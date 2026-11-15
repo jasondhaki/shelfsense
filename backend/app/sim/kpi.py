@@ -12,8 +12,8 @@ def kpis(state: SimState) -> dict:
         * cfg.co2e_factor[s.category]
         for s in cfg.skus
     )
-    gm_a = state.a.revenue_usd - state.a.cost_received_usd
-    gm_b = state.b.revenue_usd - state.b.cost_received_usd
+    gm_a = state.a.gross_margin_usd(cfg.sku_by_id)
+    gm_b = state.b.gross_margin_usd(cfg.sku_by_id)
     return {
         "waste_reduction_pct": (wa - wb) / wa * 100 if wa > 0 else None,
         "food_diverted_kg": wa - wb,
@@ -33,7 +33,8 @@ def store_totals(state: SimState) -> dict:
             "units_wasted": sum(st.wasted.values()),
             "revenue_usd": st.revenue_usd,
             "written_off_usd": st.written_off_usd,
-            "gross_margin_usd": st.revenue_usd - st.cost_received_usd,
+            "closing_stock_usd": st.closing_stock_usd(state.config.sku_by_id),
+            "gross_margin_usd": st.gross_margin_usd(state.config.sku_by_id),
             "waste_kg": st.waste_kg,
         }
     return out
