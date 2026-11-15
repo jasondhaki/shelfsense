@@ -15,39 +15,49 @@ from app.sim.state import (
     StoreState,
 )
 
-CARRYOVER_MIN_RSL_H = 15  # still sellable through tomorrow ~noon
+CARRYOVER_MARGIN_H = 13  # at 21:00 the day before: 2 h to midnight + 13 = 15 h (§7.2)
 
 
 def par_a(state: SimState, sku: SkuConfig) -> int:
-    return math.ceil(state.config.store_a_par_mult * sku.base_daily_units)
+    """Order-up-to level: par_mult × the demand of one delivery cycle."""
+    return math.ceil(state.config.store_a_par_mult * sku.base_daily_units * sku.delivery_every_days)
 
 
-def order_a(state: SimState, sku: SkuConfig) -> int:
-    return max(0, par_a(state, sku) - state.a.on_hand(sku.sku_id))
+def order_a(state: SimState, sku: SkuConfig, expected_sales: float = 0.0) -> int:
+    on_hand = max(0.0, state.a.on_hand(sku.sku_id) - expected_sales)
+    return max(0, math.ceil(par_a(state, sku) - on_hand))
+
+
+def is_delivery_day(sku: SkuConfig, tick: int) -> bool:
+    return (tick // 24) % sku.delivery_every_days == 0
 
 
 def po_quantity(d_hat: float, carryover: float, z: float) -> int:
     return max(0, math.ceil(d_hat - carryover + z * math.sqrt(max(d_hat, 0.0))))
 
 
-def next_delivery_day_start(tick: int) -> int:
+def next_delivery_day_start(tick: int, every_days: int = 1) -> int:
+    """00:00 of the next day whose 06:00 delivery hasn't happened yet."""
     day = tick // 24 + (0 if tick % 24 < DELIVERY_HOUR else 1)
+    while day % every_days:
+        day += 1
     return day * 24
 
 
 def po_row(state: SimState, sku: SkuConfig, from_tick: int) -> dict:
-    """Store B's PO for the next 06:00 delivery. `from_tick` = first hour not yet sold."""
-    day0 = next_delivery_day_start(from_tick)
-    d_hat = demand.lam_sum(state, sku, day0, 24)
+    """Store B's PO for the SKU's next 06:00 delivery, covering one delivery cycle.
+    `from_tick` = first hour not yet sold."""
+    day0 = next_delivery_day_start(from_tick, sku.delivery_every_days)
+    d_hat = demand.lam_sum(state, sku, day0, 24 * sku.delivery_every_days)
     beta = beta_sku(state.beta_env, sku.weather_exposure)
-    sellable = sum(
-        b.qty for b in state.b.batches[sku.sku_id] if rsl_known(b, beta) >= CARRYOVER_MIN_RSL_H
-    )
-    carry = max(0.0, sellable - demand.lam_sum(state, sku, from_tick, day0 - from_tick))
+    min_rsl = (day0 - from_tick) + CARRYOVER_MARGIN_H
+    sellable = sum(b.qty for b in state.b.batches[sku.sku_id] if rsl_known(b, beta) >= min_rsl)
+    before = demand.lam_sum(state, sku, from_tick, day0 - from_tick)
+    carry = max(0.0, sellable - before)
     ai = po_quantity(d_hat, carry, state.config.safety_z)
     open_hours = range(day0 + OPEN_HOUR, day0 + CLOSE_HOUR)
     modifier = sum(demand.traffic(state, h) for h in open_hours) / len(open_hours)
-    baseline = order_a(state, sku)  # projected: nothing sells overnight
+    baseline = order_a(state, sku, expected_sales=before)  # projected Store A order
     return {
         "sku_id": sku.sku_id,
         "supplier": sku.supplier,
@@ -58,6 +68,7 @@ def po_row(state: SimState, sku: SkuConfig, from_tick: int) -> dict:
         "waste_prevention_units": baseline - ai,
         "waste_prevention_kg": round((baseline - ai) * sku.unit_weight_kg, 3),
         "d_hat": d_hat,
+        "delivery_tick": day0 + DELIVERY_HOUR,
     }
 
 
@@ -111,6 +122,8 @@ def deliver(state: SimState, tick: int) -> list[LogDraft]:
     logs: list[LogDraft] = []
     flagged = []
     for sku in state.config.skus:
+        if not is_delivery_day(sku, tick):
+            continue
         cold = sku.sku_id in state.cold_chain_pending
         qa = order_a(state, sku)
         qb = state.b.pending_order.pop(sku.sku_id, 0)

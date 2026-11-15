@@ -1,10 +1,17 @@
 {
-  "_note": "PLACEHOLDER co2e factors (kg CO2e per kg food), order-of-magnitude only. NOT yet sourced — Phase 2 replaces every value with a cited FAO / LCA figure and adds retail_waste_pct.",
-  "berries":      {"co2e_kg_per_kg": 1.5,  "co2e_source": "placeholder"},
-  "fruit":        {"co2e_kg_per_kg": 0.9,  "co2e_source": "placeholder"},
-  "seafood":      {"co2e_kg_per_kg": 12.0, "co2e_source": "placeholder"},
-  "dairy":        {"co2e_kg_per_kg": 3.2,  "co2e_source": "placeholder"},
-  "bakery":       {"co2e_kg_per_kg": 1.6,  "co2e_source": "placeholder"},
-  "leafy_greens": {"co2e_kg_per_kg": 0.6,  "co2e_source": "placeholder"},
-  "vegetables":   {"co2e_kg_per_kg": 2.1,  "co2e_source": "placeholder"}
+  "_note": "retail_waste_pct: FAO (2011) Annex 4, North America & Oceania, 'Distribution: Supermarket Retail' column (estimated/assumed % of what enters the stage). co2e: Poore & Nemecek (2018) global mean, kg CO2e per kg product, via Our World in Data (data year 2010). Used for the Store A calibration check and the CO2e KPI.",
+  "sources": {
+    "fao2011": "Gustavsson, J. et al. (2011). Global Food Losses and Food Waste — Extent, Causes and Prevention. FAO, Rome. Annex 4, table for North America and Oceania. https://www.fao.org/4/mb060e/mb060e.pdf",
+    "poore2018": "Poore, J. & Nemecek, T. (2018). Reducing food's environmental impacts through producers and consumers. Science 360(6392). Values via Our World in Data, 'Greenhouse gas emissions per kilogram of food product'. https://ourworldindata.org/grapher/ghg-per-kg-poore"
+  },
+  "categories": {
+    "berries":      {"fao_group": "Fruits and vegetables", "retail_waste_pct": 12.0, "co2e_kg_per_kg": 1.53,  "co2e_item": "Berries & Grapes"},
+    "bananas":      {"fao_group": "Fruits and vegetables", "retail_waste_pct": 12.0, "co2e_kg_per_kg": 0.86,  "co2e_item": "Bananas"},
+    "avocados":     {"fao_group": "Fruits and vegetables", "retail_waste_pct": 12.0, "co2e_kg_per_kg": 1.05,  "co2e_item": "Other Fruit (proxy; avocado not itemised)"},
+    "leafy_greens": {"fao_group": "Fruits and vegetables", "retail_waste_pct": 12.0, "co2e_kg_per_kg": 0.53,  "co2e_item": "Other Vegetables (proxy)"},
+    "vegetables":   {"fao_group": "Fruits and vegetables", "retail_waste_pct": 12.0, "co2e_kg_per_kg": 2.09,  "co2e_item": "Tomatoes"},
+    "seafood":      {"fao_group": "Fish and seafood",      "retail_waste_pct": 9.0,  "co2e_kg_per_kg": 13.63, "co2e_item": "Fish (farmed)"},
+    "dairy":        {"fao_group": "Milk",                  "retail_waste_pct": 0.5,  "co2e_kg_per_kg": 3.15,  "co2e_item": "Milk"},
+    "bakery":       {"fao_group": "Cereals",               "retail_waste_pct": 2.0,  "co2e_kg_per_kg": 1.57,  "co2e_item": "Wheat & Rye (proxy for bread)"}
+  }
 }

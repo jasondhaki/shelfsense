@@ -47,3 +47,18 @@ def chart_point(state: SimState, tick: int) -> dict:
         "revenue_a": state.a.revenue_usd,
         "revenue_b": state.b.revenue_usd,
     }
+
+
+def category_waste_pct(state: SimState) -> dict[str, dict[str, float]]:
+    """Per category: units wasted / units received × 100 for each store (FAO's '% of what
+    enters the stage'), for the calibration check against retail_waste_pct."""
+    out: dict[str, dict[str, float]] = {}
+    for st in (state.a, state.b):
+        rec: dict[str, int] = {}
+        wst: dict[str, int] = {}
+        for s in state.config.skus:
+            rec[s.category] = rec.get(s.category, 0) + st.received[s.sku_id]
+            wst[s.category] = wst.get(s.category, 0) + st.wasted[s.sku_id]
+        for c in rec:
+            out.setdefault(c, {})[st.name] = wst[c] / rec[c] * 100 if rec[c] else 0.0
+    return out

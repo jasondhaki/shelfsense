@@ -7,8 +7,8 @@ Raw downloads go in `backend/data/raw/` (git-ignored). Each script prints what i
 > Verify every URL and field name when you implement — public datasets move. If something below turns out to be wrong, fix this doc and log it in the Decisions log.
 
 ## Gaps in the blueprint you should know about
-1. **Ethylene sensitivity is not an Open Food Facts field.** Use a small hand-curated table (producer / sensitive / neutral) from postharvest references (e.g. university postharvest extension publications), stored in `data/seed/ethylene.json` and added to the RAG corpus with its citation.
-2. **Fresh produce often has no Open Food Facts entry or Nutri-Score.** Pick packaged reference products (clamshell strawberries, bagged spinach, bottled milk, packaged sourdough) by barcode; if a field is missing, store `null` and the UI shows "n/a".
+1. **Ethylene sensitivity is not an Open Food Facts field.** Hand-curated in `data/seed/ethylene.json` from USDA AMS (2023) and UC Davis Postharvest (spinach). Strawberry is `neutral`: non-climacteric, and no verified sensitivity rating was found (the spec example's "sensitive" was dropped).
+2. **Fresh produce often has no Open Food Facts entry or Nutri-Score.** (Confirmed: avocado and cherry tomatoes have none → `null`.) Pick packaged reference products (clamshell strawberries, bagged spinach, bottled milk, packaged sourdough) by barcode; if a field is missing, store `null` and the UI shows "n/a".
 3. **Favorita is daily data, not hourly.** Day-of-week weights come from the data; the within-day curve (`hour_share`) is an assumption — a typical grocery traffic curve, labelled as such.
 4. **NOAA's api.weather.gov only covers the US.** The simulated store is therefore placed in a US city (configurable). If you'd rather simulate a store in Dhaka, swap in Open-Meteo (free, no key) behind the same `WeatherNow` interface.
 5. **FAOSTAT's Food Loss Index excludes retail.** For retail baselines, use retail-stage records from FAO's Food Loss and Waste database, or UNEP's Food Waste Index.
@@ -17,7 +17,7 @@ Raw downloads go in `backend/data/raw/` (git-ignored). Each script prints what i
 
 ## 1. USDA FoodKeeper → `foodkeeper.json` + RAG corpus
 - **What:** storage times (pantry / refrigerator / freezer) per food, with tips.
-- **Get it:** the FoodKeeper dataset published by USDA FSIS (available as a downloadable data file on the US government open-data catalog). Download the JSON or spreadsheet version into `data/raw/foodkeeper/`.
+- **Get it:** https://catalog.data.gov/dataset/fsis-foodkeeper-data → `foodkeeper.json` (file URL `https://www.fsis.usda.gov/shared/data/EN/foodkeeper.json`). **FSIS returns 403 to scripts** (verified 2026-11-15), so download it in a browser into `data/raw/foodkeeper/foodkeeper.json`.
 - **Script:** `scripts/build_seed_foodkeeper.py`
   - Find the records for our 8 SKUs (strawberries, bananas, fresh fish/salmon, milk, bread, avocados, spinach/leafy greens, tomatoes).
   - Convert the refrigerator (or pantry, for bananas/bread/avocados/tomatoes) range to hours. Use the **lower bound** for `sl_nominal_hours` on a retail display, and keep the full range for reference.
@@ -38,7 +38,7 @@ Raw downloads go in `backend/data/raw/` (git-ignored). Each script prints what i
 - **Script:** `scripts/build_seed_favorita.py` (run locally, not on Render)
   1. Join items, keep perishable families: PRODUCE, DAIRY, BREAD/BAKERY, SEAFOOD (map to our categories).
   2. For each family: `dow_weight[0..6]` = mean daily units by weekday ÷ overall mean.
-  3. Daily volume per item (median of items in that family) → scale to `base_daily_units` for a mid-size store (document the scaling factor).
+  3. Mean units per store-item-day per family is reported in `sales_profile.json → favorita`, but **`base_daily_units` stays illustrative**: Favorita families are much coarser than our SKUs, so any scaling factor would be arbitrary (see Decisions log).
   4. Optional: promo lift by family = mean units on promo ÷ mean units off promo — report it next to the assumed ε as a sanity check; don't treat it as elasticity.
 - **Output:** `{category: {dow_weight: [7 floats], base_daily_units: int, promo_lift: float|null}}`, plus a fixed `hour_share` curve per category (assumed, documented).
 - **Licence:** competition data — commit **only these aggregates**, never raw rows. Note the source in `CREDITS.md`.
@@ -55,7 +55,8 @@ Raw downloads go in `backend/data/raw/` (git-ignored). Each script prints what i
 ## 5. FAO food loss & waste → `faostat.json`
 - **What:** retail-stage loss/waste percentages by commodity group (fruits & vegetables, dairy, meat & fish, bakery/cereals).
 - **Get it:** FAO's Food Loss and Waste database (filter: supply-chain stage = retail), and/or UNEP Food Waste Index report figures. Record exactly which rows/figures you used.
-- **Output:** `{category: {retail_waste_pct: float, source: str, co2e_kg_per_kg: float, co2e_source: str}}`.
+- **Used (verified 2026-11-15):** FAO 2011 *Global Food Losses and Food Waste*, Annex 4, North America & Oceania, "Distribution: Supermarket Retail": F&V 12%, fish & seafood 9%, cereals 2%, milk 0.5%. CO₂e: Poore & Nemecek 2018 via OWID `ghg-per-kg-poore`.
+- **Output:** `{sources: {...}, categories: {category: {fao_group, retail_waste_pct, co2e_kg_per_kg, co2e_item}}}`.
 - **CO₂e factors:** per-kg emission factors by food group from a published source (FAO or peer-reviewed life-cycle studies). Keep `co2e_source` explicit.
 - **Used for:**
   - **Calibration check:** Store A's simulated waste % per category should land in a plausible range of `retail_waste_pct`. If it's wildly off, adjust `store_a_par_mult` (globally) and log it.

@@ -97,15 +97,22 @@ def _price_step(state: SimState, t: int) -> list[LogDraft]:
     return logs
 
 
-def _sell(state: SimState, store: StoreState, sid: str, qty: int, price: float) -> None:
+def _take(batches: list[Batch], qty: int) -> int:
     left = qty
-    for b in store.batches[sid]:  # FEFO: list is kept oldest-first
+    for b in batches:
         n = min(left, b.qty)
         b.qty -= n
         left -= n
         if left == 0:
             break
-    sold = qty - left
+    return qty - left
+
+
+def _sell(state: SimState, store: StoreState, sid: str, qty: int, price: float) -> None:
+    """Fresh-pickers take the newest units; everyone else buys FEFO (list is oldest-first)."""
+    fresh = round(qty * state.config.fresh_picker_share)
+    sold = _take(store.batches[sid][::-1], fresh)
+    sold += _take(store.batches[sid], qty - fresh)
     store.sold[sid] += sold
     store.revenue_usd += sold * price
     store.batches[sid] = [b for b in store.batches[sid] if b.qty > 0]

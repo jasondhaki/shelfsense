@@ -41,7 +41,7 @@ def load_config(seed: int = 42, seed_dir: Path = SEED_DIR, **overrides) -> SimCo
         skus=skus,
         hour_share=hour_share,
         dow_weight=per_cat(profile["dow_weight"]),
-        co2e_factor={c: fao[c]["co2e_kg_per_kg"] for c in cats},
+        co2e_factor={c: fao["categories"][c]["co2e_kg_per_kg"] for c in cats},
         seed=seed,
         rh_base=weather["relative_humidity_pct"],
         p_heavy_rain=list(weather["p_heavy_rain_by_day"]),
@@ -99,7 +99,7 @@ def _report(state: SimState) -> None:
     k = kpi.kpis(state)
     print(f"\nWaste reduction:       {_fmt(k['waste_reduction_pct'])}%")
     print(f"Food diverted:         {k['food_diverted_kg']:.2f} kg")
-    print(f"CO2e avoided:          {k['co2e_avoided_kg']:.2f} kg (placeholder factors)")
+    print(f"CO2e avoided:          {k['co2e_avoided_kg']:.2f} kg (Poore & Nemecek 2018)")
     print(f"Net margin recovered:  ${k['net_margin_recovered_usd']:.2f}")
     for name, t in kpi.store_totals(state).items():
         print(
@@ -112,15 +112,44 @@ def _report(state: SimState) -> None:
         print(f"  {sid}: {state.a.wasted[sid]:>4} / {state.b.wasted[sid]:>4}")
 
 
+def calibration_report(
+    seeds: range, hours: int = CYCLE_TICKS, scenario: str = "none", **overrides
+) -> dict[str, tuple[float, float, float]]:
+    """Mean Store A / B waste % per category over seeds, next to FAO's retail figure."""
+    fao = json.loads((SEED_DIR / "faostat.json").read_text(encoding="utf-8"))["categories"]
+    acc: dict[str, list[tuple[float, float]]] = {}
+    for s in seeds:
+        st, _ = run(load_config(s, **overrides), hours, scenario)
+        for c, v in kpi.category_waste_pct(st).items():
+            acc.setdefault(c, []).append((v["A"], v["B"]))
+    out = {}
+    print(f"{'category':<13} {'FAO retail':>10} {'Store A':>8} {'Store B':>8}")
+    for c, vals in sorted(acc.items()):
+        a = statistics.mean(v[0] for v in vals)
+        b = statistics.mean(v[1] for v in vals)
+        out[c] = (fao[c]["retail_waste_pct"], a, b)
+        print(f"{c:<13} {fao[c]['retail_waste_pct']:>9.1f}% {a:>7.1f}% {b:>7.1f}%")
+    return out
+
+
 def main() -> None:
     ap = argparse.ArgumentParser(description="ShelfSense headless simulation")
     ap.add_argument("--hours", type=int, default=CYCLE_TICKS)
     ap.add_argument("--seed", type=int, default=42)
     ap.add_argument("--scenario", choices=list(SCENARIOS), default="none")
     ap.add_argument("--seeds", help="range like 1-20: print waste reduction mean ± std")
+    ap.add_argument(
+        "--calibrate",
+        action="store_true",
+        help="with --seeds: Store A waste %% by category vs FAO retail figures",
+    )
     args = ap.parse_args()
     sys.stdout.reconfigure(encoding="utf-8")  # Windows consoles default to cp1252
 
+    if args.seeds and args.calibrate:
+        lo, hi = map(int, args.seeds.split("-"))
+        calibration_report(range(lo, hi + 1), args.hours, args.scenario)
+        return
     if args.seeds:
         lo, hi = map(int, args.seeds.split("-"))
         vals = []

@@ -43,6 +43,7 @@ class SkuConfig:
     weather_exposure: float
     bundle_group: str | None
     supplier: str
+    delivery_every_days: int = 1  # supplier schedule, identical for both stores
     off: dict = field(default_factory=dict, hash=False, compare=False)
 
     @classmethod
@@ -70,7 +71,7 @@ class SimConfig:
     bundle_rsl_threshold_h: float = 8
     bundle_discount: float = 0.65
     bundle_base_rate_per_h: float = 1.5
-    store_a_par_mult: float = 1.25
+    store_a_par_mult: float = 2.0  # calibrated vs FAO retail waste (Phase 2); spec 1.25
     store_a_markdown: float = 0.50
     safety_z: float = 1.0
     max_demand_mult: float = 3.0
@@ -80,6 +81,7 @@ class SimConfig:
     p_heavy_rain: list[float] = field(default_factory=lambda: [0.0] * 7)  # per sim day
     camera_skus: tuple[str, ...] = ("STRW-01", "BANA-01")
     emergency_delivery_days: float = 0.5  # immediate cold-chain delivery size, days of demand
+    fresh_picker_share: float = 0.5  # shoppers taking the newest unit, both stores (assumed)
 
     def __post_init__(self) -> None:
         self.sku_by_id = {s.sku_id: s for s in self.skus}

@@ -1,0 +1,17 @@
+{
+  "_note": "Hand-curated. 'producer' = climacteric fruit with internal ethylene production; 'sensitive' = documented quality loss from exogenous ethylene; 'neutral' = neither documented (or not plant tissue).",
+  "sources": {
+    "ams2023": "USDA AMS National Organic Program, 'Ethylene — Handling' Technical Report (2023), lines 177-183: bananas, avocado and tomato listed as climacteric; strawberry listed as non-climacteric with 'little or no increase in internal ethylene production'. https://www.ams.usda.gov/sites/default/files/media/2023Technical_Report_Ethylene_Handling.pdf",
+    "ucdavis_spinach": "Suslow, T. & Cantwell, M. 'Spinach: Recommendations for Maintaining Postharvest Quality', UC Davis Postharvest Research & Extension Center: spinach is highly sensitive to exogenous ethylene; low levels cause accelerated yellowing; do not mix with apples, melons and tomatoes. https://postharvest.ucdavis.edu/node/8161"
+  },
+  "skus": {
+    "STRW-01": {"class": "neutral", "source": "ams2023", "note": "non-climacteric, very low producer; sensitivity not classified from a verified source"},
+    "BANA-01": {"class": "producer", "source": "ams2023"},
+    "SALM-01": {"class": "neutral", "source": null, "note": "not plant tissue"},
+    "MILK-01": {"class": "neutral", "source": null, "note": "not plant tissue"},
+    "SOUR-01": {"class": "neutral", "source": null, "note": "not plant tissue"},
+    "AVOC-01": {"class": "producer", "source": "ams2023"},
+    "SPIN-01": {"class": "sensitive", "source": "ucdavis_spinach"},
+    "TOMA-01": {"class": "producer", "source": "ams2023"}
+  }
+}
