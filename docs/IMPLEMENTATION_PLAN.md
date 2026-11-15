@@ -2,7 +2,7 @@
 
 Nine phases. Each one ends with something that runs and is tested. Don't start a phase until the previous phase's acceptance checks pass.
 
-**Current phase:** `Phase 2 (waiting on FoodKeeper + Favorita raw files)` ← update this line when a phase is done.
+**Current phase:** `Phase 3` ← update this line when a phase is done.
 
 | Phase | Goal | Rough effort |
 |---|---|---|
@@ -83,15 +83,15 @@ Phase 1 results (2026-11-16, spec parameters from §2, store_a_par_mult = 1.25):
 **Kickoff prompt:**
 > Read docs/DATA_SOURCES.md. Do Phase 2: write the scripts in backend/scripts/ to build seed files from USDA FoodKeeper, Open Food Facts, Favorita aggregates, NOAA snapshot and FAO retail waste, plus build_seed_all.py with schema validation. Verify each source's current URL/fields before coding against it. I will download the Kaggle and FoodKeeper raw files into backend/data/raw/ myself — tell me exactly which files you need.
 
-- [x] `build_seed_foodkeeper.py` → `foodkeeper.json` + RAG corpus files — written + unit-tested; **not yet run on real data** (needs manual download, FSIS returns 403 to scripts)
+- [x] `build_seed_foodkeeper.py` → `foodkeeper.json` + RAG corpus files — run on real data 2026-11-16 (hand-picked records; downloaded via browser, FSIS returns 403 to scripts)
 - [x] `build_seed_off.py` → OFF fields merged into `skus.json`
 - [x] `ethylene.json` (hand-curated, cited)
-- [x] `build_seed_favorita.py` → `sales_profile.json` (aggregates only) — written + tested on synthetic data; **not yet run on real data** (needs Kaggle download)
+- [x] `build_seed_favorita.py` → `sales_profile.json` (aggregates only) — run on full train.csv (125 M rows) 2026-11-16
 - [x] `snapshot_noaa.py` → `weather_snapshot.json`
 - [x] `faostat.json` with sources for every number
 - [x] `build_seed_all.py` + Pydantic validation
 - [x] `data/seed/CREDITS.md`
-- [ ] Re-run Phase 1 benchmark with real data; record results; check Store A waste vs FAO retail range — done with OFF/NOAA/FAO; **re-run after FoodKeeper + Favorita land**
+- [x] Re-run Phase 1 benchmark with real data; record results; check Store A waste vs FAO retail range
 
 **Acceptance:** `build_seed_all.py` passes validation · tests still green · CREDITS.md complete · new benchmark recorded:
 
@@ -117,6 +117,16 @@ Phase 2 results (2026-11-16; OFF + NOAA snapshot + FAO + OWID merged; FoodKeeper
     Demo scenario, seed 42: reduction 93.1%, diverted 227.6 kg, CO2e 362.6 kg, margin recovered $696.85
     Trade-off now visible: Store B sells ~6% fewer units (lean stock → stock-outs), revenue $11.6k vs $12.5k.
   Remaining known optimism: price cuts create demand with no pull-forward from later hours.
+
+  FINAL Phase 2 (2026-11-16, all five sources merged: FoodKeeper SL, Favorita dow, OFF, NOAA, FAO/OWID):
+    Recalibrated on Store A vs FAO only → fresh_picker_share 0.7, store_a_par_mult 1.5 (|A−FAO| 2.8 pp)
+    Store A / Store B waste %: berries 15.8 / 1.4 · avocados 14.0 / 5.4 · bananas 13.3 / 4.4
+      leafy_greens 10.6 / 3.8 · seafood 8.4 / 3.8 · bakery 1.1 / 0.7 · dairy 0.8 / 0.1 · vegetables 0.0 / 0.0
+      (cherry tomatoes: FoodKeeper pantry 10 days → never expire in a 7-day run; FAO 12% not reachable)
+    No-event waste reduction, seeds 1–20: 75.1% ± 12.4
+    Demo scenario, seed 42: reduction 65.6%, diverted 213.5 kg, CO2e 268.8 kg, margin recovered $1,617.64
+    Store B now sells 3% MORE units than Store A (3,445 vs 3,342): Store A loses sales to empty FEFO
+    shelves of short-dated stock while it over-holds fresh units.
 ```
 
 ---
@@ -224,7 +234,7 @@ Phase 2 results (2026-11-16; OFF + NOAA snapshot + FAO + OWID merged; FoodKeeper
 ## Results log
 ```
 Phase 1: engine complete; baseline waste ≈ 0 with spec parameters (calibration open)
-Phase 2: Store A calibrated to FAO retail ranges; no-event reduction 92.7% ± 6.9 with forecast error (pending FoodKeeper + Favorita)
+Phase 2: all 5 sources merged; Store A calibrated to FAO; no-event reduction 75.1% ± 12.4, demo 65.6%
 Final (deployed build, demo scenario seed 42): waste reduction __%, diverted __ kg, CO₂e __ kg, margin $__
 ```
 

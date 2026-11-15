@@ -71,7 +71,7 @@ class SimConfig:
     bundle_rsl_threshold_h: float = 8
     bundle_discount: float = 0.65
     bundle_base_rate_per_h: float = 1.5
-    store_a_par_mult: float = 2.0  # calibrated vs FAO retail waste (Phase 2); spec 1.25
+    store_a_par_mult: float = 1.5  # calibrated vs FAO retail waste (Phase 2); spec 1.25
     store_a_markdown: float = 0.50
     safety_z: float = 1.0
     max_demand_mult: float = 3.0
@@ -81,7 +81,7 @@ class SimConfig:
     p_heavy_rain: list[float] = field(default_factory=lambda: [0.0] * 7)  # per sim day
     camera_skus: tuple[str, ...] = ("STRW-01", "BANA-01")
     emergency_delivery_days: float = 0.5  # immediate cold-chain delivery size, days of demand
-    fresh_picker_share: float = 0.5  # shoppers taking the newest unit, both stores (assumed)
+    fresh_picker_share: float = 0.7  # shoppers taking the newest unit, both stores (calibrated)
     demand_daily_cv: float = 0.3  # day-level forecast error, Gamma(mean 1) per SKU-day (assumed)
 
     def __post_init__(self) -> None:

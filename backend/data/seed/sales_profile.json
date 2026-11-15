@@ -1,9 +1,168 @@
 {
-  "_note": "Phase 1: dow_weight is flat (1.0). hour_share is an ASSUMED typical grocery traffic curve (open 07:00-21:59, lunch and after-work peaks); raw weights, normalised on load. Phase 2 replaces dow_weight with Favorita aggregates.",
+  "_note": "dow_weight per category from Kaggle Favorita family aggregates (see favorita block). hour_share is an ASSUMED typical grocery traffic curve (open 07:00-21:59); raw weights, normalised on load.",
   "hour_share": {
-    "default": [0,0,0,0,0,0,0, 3,4,5,6,7,8,7,6,6,7,9,10,9,7,4, 0,0]
+    "default": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      7,
+      6,
+      6,
+      7,
+      9,
+      10,
+      9,
+      7,
+      4,
+      0,
+      0
+    ]
   },
   "dow_weight": {
-    "default": [1,1,1,1,1,1,1]
+    "default": [
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0
+    ],
+    "berries": [
+      0.9286,
+      0.9612,
+      1.236,
+      0.7559,
+      0.8529,
+      1.0866,
+      1.1788
+    ],
+    "bananas": [
+      0.9286,
+      0.9612,
+      1.236,
+      0.7559,
+      0.8529,
+      1.0866,
+      1.1788
+    ],
+    "seafood": [
+      0.9053,
+      0.8308,
+      0.9128,
+      0.7583,
+      1.1668,
+      1.1562,
+      1.2697
+    ],
+    "dairy": [
+      0.9691,
+      0.8748,
+      0.9382,
+      0.7798,
+      0.8922,
+      1.2059,
+      1.3401
+    ],
+    "bakery": [
+      0.9968,
+      0.898,
+      0.9174,
+      0.8118,
+      0.8893,
+      1.1448,
+      1.3419
+    ],
+    "avocados": [
+      0.9286,
+      0.9612,
+      1.236,
+      0.7559,
+      0.8529,
+      1.0866,
+      1.1788
+    ],
+    "leafy_greens": [
+      0.9286,
+      0.9612,
+      1.236,
+      0.7559,
+      0.8529,
+      1.0866,
+      1.1788
+    ],
+    "vegetables": [
+      0.9286,
+      0.9612,
+      1.236,
+      0.7559,
+      0.8529,
+      1.0866,
+      1.1788
+    ]
+  },
+  "favorita": {
+    "BREAD/BAKERY": {
+      "dow_weight": [
+        0.9968,
+        0.898,
+        0.9174,
+        0.8118,
+        0.8893,
+        1.1448,
+        1.3419
+      ],
+      "mean_units_per_store_item_day": 9.04,
+      "promo_lift": 1.142
+    },
+    "DAIRY": {
+      "dow_weight": [
+        0.9691,
+        0.8748,
+        0.9382,
+        0.7798,
+        0.8922,
+        1.2059,
+        1.3401
+      ],
+      "mean_units_per_store_item_day": 7.17,
+      "promo_lift": 1.022
+    },
+    "PRODUCE": {
+      "dow_weight": [
+        0.9286,
+        0.9612,
+        1.236,
+        0.7559,
+        0.8529,
+        1.0866,
+        1.1788
+      ],
+      "mean_units_per_store_item_day": 17.15,
+      "promo_lift": 1.356
+    },
+    "SEAFOOD": {
+      "dow_weight": [
+        0.9053,
+        0.8308,
+        0.9128,
+        0.7583,
+        1.1668,
+        1.1562,
+        1.2697
+      ],
+      "mean_units_per_store_item_day": 7.82,
+      "promo_lift": 1.121
+    }
   }
 }

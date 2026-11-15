@@ -19,6 +19,7 @@ Raw downloads go in `backend/data/raw/` (git-ignored). Each script prints what i
 - **What:** storage times (pantry / refrigerator / freezer) per food, with tips.
 - **Get it:** https://catalog.data.gov/dataset/fsis-foodkeeper-data → `foodkeeper.json` (file URL `https://www.fsis.usda.gov/shared/data/EN/foodkeeper.json`). **FSIS returns 403 to scripts** (verified 2026-11-15), so download it in a browser into `data/raw/foodkeeper/foodkeeper.json`.
 - **Script:** `scripts/build_seed_foodkeeper.py`
+  - **Verified layout (2026-11-16):** `sheets[name=Product].data` = rows of single-key dicts; many fresh items only have `DOP_Refrigerate_*` ("from date of purchase"). Keyword matching picks wrong records (muffins for bananas), so each SKU names its record id + storage column in `scripts/sku_base.json`.
   - Find the records for our 8 SKUs (strawberries, bananas, fresh fish/salmon, milk, bread, avocados, spinach/leafy greens, tomatoes).
   - Convert the refrigerator (or pantry, for bananas/bread/avocados/tomatoes) range to hours. Use the **lower bound** for `sl_nominal_hours` on a retail display, and keep the full range for reference.
   - Output `foodkeeper.json`: `{sku_id, foodkeeper_id, name, storage, min_days, max_days, metric, tips, sl_nominal_hours}`.
