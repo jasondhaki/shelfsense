@@ -155,3 +155,6 @@ Add one line per decision: date — decision — reason.
 - 2026-11-16 — Live NOAA only feeds the header widget (`WeatherNow`); the simulation always uses the committed `weather_snapshot.json`. — Determinism (rule 1); DATA_SOURCES §4 "live mode is a toggle" left for later.
 - 2026-11-16 — WebSocket handler uses an anyio task group (push + pull), not `asyncio.TaskGroup`. — Starlette cancels apps via anyio cancel scopes; asyncio.TaskGroup surfaced that as CancelledError on disconnect.
 - 2026-11-16 — A second rainstorm while one is active, events after tick 167, and unknown cold-chain SKUs return 409 with the error envelope. — The UI disables these buttons; the API enforces it too.
+- 2026-11-16 — Reset uses an inline confirm in the telemetry bar, not `window.confirm`. — Native dialogs block the page (and browser automation); FRONTEND §4 only asks for a confirmation.
+- 2026-11-16 — ESL surplus text reads "N won't sell within 24 h", not "at risk of waste". — §5.2 `surplus_risk_units` is stock beyond the next 24 h of sales; for long-life items (milk, 139 h) it is not waste risk (rule 8, honest UI).
+- 2026-11-16 — The 21:00 PO log line is stamped with the tick it was computed in (was the next hour). — The PO uses `from_tick = t+1` for "first unsold hour"; the log time should be 21:00.

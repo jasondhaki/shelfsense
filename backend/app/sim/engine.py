@@ -4,6 +4,7 @@
 same seed + same event timeline ⇒ identical output."""
 
 from collections.abc import Iterable
+from dataclasses import replace
 
 from app.sim import bundling, demand, events, kpi, pricing, procurement
 from app.sim.shelf_life import age, beta_env, beta_sku, inspect, is_waste
@@ -211,7 +212,7 @@ def step(state: SimState, queued: Iterable[events.Event] = ()) -> tuple[SimState
     logs += _age_and_remove(state, t)
     # 10. tomorrow's PO
     if hour == PO_HOUR:
-        logs += procurement.compute_pos(state, t + 1)
+        logs += [replace(d, tick=t) for d in procurement.compute_pos(state, t + 1)]
     # 11. KPIs + chart
     state.chart.append(kpi.chart_point(state, t))
     state.tick = t + 1

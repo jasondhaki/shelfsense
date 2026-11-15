@@ -2,7 +2,7 @@
 
 Nine phases. Each one ends with something that runs and is tested. Don't start a phase until the previous phase's acceptance checks pass.
 
-**Current phase:** `Phase 4` ← update this line when a phase is done.
+**Current phase:** `Phase 5` ← update this line when a phase is done.
 
 | Phase | Goal | Rough effort |
 |---|---|---|
@@ -157,13 +157,20 @@ the 12 h storm window; fast_forward ran to tick 168 and broadcast status "finish
 **Kickoff prompt:**
 > Read docs/FRONTEND.md. Do Phase 4: contracts.ts mirroring the backend models, the Zustand store, the WebSocket client with reconnect and the waking-server overlay, then build Zone A (controls, clock, weather, event buttons, KPI cards), Zone C (8 ESL cards) and Zone E (agent log with filters). Zones B and D stay as placeholders.
 
-- [ ] `types/contracts.ts`, `lib/api.ts`, `lib/ws.ts`, `store/simStore.ts`
-- [ ] `TelemetryBar` + `KpiCard`
-- [ ] `EslMatrix` + `EslCard` (bar, RSL countdown, price flash, state ribbon)
-- [ ] `AgentLog` (auto-scroll, filters, expandable data)
-- [ ] Waking-server overlay
+- [x] `types/contracts.ts`, `lib/api.ts`, `lib/ws.ts`, `store/simStore.ts`
+- [x] `TelemetryBar` + `KpiCard`
+- [x] `EslMatrix` + `EslCard` (bar, RSL countdown, price flash, state ribbon)
+- [x] `AgentLog` (auto-scroll, filters, expandable data)
+- [x] Waking-server overlay
 
 **Acceptance:** typecheck/lint/build clean · press Play → clock advances, ESL prices change, log streams · Fast-forward reaches D7 23:00 and stops · Rainstorm button shows countdown and new log lines.
+
+```
+Phase 4 results (2026-11-16, checked in Chrome against the live backend): typecheck/lint/build clean;
+Play advanced the clock and repriced labels; Rainstorm showed "Storm: 6 h left", RH 98%, DEMAND ×0.78 + PRICING lines;
+Fast-forward stopped at D7 23:00 168/168 (KPI 64.3%, green); inline Reset confirm returned to D1 00:00;
+stopping the backend showed the waking overlay after 3 s and the page recovered on restart.
+```
 
 ---
 

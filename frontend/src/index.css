@@ -12,6 +12,26 @@ body {
   @apply bg-bg font-sans text-text antialiased;
 }
 
+@layer components {
+  .zone {
+    @apply h-full rounded-lg border border-line bg-panel;
+  }
+  .btn {
+    @apply inline-flex items-center gap-1.5 rounded-md border border-line bg-panel-2 px-2.5 py-1.5 text-xs font-medium text-text transition-colors hover:border-accent/60 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:border-line;
+  }
+  .btn-icon {
+    @apply grid h-8 w-8 place-items-center rounded-md border border-line bg-panel-2 text-text transition-colors hover:border-accent/60 disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:border-line;
+  }
+  .btn-on {
+    @apply border-accent bg-accent/15 text-accent;
+  }
+}
+
+:focus-visible {
+  outline: 2px solid theme('colors.accent');
+  outline-offset: 2px;
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
