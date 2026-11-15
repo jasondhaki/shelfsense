@@ -1,10 +1,12 @@
 """USDA FSIS FoodKeeper -> data/seed/foodkeeper.json + data/rag/corpus/foodkeeper_<sku>.md
 
-Needs data/raw/foodkeeper/foodkeeper.json (download it yourself from
-https://catalog.data.gov/dataset/fsis-foodkeeper-data — FSIS blocks automated downloads).
+Needs data/raw/foodkeeper/foodkeeper.json (download it in a browser from
+https://catalog.data.gov/dataset/fsis-foodkeeper-data — FSIS returns 403 to scripts).
 
-sl_nominal_hours = LOWER bound of the storage range (DATA_SOURCES §1): refrigerator, or pantry
-for bananas / bread / avocados / tomatoes."""
+Each SKU names its record in sku_base.json: {"foodkeeper": {"id": 481, "field": "DOP_Refrigerate"}}.
+Records were picked by hand (keyword matching picked muffins for bananas). `field` is the storage
+column to use; DOP_* = "from date of purchase". sl_nominal_hours = the LOWER bound
+(DATA_SOURCES §1). field = null -> FoodKeeper gives no number; the base value is kept."""
 
 import re
 
@@ -12,8 +14,8 @@ from scripts._common import CORPUS, RAW, SEED, SKU_BASE, read_json, write_json
 
 RAW_FILE = RAW / "foodkeeper" / "foodkeeper.json"
 SOURCE_URL = "https://catalog.data.gov/dataset/fsis-foodkeeper-data"
-PANTRY = {"BANA-01", "SOUR-01", "AVOC-01", "TOMA-01"}
 HOURS = {"hour": 1, "day": 24, "week": 168, "month": 720, "year": 8760}
+STORAGE = {"Pantry": "pantry", "Refrigerate": "refrigerator", "DOP_Refrigerate": "refrigerator"}
 
 
 def _rows(doc: dict) -> list[dict]:
@@ -34,19 +36,39 @@ def _to_hours(n, metric) -> float | None:
     return float(n) * HOURS[unit] if unit in HOURS else None
 
 
-def _match(rows: list[dict], keywords: list[str], storage: str) -> dict | None:
-    def text(r):
-        return " ".join(str(r.get(k) or "") for k in ("Name", "Name_subtitle", "Keywords")).lower()
-
-    for kw in keywords:  # keyword order = preference order
-        hits = [r for r in rows if kw in text(r) and r.get(f"{storage}_Min") is not None]
-        if hits:
-            # prefer the plainest record (shortest name+subtitle), deterministic
-            def plain(r):
-                return len(f"{r.get('Name') or ''} {r.get('Name_subtitle') or ''}".strip())
-
-            return min(hits, key=lambda r: (plain(r), r.get("ID") or 0))
-    return None
+def record(rows: list[dict], fk_id: int, field: str | None) -> dict:
+    r = next((r for r in rows if r.get("ID") is not None and int(r["ID"]) == fk_id), None)
+    if r is None:
+        raise SystemExit(f"FoodKeeper record #{fk_id} not found")
+    name = " — ".join(x for x in (r.get("Name", "").strip(), r.get("Name_subtitle")) if x)
+    if field is None:  # no numeric storage time, e.g. milk: "Package use-by date"
+        metric = r.get("Refrigerate_Metric") or r.get("Pantry_Metric")
+        return {
+            "foodkeeper_id": fk_id,
+            "name": name,
+            "storage": None,
+            "min": None,
+            "max": None,
+            "metric": metric,
+            "tips": "",
+            "sl_nominal_hours": None,
+        }
+    lo, hi, metric = r.get(f"{field}_Min"), r.get(f"{field}_Max"), r.get(f"{field}_Metric")
+    hours = _to_hours(lo, metric)
+    if hours is None:
+        raise SystemExit(f"#{fk_id} {name}: no numeric {field} value ({lo}, {metric})")
+    tips = r.get(f"{field}_tips") or ""
+    return {
+        "foodkeeper_id": fk_id,
+        "name": name,
+        "storage": STORAGE.get(field, field),
+        "from_purchase": field.startswith("DOP_"),
+        "min": lo,
+        "max": hi,
+        "metric": metric,
+        "tips": tips,
+        "sl_nominal_hours": hours,
+    }
 
 
 def build() -> dict[str, dict] | None:
@@ -63,39 +85,26 @@ def build() -> dict[str, dict] | None:
         raise SystemExit(f"{RAW_FILE} is not JSON (an HTML error page?). Re-download it.") from None
     rows = _rows(doc)
     out = {}
+    CORPUS.mkdir(parents=True, exist_ok=True)
     for s in read_json(SKU_BASE)["skus"]:
         sid = s["sku_id"]
-        storage = "Pantry" if sid in PANTRY else "Refrigerate"
-        r = _match(rows, s["foodkeeper_keywords"], storage)
-        if r is None:
-            print(f"  {sid}: no FoodKeeper match for {s['foodkeeper_keywords']} ({storage})")
-            continue
-        lo, hi, metric = (
-            r.get(f"{storage}_Min"),
-            r.get(f"{storage}_Max"),
-            r.get(f"{storage}_Metric"),
+        rec = {"sku_id": sid, **record(rows, s["foodkeeper"]["id"], s["foodkeeper"]["field"])}
+        out[sid] = rec
+        lo, hi, metric, where = rec["min"], rec["max"], rec["metric"], rec["storage"]
+        print(
+            f"  {sid}: #{rec['foodkeeper_id']} {rec['name']!r} {where} {lo}-{hi} {metric} "
+            f"-> {rec['sl_nominal_hours']} h"
         )
-        hours = _to_hours(lo, metric)
-        name = " — ".join(x for x in (r.get("Name"), r.get("Name_subtitle")) if x)
-        tips = r.get(f"{storage}_tips") or ""
-        out[sid] = {
-            "sku_id": sid,
-            "foodkeeper_id": r.get("ID"),
-            "name": name,
-            "storage": storage.lower(),
-            "min": lo,
-            "max": hi,
-            "metric": metric,
-            "tips": tips,
-            "sl_nominal_hours": hours,
-        }
-        print(f"  {sid}: #{r.get('ID')} {name!r} {storage} {lo}-{hi} {metric} -> {hours} h")
-        CORPUS.mkdir(parents=True, exist_ok=True)
+        span = (
+            f"store in the {where} for {lo:g}–{hi:g} {str(metric).lower()}"
+            + (" from the date of purchase" if rec.get("from_purchase") else "")
+            if where
+            else f"storage time: {metric}"
+        )
         (CORPUS / f"foodkeeper_{sid}.md").write_text(
-            f"---\nsource: USDA FoodKeeper\ntitle: {name} — {storage.lower()} storage\n"
+            f"---\nsource: USDA FoodKeeper\ntitle: {rec['name']} — storage\n"
             f"url: {SOURCE_URL}\nsku_ids: [{sid}]\n---\n"
-            f"{name}: store in the {storage.lower()} for {lo}–{hi} {str(metric).lower()}. "
-            f"{tips}\n",
+            f"{rec['name']}: {span}. {rec['tips']}\n",
             encoding="utf-8",
         )
     write_json(SEED / "foodkeeper.json", list(out.values()))

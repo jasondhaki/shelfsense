@@ -1,0 +1,97 @@
+[
+  {
+    "sku_id": "STRW-01",
+    "foodkeeper_id": 481,
+    "name": "Strawberries",
+    "storage": "refrigerator",
+    "from_purchase": true,
+    "min": 2.0,
+    "max": 3.0,
+    "metric": "Days",
+    "tips": "",
+    "sl_nominal_hours": 48.0
+  },
+  {
+    "sku_id": "BANA-01",
+    "foodkeeper_id": 251,
+    "name": "Bananas",
+    "storage": "refrigerator",
+    "from_purchase": false,
+    "min": 3.0,
+    "max": 3.0,
+    "metric": "Days",
+    "tips": "Timeline for refrigerator applies to ripe fruit; skin will blacken.",
+    "sl_nominal_hours": 72.0
+  },
+  {
+    "sku_id": "SALM-01",
+    "foodkeeper_id": 146,
+    "name": "Fatty fish — bluefish, catfish, mackerel, mullet, salmon, tuna, etc.",
+    "storage": "refrigerator",
+    "from_purchase": true,
+    "min": 1.0,
+    "max": 2.0,
+    "metric": "Days",
+    "tips": "",
+    "sl_nominal_hours": 24.0
+  },
+  {
+    "sku_id": "MILK-01",
+    "foodkeeper_id": 27,
+    "name": "Milk — plain or flavored",
+    "storage": null,
+    "min": null,
+    "max": null,
+    "metric": "Package use-by date",
+    "tips": "",
+    "sl_nominal_hours": null
+  },
+  {
+    "sku_id": "SOUR-01",
+    "foodkeeper_id": 574,
+    "name": "Bread — homemade",
+    "storage": "pantry",
+    "from_purchase": false,
+    "min": 3.0,
+    "max": 5.0,
+    "metric": "Days",
+    "tips": "May have shorter shelf life due to lack of preservatives.",
+    "sl_nominal_hours": 72.0
+  },
+  {
+    "sku_id": "AVOC-01",
+    "foodkeeper_id": 250,
+    "name": "Avocados",
+    "storage": "refrigerator",
+    "from_purchase": false,
+    "min": 3.0,
+    "max": 4.0,
+    "metric": "Days",
+    "tips": "Timeline for refrigerator applies to ripe fruit.",
+    "sl_nominal_hours": 72.0
+  },
+  {
+    "sku_id": "SPIN-01",
+    "foodkeeper_id": 415,
+    "name": "Bagged greens — leaf, spinach, lettuce, etc.",
+    "storage": "refrigerator",
+    "from_purchase": false,
+    "min": 3.0,
+    "max": 5.0,
+    "metric": "Days",
+    "tips": "Unopened product will last 3 - 5 days after date on bag; after opening it will last 2 days.",
+    "sl_nominal_hours": 72.0
+  },
+  {
+    "sku_id": "TOMA-01",
+    "foodkeeper_id": 600,
+    "name": "Cherry tomatoes",
+    "storage": "pantry",
+    "from_purchase": false,
+    "min": 10.0,
+    "max": 10.0,
+    "metric": "Days",
+    "tips": "",
+    "sl_nominal_hours": 240.0
+  }
+]

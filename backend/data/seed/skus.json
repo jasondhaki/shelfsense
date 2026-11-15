@@ -8,7 +8,7 @@
       "unit_weight_kg": 0.454,
       "base_price_usd": 4.99,
       "unit_cost_usd": 2.8,
-      "sl_nominal_hours": 96,
+      "sl_nominal_hours": 48.0,
       "elasticity": -2.0,
       "price_floor_ratio": 0.4,
       "base_daily_units": 60,
@@ -16,7 +16,7 @@
       "bundle_group": "smoothie",
       "supplier": "Valley Berry Co.",
       "delivery_every_days": 2,
-      "sl_source": "illustrative (FoodKeeper not yet merged)",
+      "sl_source": "USDA FoodKeeper #481: Strawberries (refrigerator)",
       "off": {
         "barcode": "0715756200023",
         "product_name": "Strawberries",
@@ -25,6 +25,7 @@
         "ethylene": "neutral"
       },
       "sources": [
+        "USDA FoodKeeper #481: Strawberries (refrigerator)",
         "Open Food Facts 0715756200023",
         "Ethylene: neutral",
         "Elasticity: assumed"
@@ -37,7 +38,7 @@
       "unit_weight_kg": 1.0,
       "base_price_usd": 1.99,
       "unit_cost_usd": 1.0,
-      "sl_nominal_hours": 120,
+      "sl_nominal_hours": 72.0,
       "elasticity": -1.6,
       "price_floor_ratio": 0.4,
       "base_daily_units": 90,
@@ -45,7 +46,7 @@
       "bundle_group": "smoothie",
       "supplier": "Tropic Fresh Imports",
       "delivery_every_days": 2,
-      "sl_source": "illustrative (FoodKeeper not yet merged)",
+      "sl_source": "USDA FoodKeeper #251: Bananas (refrigerator)",
       "off": {
         "barcode": "0717524611109",
         "product_name": "Bananas 3 lb bag, 30669",
@@ -54,6 +55,7 @@
         "ethylene": "producer"
       },
       "sources": [
+        "USDA FoodKeeper #251: Bananas (refrigerator)",
         "Open Food Facts 0717524611109",
         "Ethylene: producer",
         "Elasticity: assumed"
@@ -66,7 +68,7 @@
       "unit_weight_kg": 0.45,
       "base_price_usd": 12.99,
       "unit_cost_usd": 8.0,
-      "sl_nominal_hours": 48,
+      "sl_nominal_hours": 24.0,
       "elasticity": -1.8,
       "price_floor_ratio": 0.4,
       "base_daily_units": 25,
@@ -74,7 +76,7 @@
       "bundle_group": "dinner",
       "supplier": "North Atlantic Seafood",
       "delivery_every_days": 1,
-      "sl_source": "illustrative (FoodKeeper not yet merged)",
+      "sl_source": "USDA FoodKeeper #146: Fatty fish — bluefish, catfish, mackerel, mullet, salmon, tuna, etc. (refrigerator)",
       "off": {
         "barcode": "0099482477929",
         "product_name": "Farm-Raised Atlantic Salmon Fillets",
@@ -83,6 +85,7 @@
         "ethylene": "neutral"
       },
       "sources": [
+        "USDA FoodKeeper #146: Fatty fish — bluefish, catfish, mackerel, mullet, salmon, tuna, etc. (refrigerator)",
         "Open Food Facts 0099482477929",
         "Ethylene: neutral",
         "Elasticity: assumed"
@@ -103,7 +106,7 @@
       "bundle_group": null,
       "supplier": "Hillside Dairy Co-op",
       "delivery_every_days": 2,
-      "sl_source": "illustrative (FoodKeeper not yet merged)",
+      "sl_source": "illustrative",
       "off": {
         "barcode": "0071210788071",
         "product_name": "Milk: Whole: Kirkland Signature: Gallon",
@@ -112,6 +115,7 @@
         "ethylene": "neutral"
       },
       "sources": [
+        "USDA FoodKeeper #27: Milk — plain or flavored (Package use-by date)",
         "Open Food Facts 0071210788071",
         "Ethylene: neutral",
         "Elasticity: assumed"
@@ -124,7 +128,7 @@
       "unit_weight_kg": 0.68,
       "base_price_usd": 5.49,
       "unit_cost_usd": 2.2,
-      "sl_nominal_hours": 48,
+      "sl_nominal_hours": 72.0,
       "elasticity": -2.2,
       "price_floor_ratio": 0.4,
       "base_daily_units": 40,
@@ -132,7 +136,7 @@
       "bundle_group": "toast",
       "supplier": "Stonehearth Bakery",
       "delivery_every_days": 1,
-      "sl_source": "illustrative (FoodKeeper not yet merged)",
+      "sl_source": "USDA FoodKeeper #574: Bread — homemade (pantry)",
       "off": {
         "barcode": "0073132031112",
         "product_name": "Sourdough Bread",
@@ -141,6 +145,7 @@
         "ethylene": "neutral"
       },
       "sources": [
+        "USDA FoodKeeper #574: Bread — homemade (pantry)",
         "Open Food Facts 0073132031112",
         "Ethylene: neutral",
         "Elasticity: assumed"
@@ -153,7 +158,7 @@
       "unit_weight_kg": 0.2,
       "base_price_usd": 1.49,
       "unit_cost_usd": 0.7,
-      "sl_nominal_hours": 96,
+      "sl_nominal_hours": 72.0,
       "elasticity": -1.9,
       "price_floor_ratio": 0.4,
       "base_daily_units": 70,
@@ -161,7 +166,7 @@
       "bundle_group": "toast",
       "supplier": "Sierra Avocado Growers",
       "delivery_every_days": 2,
-      "sl_source": "illustrative (FoodKeeper not yet merged)",
+      "sl_source": "USDA FoodKeeper #250: Avocados (refrigerator)",
       "off": {
         "barcode": null,
         "product_name": null,
@@ -170,6 +175,7 @@
         "ethylene": "producer"
       },
       "sources": [
+        "USDA FoodKeeper #250: Avocados (refrigerator)",
         "Ethylene: producer",
         "Elasticity: assumed"
       ]
@@ -181,7 +187,7 @@
       "unit_weight_kg": 0.142,
       "base_price_usd": 3.99,
       "unit_cost_usd": 2.0,
-      "sl_nominal_hours": 96,
+      "sl_nominal_hours": 72.0,
       "elasticity": -1.7,
       "price_floor_ratio": 0.4,
       "base_daily_units": 45,
@@ -189,7 +195,7 @@
       "bundle_group": "dinner",
       "supplier": "Green Leaf Farms",
       "delivery_every_days": 2,
-      "sl_source": "illustrative (FoodKeeper not yet merged)",
+      "sl_source": "USDA FoodKeeper #415: Bagged greens — leaf, spinach, lettuce, etc. (refrigerator)",
       "off": {
         "barcode": "0032601901509",
         "product_name": "Organic Baby Spinach",
@@ -198,6 +204,7 @@
         "ethylene": "sensitive"
       },
       "sources": [
+        "USDA FoodKeeper #415: Bagged greens — leaf, spinach, lettuce, etc. (refrigerator)",
         "Open Food Facts 0032601901509",
         "Ethylene: sensitive",
         "Elasticity: assumed"
@@ -210,7 +217,7 @@
       "unit_weight_kg": 0.3,
       "base_price_usd": 3.49,
       "unit_cost_usd": 1.6,
-      "sl_nominal_hours": 120,
+      "sl_nominal_hours": 240.0,
       "elasticity": -1.6,
       "price_floor_ratio": 0.4,
       "base_daily_units": 40,
@@ -218,7 +225,7 @@
       "bundle_group": "toast",
       "supplier": "Sunridge Greenhouses",
       "delivery_every_days": 2,
-      "sl_source": "illustrative (FoodKeeper not yet merged)",
+      "sl_source": "USDA FoodKeeper #600: Cherry tomatoes (pantry)",
       "off": {
         "barcode": null,
         "product_name": null,
@@ -227,6 +234,7 @@
         "ethylene": "producer"
       },
       "sources": [
+        "USDA FoodKeeper #600: Cherry tomatoes (pantry)",
         "Ethylene: producer",
         "Elasticity: assumed"
       ]

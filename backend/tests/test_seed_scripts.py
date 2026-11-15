@@ -12,38 +12,30 @@ def test_committed_seed_files_validate():
     build_seed_all.validate(read_json(SEED / "skus.json")["skus"])
 
 
-def test_foodkeeper_flatten_match_and_hours():
+def test_foodkeeper_flatten_record_and_hours():
     doc = {
         "sheets": [
             {
                 "name": "Product",
                 "data": [
                     [
-                        {"ID": 1},
+                        {"ID": 481.0},
                         {"Name": "Strawberries"},
                         {"Name_subtitle": None},
-                        {"Keywords": "berries"},
-                        {"Refrigerate_Min": 3},
-                        {"Refrigerate_Max": 7},
-                        {"Refrigerate_Metric": "Days"},
+                        {"DOP_Refrigerate_Min": 2.0},
+                        {"DOP_Refrigerate_Max": 3.0},
+                        {"DOP_Refrigerate_Metric": "Days"},
                     ],
-                    [
-                        {"ID": 2},
-                        {"Name": "Strawberries"},
-                        {"Name_subtitle": "jam"},
-                        {"Keywords": ""},
-                        {"Refrigerate_Min": 6},
-                        {"Refrigerate_Max": 12},
-                        {"Refrigerate_Metric": "Months"},
-                    ],
+                    [{"ID": 27.0}, {"Name": "Milk"}, {"Refrigerate_Metric": "Package use-by date"}],
                 ],
             }
         ]
     }
     rows = build_seed_foodkeeper._rows(doc)
-    r = build_seed_foodkeeper._match(rows, ["strawberr"], "Refrigerate")
-    assert r["ID"] == 1  # plainest record wins
-    assert build_seed_foodkeeper._to_hours(r["Refrigerate_Min"], r["Refrigerate_Metric"]) == 72
+    r = build_seed_foodkeeper.record(rows, 481, "DOP_Refrigerate")
+    assert r["sl_nominal_hours"] == 48 and r["from_purchase"]
+    milk = build_seed_foodkeeper.record(rows, 27, None)
+    assert milk["sl_nominal_hours"] is None and milk["metric"] == "Package use-by date"
     assert build_seed_foodkeeper._to_hours(1, "Weeks") == 168
 
 

@@ -86,6 +86,8 @@ def merge(off: dict, fk: dict | None) -> list[dict]:
         sid = s["sku_id"]
         f = fk.get(sid)
         sources = []
+        if f and not f["sl_nominal_hours"]:
+            sources.append(f"USDA FoodKeeper #{f['foodkeeper_id']}: {f['name']} ({f['metric']})")
         if f and f["sl_nominal_hours"]:
             sl, sl_src = (
                 f["sl_nominal_hours"],
@@ -93,7 +95,8 @@ def merge(off: dict, fk: dict | None) -> list[dict]:
             )
             sources.append(sl_src)
         else:
-            sl, sl_src = s["sl_nominal_hours"], "illustrative (FoodKeeper not yet merged)"
+            sl = s["sl_nominal_hours"]
+            sl_src = "illustrative" + ("" if f else " (FoodKeeper not yet merged)")
         o = off[sid]
         if o["barcode"]:
             sources.append(f"Open Food Facts {o['barcode']}")
