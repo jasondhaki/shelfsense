@@ -81,17 +81,16 @@ def compute_pos(state: SimState, from_tick: int, reason: str | None = None) -> l
     ai = sum(r["ai_order"] for r in rows)
     base = sum(r["baseline_order"] for r in rows)
     kg = sum(r["waste_prevention_kg"] for r in rows)
-    if reason and old:
+    summary = f"AI {ai} units vs baseline {base} (Δ {base - ai:+d} units, {kg:+.1f} kg)"
+    if reason:
         changes = [
             f"{r['sku_id']} {old[r['sku_id']]}→{r['ai_order']}"
             for r in rows
             if r["sku_id"] in old and old[r["sku_id"]] != r["ai_order"]
         ]
-        msg = f"PO recomputed ({reason}): " + (", ".join(changes) or "no quantity changes")
+        msg = f"PO recomputed ({reason}): " + (", ".join(changes) if changes else summary)
     else:
-        msg = (
-            f"Next-day POs: AI {ai} units vs baseline {base} (Δ {base - ai:+d} units, {kg:+.1f} kg)"
-        )
+        msg = f"Next-day POs: {summary}"
     return [LogDraft(from_tick, "PROCUREMENT_AGENT", "action", msg, {"po_rows": rows})]
 
 

@@ -157,6 +157,14 @@ class TickDelta(BaseModel):          # what changed this tick
     weather: WeatherNow | None
 ```
 
+### 5.1 Contract additions (2026-11-16, `app/models/contracts.py` is the source of truth)
+- `SimSnapshot.logs` — last 200 log entries, so a reconnecting client can refill Zone E.
+- `PoRow.delivery_tick`, `PoRow.reason` (e.g. `"rainstorm"` → Zone D highlight).
+- `FormulaBreakdown.tick`, `p_current`, `risk`, `floor_bound`.
+- `WeatherNow` = `{source, location, temperature_f, precip_probability_pct, short_forecast, relative_humidity_pct (sim, incl. storm), traffic_mult, storm_active}`.
+- `AppliedEvent` = `{tick, type, payload, active_until_tick}`; `TickDelta.active_events` (only when changed).
+- `ControlRequest.scenario: "none" | "demo"` (used by reset).
+
 ## 6. Agents
 
 All agents share an interface:

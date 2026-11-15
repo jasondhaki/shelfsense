@@ -45,6 +45,7 @@ class SkuConfig:
     supplier: str
     delivery_every_days: int = 1  # supplier schedule, identical for both stores
     off: dict = field(default_factory=dict, hash=False, compare=False)
+    sources: list[str] = field(default_factory=list, hash=False, compare=False)
 
     @classmethod
     def from_dict(cls, d: dict) -> SkuConfig:

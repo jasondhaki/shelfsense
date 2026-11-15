@@ -2,7 +2,7 @@
 
 Nine phases. Each one ends with something that runs and is tested. Don't start a phase until the previous phase's acceptance checks pass.
 
-**Current phase:** `Phase 3` ← update this line when a phase is done.
+**Current phase:** `Phase 4` ← update this line when a phase is done.
 
 | Phase | Goal | Rough effort |
 |---|---|---|
@@ -135,15 +135,21 @@ Phase 2 results (2026-11-16; OFF + NOAA snapshot + FAO + OWID merged; FoodKeeper
 **Kickoff prompt:**
 > Read docs/BACKEND.md. Do Phase 3: Pydantic contracts in app/models, SimController with an asyncio loop (play/pause/fast_forward/step/reset), event queue, agents + orchestrator + AgentBus producing LogEntry objects per the logging rules, NOAA service with snapshot fallback, REST routes and the /ws/sim WebSocket. Vision and RAG agents can be stubs that log "not yet implemented". Write the API tests.
 
-- [ ] `models/` contracts from BACKEND §5
-- [ ] `agents/bus.py`, `orchestrator.py`, demand/pricing/procurement/bundling agents (log templates)
-- [ ] `controller.py` — single SimState, speed control, stop at tick 168, replay
-- [ ] `services/noaa.py` with cache + fallback
-- [ ] REST routes (BACKEND §3) incl. `/sim/skus/{id}/formula`
-- [ ] WebSocket `hello` / `tick` / `status` / `event_applied`, ping/pong
-- [ ] `tests/test_api.py` (TestClient, uses `step` — no sleeping)
+- [x] `models/` contracts from BACKEND §5
+- [x] `agents/bus.py`, `orchestrator.py`, demand/pricing/procurement/bundling agents (log templates)
+- [x] `controller.py` — single SimState, speed control, stop at tick 168, replay
+- [x] `services/noaa.py` with cache + fallback
+- [x] REST routes (BACKEND §3) incl. `/sim/skus/{id}/formula`
+- [x] WebSocket `hello` / `tick` / `status` / `event_applied`, ping/pong
+- [x] `tests/test_api.py` (TestClient, uses `step` — no sleeping)
 
 **Acceptance:** tests green · `websocat ws://localhost:8000/ws/sim` (or a tiny script) shows ticks after `POST /api/sim/control {"action":"play"}` · a rainstorm event produces DEMAND + PRICING + PROCUREMENT log lines.
+
+```
+Phase 3 results (2026-11-16): 42 tests green. Live check (uvicorn + websockets client): hello, ticks 1-3 at 1x,
+rainstorm queued at tick 3 -> SYSTEM + DEMAND + PROCUREMENT + RAG(stub) lines at D1 03:00, 17 PRICING lines in
+the 12 h storm window; fast_forward ran to tick 168 and broadcast status "finished".
+```
 
 ---
 
