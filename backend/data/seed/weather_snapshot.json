@@ -1,0 +1,9 @@
+{
+  "_note": "Hand-written placeholder for Phase 1 (DATA_SOURCES §7). Replaced by a real api.weather.gov snapshot in Phase 2.",
+  "source": "placeholder",
+  "temperature_f": 58,
+  "relative_humidity_pct": 62,
+  "precip_probability_pct": 10,
+  "short_forecast": "Partly Cloudy",
+  "p_heavy_rain_by_day": [0, 0, 0, 0, 0, 0, 0]
+}

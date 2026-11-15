@@ -135,3 +135,9 @@ Add one line per decision: date — decision — reason.
 - 2026-11-15 — Frontend pinned to React 18 + Tailwind v3 (Vite template now defaults to React 19 / Tailwind v4). — Matches the stack in CLAUDE.md; v3 keeps tokens in `tailwind.config.ts` as FRONTEND §2 describes.
 - 2026-11-15 — Lint with `oxlint` (ships with the current Vite template) instead of ESLint. — Zero-config, fast; `npm run lint` contract unchanged.
 - 2026-11-15 — Vite proxy targets `127.0.0.1:8000`, not `localhost`. — On Windows `localhost` resolves to `::1`, which other local services (e.g. Docker) may hold.
+- 2026-11-16 — With several batches, V_forecast uses the horizon `ceil(RSL_known)` of the batch that sets V_target. — §5.1 gives one horizon but a FEFO max over batches; the binding batch is the one whose risk we're pricing.
+- 2026-11-16 — Seed-file loading lives in `app/sim/cli.py`; the engine modules stay I/O-free. — Keeps rule 3 while giving the CLI and the controller one loader.
+- 2026-11-16 — `step()` mutates and returns the state it is given. — Copying the full state each tick buys nothing; determinism comes from the keyed RNG + fixed order, and replay rebuilds from seed.
+- 2026-11-16 — Bundling logs use the `PRICING_AGENT` tag. — No bundling tag exists in the fixed tag list; last-mile clearance is a pricing action.
+- 2026-11-16 — Store B PO "carryover" is clamped at ≥ 0; a mid-day recompute (rainstorm) uses expected sales for the rest of today, from the current hour. — §7.2 formula can go negative; the current hour hasn't sold yet when an event is applied.
+- 2026-11-16 — Immediate cold-chain delivery = ceil(0.5 × base_daily_units) to both stores (`emergency_delivery_days`). — §8 doesn't size it; half a day is visible in the demo without swamping the shelf.

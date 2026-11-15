@@ -1,0 +1,10 @@
+{
+  "_note": "PLACEHOLDER co2e factors (kg CO2e per kg food), order-of-magnitude only. NOT yet sourced — Phase 2 replaces every value with a cited FAO / LCA figure and adds retail_waste_pct.",
+  "berries":      {"co2e_kg_per_kg": 1.5,  "co2e_source": "placeholder"},
+  "fruit":        {"co2e_kg_per_kg": 0.9,  "co2e_source": "placeholder"},
+  "seafood":      {"co2e_kg_per_kg": 12.0, "co2e_source": "placeholder"},
+  "dairy":        {"co2e_kg_per_kg": 3.2,  "co2e_source": "placeholder"},
+  "bakery":       {"co2e_kg_per_kg": 1.6,  "co2e_source": "placeholder"},
+  "leafy_greens": {"co2e_kg_per_kg": 0.6,  "co2e_source": "placeholder"},
+  "vegetables":   {"co2e_kg_per_kg": 2.1,  "co2e_source": "placeholder"}
+}

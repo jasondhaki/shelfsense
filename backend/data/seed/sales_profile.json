@@ -1,0 +1,9 @@
+{
+  "_note": "Phase 1: dow_weight is flat (1.0). hour_share is an ASSUMED typical grocery traffic curve (open 07:00-21:59, lunch and after-work peaks); raw weights, normalised on load. Phase 2 replaces dow_weight with Favorita aggregates.",
+  "hour_share": {
+    "default": [0,0,0,0,0,0,0, 3,4,5,6,7,8,7,6,6,7,9,10,9,7,4, 0,0]
+  },
+  "dow_weight": {
+    "default": [1,1,1,1,1,1,1]
+  }
+}

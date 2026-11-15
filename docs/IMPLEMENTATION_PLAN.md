@@ -43,28 +43,38 @@ How to use this with Claude Code: at the start of each phase, paste that phase's
 **Kickoff prompt:**
 > Read CLAUDE.md and docs/SIMULATION_ENGINE.md carefully. Do Phase 1: implement backend/app/sim/ exactly as specified — state dataclasses, rng with common random numbers, shelf_life (effective-age model), demand, pricing, bundling, procurement, events, kpi, engine.step following the tick order in §10, and cli.py. Write tests for every row of §12 plus unit-conservation and determinism tests first, then implement until they pass. No FastAPI imports in app/sim.
 
-- [ ] `state.py` — `SkuConfig`, `SimConfig`, `Batch`, `StoreState`, `SimState`, `Box`
-- [ ] `skus.json` with the illustrative table (§2) + assumed `hour_share` + flat `dow_weight`
-- [ ] `rng.py` — `uniform(seed, stream, *keys)` via `np.random.default_rng([seed, stream_id, *keys])`; `poisson_inv_cdf`
-- [ ] `shelf_life.py` — age update, RSL true/known, inspection, α from quality score (AI_PIPELINE §1.3)
-- [ ] `demand.py` — λ, horizon forecast, price multiplier, realised demand
-- [ ] `pricing.py` — FEFO V_target, ΔQ/ΔP, floor, hysteresis, Store A rule
-- [ ] `bundling.py` — trigger, greedy box building, box sales, expiry
-- [ ] `procurement.py` — Store A order-up-to, Store B throttled PO, PO rows
-- [ ] `events.py` — rainstorm, cold-chain (next delivery + immediate), vision_override
-- [ ] `kpi.py` — all KPIs from §9 + chart point
-- [ ] `engine.py` — `step(state, queued_events) -> (state, list[LogDraft])`
-- [ ] `cli.py` — `--hours --seed --scenario {none,demo}`; prints a per-day table and final KPIs
-- [ ] Tests: §12 vectors, conservation of units, no negative stock, determinism, edge cases §11
-- [ ] Run seeds 1–20 (no events) and the demo scenario; paste results below
+- [x] `state.py` — `SkuConfig`, `SimConfig`, `Batch`, `StoreState`, `SimState`, `Box`
+- [x] `skus.json` with the illustrative table (§2) + assumed `hour_share` + flat `dow_weight`
+- [x] `rng.py` — `uniform(seed, stream, *keys)` via `np.random.default_rng([seed, stream_id, *keys])`; `poisson_inv_cdf`
+- [x] `shelf_life.py` — age update, RSL true/known, inspection, α from quality score (AI_PIPELINE §1.3)
+- [x] `demand.py` — λ, horizon forecast, price multiplier, realised demand
+- [x] `pricing.py` — FEFO V_target, ΔQ/ΔP, floor, hysteresis, Store A rule
+- [x] `bundling.py` — trigger, greedy box building, box sales, expiry
+- [x] `procurement.py` — Store A order-up-to, Store B throttled PO, PO rows
+- [x] `events.py` — rainstorm, cold-chain (next delivery + immediate), vision_override
+- [x] `kpi.py` — all KPIs from §9 + chart point
+- [x] `engine.py` — `step(state, queued_events) -> (state, list[LogDraft])`
+- [x] `cli.py` — `--hours --seed --scenario {none,demo}`; prints a per-day table and final KPIs
+- [x] Tests: §12 vectors, conservation of units, no negative stock, determinism, edge cases §11
+- [x] Run seeds 1–20 (no events) and the demo scenario; paste results below
 
 **Acceptance:** all tests green · CLI < 2 s for 168 h · results recorded:
 
 ```
-Phase 1 results (fill in):
-  No events, seeds 1–20: waste reduction mean = __% ± __
-  Demo scenario, seed 42: waste reduction = __%, food diverted = __ kg, margin recovered = $__
-  Parameter changes made (and why): __
+Phase 1 results (2026-11-16, spec parameters from §2, store_a_par_mult = 1.25):
+  No events, seeds 1–20: waste reduction undefined — Store A wastes 0 kg on every seed
+    (Store B 0 kg on 19/20; 0.9 kg on seed 20). Net margin recovered ≈ $240–330 (B carries less stock).
+  Demo scenario, seed 42: waste reduction = — (A 0 kg, B 0 kg), food diverted = 0 kg, margin recovered = $284.69
+  CLI: 168 h in ~0.2 s. 27 tests green (all §12 vectors, conservation, determinism, §11 edges).
+  Parameter changes made (and why): none yet — see "Calibration open" below.
+
+  Calibration open: with the §2 parameters the baseline cannot produce waste. Order-up-to replaces
+  exactly what sold (≤1.25 days of stock, so nothing gets near 48 h), and the 50% last-day markdown
+  multiplies the whole SKU's demand by ~2×, clearing any old units. Probes (seeds 1–20):
+    par 2.0 → A waste 0.0%; par 3.0 → 0.3%; par 4.0 → 3.1% (reduction ≈ 94–99%, not credible)
+    + daily demand overdispersion (CV 0.3–0.4) → still ≈ 0%
+    + 30–50% of shoppers picking the freshest unit → still ≈ 0%
+  Needs a modelling decision before Phase 2 calibration against FAO retail waste.
 ```
 
 ---
@@ -193,7 +203,7 @@ Phase 2 results: no-event mean = __% ± __ ; Store A waste by category vs FAO ra
 
 ## Results log
 ```
-Phase 1: __
+Phase 1: engine complete; baseline waste ≈ 0 with spec parameters (calibration open)
 Phase 2: __
 Final (deployed build, demo scenario seed 42): waste reduction __%, diverted __ kg, CO₂e __ kg, margin $__
 ```
