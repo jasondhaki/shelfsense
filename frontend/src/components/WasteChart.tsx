@@ -12,12 +12,12 @@ import {
 import { simClock } from '../lib/format'
 import type { ChartPoint } from '../types/contracts'
 
-// Colours checked with the dataviz validator on the panel surface (#121821):
-// normal-vision ΔE 16, CVD ΔE 13.9, contrast ≥ 3:1. Store A is also dashed.
-const A = '#7C8BA1'
-const B = '#38BDF8'
-const GRID = '#253043'
-const MUTED = '#8B98A9'
+// Checked with the dataviz validator on #FFFFFF: normal-vision ΔE 18.4, CVD ΔE 14.3, contrast ≥ 3:1.
+// The baseline is a deliberately recessive grey (low chroma), always dashed and labelled.
+const A = '#8796A6'
+const B = '#0F7B57'
+const GRID = '#E7EEEA'
+const MUTED = '#56675E'
 
 interface TipProps {
   active?: boolean
@@ -144,7 +144,7 @@ function endLabel(
   const higher = v > other || (v === other && name === 'Baseline')
   const dy = close && higher ? -17 : -5
   return (
-    <text x={p.x + 6} y={p.y} dy={dy} fontSize={10} fill="#E6EDF3" fontFamily="JetBrains Mono, monospace">
+    <text x={p.x + 6} y={p.y} dy={dy} fontSize={10} fill="#0F2A1F" fontFamily="JetBrains Mono, monospace">
       {name} {v.toFixed(v < 10 ? 1 : 0)} kg
     </text>
   )

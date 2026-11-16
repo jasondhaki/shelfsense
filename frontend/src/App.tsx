@@ -2,14 +2,36 @@ import { X } from 'lucide-react'
 import { useEffect } from 'react'
 import FormulaDrawer from './components/FormulaDrawer'
 import WakingOverlay from './components/WakingOverlay'
+import MobileNav from './layout/MobileNav'
+import Sidebar from './layout/Sidebar'
+import SimBar from './layout/SimBar'
+import TopBar from './layout/TopBar'
 import { api } from './lib/api'
 import { connectSim } from './lib/ws'
-import { useSim } from './store/simStore'
-import AgentLog from './zones/AgentLog'
-import EslMatrix from './zones/EslMatrix'
-import ExecutionModules from './zones/ExecutionModules'
-import SmartCamInspector from './zones/SmartCamInspector'
-import TelemetryBar from './zones/TelemetryBar'
+import Agents from './pages/Agents'
+import Analytics from './pages/Analytics'
+import Dashboard from './pages/Dashboard'
+import DataIngestion from './pages/DataIngestion'
+import Forecast from './pages/Forecast'
+import Help from './pages/Help'
+import Inventory from './pages/Inventory'
+import Orders from './pages/Orders'
+import Pricing from './pages/Pricing'
+import Settings from './pages/Settings'
+import { useSim, type Page } from './store/simStore'
+
+const PAGES: Record<Page, () => JSX.Element | null> = {
+  dashboard: Dashboard,
+  inventory: Inventory,
+  forecast: Forecast,
+  pricing: Pricing,
+  agents: Agents,
+  orders: Orders,
+  analytics: Analytics,
+  data: DataIngestion,
+  settings: Settings,
+  help: Help,
+}
 
 const WAKE_AFTER_MS = 3000
 const HEALTH_RETRY_MS = 3000
@@ -62,7 +84,7 @@ function Notice() {
   return (
     <div
       role="alert"
-      className="fixed bottom-4 left-1/2 z-40 flex -translate-x-1/2 items-center gap-3 rounded-md border border-warn/40 bg-panel-2 px-4 py-2 text-sm shadow-xl"
+      className="fixed bottom-4 left-1/2 z-40 flex -translate-x-1/2 items-center gap-3 rounded-full border border-warn/40 bg-panel px-4 py-2 text-sm font-semibold shadow-card"
     >
       <span className="text-warn">{text}</span>
       {connection !== 'closed' && (
@@ -77,23 +99,26 @@ function Notice() {
 export default function App() {
   useServerConnection()
   const connection = useSim((s) => s.connection)
+  const page = useSim((s) => s.page)
+  const syncPage = useSim((s) => s.syncPage)
+
+  useEffect(() => {
+    window.addEventListener('hashchange', syncPage)
+    return () => window.removeEventListener('hashchange', syncPage)
+  }, [syncPage])
+
+  const Current = PAGES[page]
 
   return (
-    <div className="flex min-h-full flex-col gap-2 p-2 xl:grid xl:h-full xl:grid-cols-[340px_minmax(0,1fr)_380px] xl:grid-rows-[auto_minmax(0,1fr)_auto]">
-      <div className="xl:col-span-3">
-        <TelemetryBar />
-      </div>
-      <div className="xl:row-span-2 xl:min-h-0">
-        <SmartCamInspector />
-      </div>
-      <div className="min-h-0 xl:overflow-y-auto">
-        <EslMatrix />
-      </div>
-      <div className="h-[70vh] xl:row-span-2 xl:h-auto xl:min-h-0">
-        <AgentLog />
-      </div>
-      <div>
-        <ExecutionModules />
+    <div className="flex min-h-full">
+      <Sidebar />
+      <div className="min-w-0 flex-1">
+        <MobileNav />
+        <main className="mx-auto max-w-[1680px] space-y-5 px-4 py-5 sm:px-6 lg:px-8">
+          <TopBar />
+          <SimBar />
+          <Current />
+        </main>
       </div>
       <FormulaDrawer />
       {connection === 'waking' && <WakingOverlay />}

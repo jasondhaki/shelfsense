@@ -61,6 +61,7 @@ def esl_a(state: SimState) -> list[EslView]:
                 markdown_pct=round(1 - price / sku.base_price_usd, 4),
                 risk_state=risk,
                 store_a_price=price,
+                shelf_life_hours=sku.sl_nominal_hours,
             )
         )
     return out
@@ -106,6 +107,7 @@ def esl_card(state: SimState, sku: SkuConfig) -> EslView:
         markdown_pct=round(1 - price / sku.base_price_usd, 4),
         risk_state=risk,
         store_a_price=state.a.price[sid],
+        shelf_life_hours=sku.sl_nominal_hours,
     )
 
 

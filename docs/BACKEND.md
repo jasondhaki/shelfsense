@@ -92,6 +92,7 @@ class EslView(BaseModel):
     markdown_pct: float
     risk_state: Literal["ok", "surplus_risk", "floor_bound", "bundled", "sold_out"]
     store_a_price: float          # for comparison tooltip
+    shelf_life_hours: float       # nominal life; UI freshness % = rsl_hours / this
 
 class FormulaBreakdown(BaseModel):
     sku_id: str
@@ -137,6 +138,7 @@ class ChartPoint(BaseModel):
     tick: int
     waste_kg_a: float; waste_kg_b: float
     revenue_a: float; revenue_b: float
+    co2e_avoided_kg: float; net_margin_recovered_usd: float   # KPI sparklines
 
 class SimSnapshot(BaseModel):
     tick: int; status: str; speed: int; seed: int

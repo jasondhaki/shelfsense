@@ -39,6 +39,7 @@ export interface EslView {
   markdown_pct: number
   risk_state: RiskState
   store_a_price: number
+  shelf_life_hours: number // nominal (FoodKeeper) life; freshness % = rsl_hours / this
 }
 
 export interface FormulaBreakdown {
@@ -107,6 +108,8 @@ export interface ChartPoint {
   waste_kg_b: number
   revenue_a: number
   revenue_b: number
+  co2e_avoided_kg: number
+  net_margin_recovered_usd: number
 }
 
 export interface WeatherNow {

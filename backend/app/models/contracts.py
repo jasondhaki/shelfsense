@@ -44,6 +44,7 @@ class EslView(BaseModel):
     markdown_pct: float
     risk_state: Literal["ok", "surplus_risk", "floor_bound", "bundled", "sold_out"]
     store_a_price: float
+    shelf_life_hours: float  # nominal (FoodKeeper) life; freshness % = rsl_hours / this
 
 
 class FormulaBreakdown(BaseModel):
@@ -112,6 +113,8 @@ class ChartPoint(BaseModel):
     waste_kg_b: float
     revenue_a: float
     revenue_b: float
+    co2e_avoided_kg: float
+    net_margin_recovered_usd: float
 
 
 class WeatherNow(BaseModel):

@@ -2,14 +2,7 @@ import { AlertTriangle, Ban, Clock, Gift, Leaf, Package, TrendingDown } from 'lu
 import { useEffect, useRef, useState } from 'react'
 import type { EslView, RiskState } from '../types/contracts'
 import { usd } from '../lib/format'
-
-const NUTRI: Record<string, string> = {
-  a: 'bg-[#038141] text-white',
-  b: 'bg-[#85BB2F] text-black',
-  c: 'bg-[#FECB02] text-black',
-  d: 'bg-[#EE8100] text-black',
-  e: 'bg-[#E63E11] text-white',
-}
+import { NUTRI } from '../lib/insights'
 
 const RIBBON: Record<Exclude<RiskState, 'ok'>, { label: string; cls: string; Icon: typeof Ban }> = {
   surplus_risk: { label: 'Surplus risk', cls: 'bg-warn/15 text-warn', Icon: TrendingDown },

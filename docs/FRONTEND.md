@@ -1,6 +1,13 @@
 # Frontend Specification — ShelfSense
 
-React 18 + TypeScript (strict) + Vite + Tailwind + Zustand + Recharts + lucide-react. Single screen, dark mode, desktop-first (min width 1280 px). Below 1280 px, zones stack vertically — it doesn't need to be beautiful on mobile, just usable.
+React 18 + TypeScript (strict) + Vite + Tailwind + Zustand + Recharts + lucide-react.
+
+> **2026-11-16 redesign (supersedes §1–§2 layout and tokens):** light "fresh market" theme from the
+> owner's mock (`frontend.jpg`): deep-green sidebar with tabs (`src/layout/nav.ts`, routed by URL hash),
+> header with a profile greeting (`profile` in the store, saved to localStorage, default "Atiqur" /
+> "Bay 2"), a simulation bar on every tab, and pages in `src/pages/`. Tokens live in
+> `tailwind.config.ts`; the zone components below are reused inside the pages. Below `lg` the sidebar
+> becomes a scrollable tab strip.
 
 ## 1. Layout (CSS grid)
 

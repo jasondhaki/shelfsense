@@ -41,12 +41,15 @@ def store_totals(state: SimState) -> dict:
 
 
 def chart_point(state: SimState, tick: int) -> dict:
+    k = kpis(state)
     return {
         "tick": tick,
         "waste_kg_a": state.a.waste_kg,
         "waste_kg_b": state.b.waste_kg,
         "revenue_a": state.a.revenue_usd,
         "revenue_b": state.b.revenue_usd,
+        "co2e_avoided_kg": k["co2e_avoided_kg"],  # KPI sparklines need the hourly history
+        "net_margin_recovered_usd": k["net_margin_recovered_usd"],
     }
 
 

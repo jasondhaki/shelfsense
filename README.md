@@ -7,9 +7,12 @@ in retail).
 
 **Live demo:** https://shelfsense-tau.vercel.app (API: https://shelfsense-api-66nh.onrender.com — free tier, the first load may take up to a minute while the server wakes).
 
-![ShelfSense dashboard, mid-week of the demo script](docs/screenshot.jpg)
+![ShelfSense dashboard on Day 6: KPIs with sparklines, freshness scanner, shelf inventory, agents, alerts](docs/screenshot.jpg)
 
-<details><summary>Demo week in motion (GIF, 1.3 MB)</summary>
+The app is split into tabs: Dashboard, Inventory, Forecast, Pricing & Discounts, AI Agents, Orders,
+Analytics, Data Ingestion, Settings (profile name and store, saved in the browser) and Help.
+
+<details><summary>Demo week in motion (GIF, 1.3 MB, recorded on the earlier dark UI)</summary>
 
 ![Demo script: play, Frame 3 scan, fast-forward to Day 7](docs/demo.gif)
 
@@ -46,8 +49,9 @@ npm run dev
 ```
 
 Weather: `WEATHER_PROVIDER=open_meteo` shows Dhaka weather (no key); `uv run python -m scripts.snapshot_open_meteo`
-rebuilds the simulation's weather snapshot for that location. Zone C toggles between the two stores'
-shelf labels, and *Export CSV* downloads the current run.
+rebuilds the simulation's weather snapshot for that location. The store picker in the header switches
+the shelf views between ShelfSense and its baseline twin, and *Export CSV* (Inventory, Analytics)
+downloads the current run. Product photos are Unsplash (credits in `frontend/public/products/CREDITS.md`).
 
 Headless run: `cd backend && uv run python -m app.sim.cli --hours 168 --seed 42 --scenario demo`
 (`--seeds 1-20` for the benchmark, `--seeds 1-20 --calibrate` for Store A vs FAO waste rates).

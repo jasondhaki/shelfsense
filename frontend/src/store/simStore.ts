@@ -28,6 +28,41 @@ export const AGENTS: AgentName[] = [
 
 export type Connection = 'connecting' | 'waking' | 'open' | 'closed'
 
+export const PAGES = [
+  'dashboard',
+  'inventory',
+  'forecast',
+  'pricing',
+  'agents',
+  'orders',
+  'analytics',
+  'data',
+  'settings',
+  'help',
+] as const
+export type Page = (typeof PAGES)[number]
+
+const pageFromHash = (): Page => {
+  const h = location.hash.replace(/^#\/?/, '') as Page
+  return PAGES.includes(h) ? h : 'dashboard'
+}
+
+export interface Profile {
+  name: string
+  store: string
+}
+const PROFILE_KEY = 'shelfsense.profile'
+const DEFAULT_PROFILE: Profile = { name: 'Atiqur', store: 'Bay 2' }
+
+function loadProfile(): Profile {
+  try {
+    const p = JSON.parse(localStorage.getItem(PROFILE_KEY) ?? 'null') as Partial<Profile> | null
+    return { ...DEFAULT_PROFILE, ...p }
+  } catch {
+    return DEFAULT_PROFILE
+  }
+}
+
 export const FRAMES: { id: FrameId; label: string; src: string }[] = [
   { id: 'frame1', label: 'Day 1 morning', src: '/frames/frame1.jpg' },
   { id: 'frame2', label: 'Day 3 afternoon', src: '/frames/frame2.jpg' },
@@ -52,6 +87,8 @@ interface SimStore {
   formula: FormulaBreakdown | null
   activeTab: 'procurement' | 'bundles'
   eslStore: 'B' | 'A'
+  page: Page
+  profile: Profile
   notice: string | null
   vision: VisionState
   /** ShelfSense orders from the last regular (non-weather) PO run, to show what a weather recompute moved. */
@@ -67,6 +104,9 @@ interface SimStore {
   closeFormula(): void
   setTab(t: 'procurement' | 'bundles'): void
   setEslStore(s: 'B' | 'A'): void
+  setPage(p: Page): void
+  syncPage(): void
+  setProfile(p: Profile): void
   exportReport(): Promise<void>
   dismissNotice(): void
   selectFrame(id: FrameId): void
@@ -93,6 +133,8 @@ export const useSim = create<SimStore>()((set, get) => ({
   formula: null,
   activeTab: 'procurement',
   eslStore: 'B',
+  page: pageFromHash(),
+  profile: loadProfile(),
   notice: null,
   poRegular: {},
   vision: { frameId: 'frame1', imageUrl: FRAMES[0].src, upload: null, result: null, scanning: false },
@@ -183,6 +225,20 @@ export const useSim = create<SimStore>()((set, get) => ({
   closeFormula: () => set({ selectedSku: null, formula: null }),
   setTab: (activeTab) => set({ activeTab }),
   setEslStore: (eslStore) => set({ eslStore }),
+  setPage: (page) => {
+    if (location.hash !== `#/${page}`) location.hash = `/${page}`
+    set({ page })
+    window.scrollTo({ top: 0 })
+  },
+  syncPage: () => set({ page: pageFromHash() }),
+  setProfile: (profile) => {
+    try {
+      localStorage.setItem(PROFILE_KEY, JSON.stringify(profile))
+    } catch {
+      // private mode: keep it for this tab only
+    }
+    set({ profile })
+  },
   exportReport: async () => {
     try {
       await api.report()

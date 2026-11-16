@@ -175,3 +175,13 @@ def test_baseline_store_labels(client):
     a = {e["sku_id"]: e for e in s["esl_a"]}
     assert len(a) == 8
     assert all(e["rsl_hours"] == max(e["printed_remaining_hours"], 0) for e in a.values())
+
+
+def test_ui_fields_for_freshness_and_sparklines(client):
+    step(client, 3)
+    s = client.get("/api/sim/state").json()
+    for e in s["esl"] + s["esl_a"]:
+        assert e["shelf_life_hours"] > 0 and e["rsl_hours"] <= e["shelf_life_hours"] + 1e-6
+    last = s["chart"][-1]
+    assert last["co2e_avoided_kg"] == pytest.approx(s["kpis"]["co2e_avoided_kg"])
+    assert last["net_margin_recovered_usd"] == pytest.approx(s["kpis"]["net_margin_recovered_usd"])
