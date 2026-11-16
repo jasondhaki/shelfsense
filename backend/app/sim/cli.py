@@ -150,6 +150,7 @@ def main() -> None:
     ap.add_argument("--hours", type=int, default=CYCLE_TICKS)
     ap.add_argument("--seed", type=int, default=42)
     ap.add_argument("--scenario", choices=list(SCENARIOS), default="none")
+    ap.add_argument("--demand-model", choices=["linear", "constant"], default="linear")
     ap.add_argument("--seeds", help="range like 1-20: print waste reduction mean ± std")
     ap.add_argument(
         "--calibrate",
@@ -167,7 +168,7 @@ def main() -> None:
         lo, hi = map(int, args.seeds.split("-"))
         vals = []
         for s in range(lo, hi + 1):
-            st, _ = run(load_config(s), args.hours, args.scenario)
+            st, _ = run(load_config(s, demand_model=args.demand_model), args.hours, args.scenario)
             k = kpi.kpis(st)
             vals.append(k["waste_reduction_pct"])
             print(
@@ -182,7 +183,9 @@ def main() -> None:
         return
 
     t0 = time.perf_counter()
-    state, logs = run(load_config(args.seed), args.hours, args.scenario)
+    state, logs = run(
+        load_config(args.seed, demand_model=args.demand_model), args.hours, args.scenario
+    )
     dt = time.perf_counter() - t0
     _report(state)
     print(f"\n{len(logs)} log entries, {len(state.event_log)} events, ran in {dt:.2f}s")

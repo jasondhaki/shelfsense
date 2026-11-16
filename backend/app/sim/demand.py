@@ -42,12 +42,22 @@ def v_forecast(state: SimState, sku: SkuConfig, tick: int, rsl: float) -> float:
     return lam_sum(state, sku, tick, h) / h if h > 0 else 0.0
 
 
-def price_mult(price: float, sku: SkuConfig, max_mult: float) -> float:
-    return min(max(1 + sku.elasticity * (price / sku.base_price_usd - 1), 0.0), max_mult)
+def price_mult(price: float, sku: SkuConfig, max_mult: float, model: str = "linear") -> float:
+    r = price / sku.base_price_usd
+    m = r**sku.elasticity if model == "constant" else 1 + sku.elasticity * (r - 1)
+    return min(max(m, 0.0), max_mult)
 
 
-def realised(state: SimState, sku: SkuConfig, tick: int, price: float) -> int:
-    return rng.poisson_inv_cdf(_u(state, sku, tick), true_mean(state, sku, tick, price))
+def realised(state: SimState, store, sku: SkuConfig, tick: int, price: float) -> int:
+    """Pull-forward: a share of markdown-induced extra demand is borrowed from later hours
+    (shoppers stock up, then buy less). Applies to both stores' markdowns."""
+    cfg = state.config
+    base = lam(state, sku, tick) * day_shock(state, sku, tick)
+    m = price_mult(price, sku, cfg.max_demand_mult, cfg.demand_model)
+    debt = store.pull_debt.get(sku.sku_id, 0.0)
+    repay = min(debt, base * cfg.pull_forward_repay_max)
+    store.pull_debt[sku.sku_id] = debt - repay + cfg.pull_forward_share * base * max(0.0, m - 1)
+    return rng.poisson_inv_cdf(_u(state, sku, tick), max(0.0, base * m - repay))
 
 
 def _u(state: SimState, sku: SkuConfig, tick: int) -> float:
@@ -64,5 +74,6 @@ def day_shock(state: SimState, sku: SkuConfig, tick: int) -> float:
 
 
 def true_mean(state: SimState, sku: SkuConfig, tick: int, price: float) -> float:
-    m = price_mult(price, sku, state.config.max_demand_mult)
+    cfg = state.config
+    m = price_mult(price, sku, cfg.max_demand_mult, cfg.demand_model)
     return lam(state, sku, tick) * day_shock(state, sku, tick) * m

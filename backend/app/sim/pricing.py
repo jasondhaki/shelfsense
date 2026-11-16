@@ -19,7 +19,12 @@ def v_target(qty_rsl: list[tuple[int, float]]) -> tuple[float, int | None]:
 
 
 def gap_price(
-    v_t: float, v_fc: float, elasticity: float, p_base: float, floor_ratio: float
+    v_t: float,
+    v_fc: float,
+    elasticity: float,
+    p_base: float,
+    floor_ratio: float,
+    model: str = "linear",
 ) -> dict:
     p_floor = round(floor_ratio * p_base, 2)
     out = {"delta_q_pct": 0.0, "delta_p_pct": 0.0, "p_raw": p_base, "p_floor": p_floor}
@@ -28,8 +33,12 @@ def gap_price(
     if v_fc <= 0:  # §11: no forecast demand inside the horizon
         return out | {"p_raw": p_floor, "p_new": p_floor, "risk": True, "floor_bound": True}
     dq = (v_t - v_fc) / v_fc * 100
-    dp = dq / elasticity
-    p_raw = p_base * (1 + dp / 100)
+    if model == "constant":  # (P/P_base)^ε = V_t/V_f
+        p_raw = p_base * (v_t / v_fc) ** (1 / elasticity)
+        dp = (p_raw / p_base - 1) * 100
+    else:
+        dp = dq / elasticity
+        p_raw = p_base * (1 + dp / 100)
     return {
         "delta_q_pct": dq,
         "delta_p_pct": dp,
@@ -49,7 +58,14 @@ def store_b_decision(state: SimState, sku: SkuConfig, tick: int) -> dict:
     vt, i = v_target([(b.qty, r) for b, r in zip(batches, rsls, strict=True)])
     rsl = rsls[i] if i is not None else (rsls[0] if rsls else 0.0)
     vf = demand.v_forecast(state, sku, tick, rsl) if i is not None else 0.0
-    d = gap_price(vt, vf, sku.elasticity, sku.base_price_usd, sku.price_floor_ratio)
+    d = gap_price(
+        vt,
+        vf,
+        sku.elasticity,
+        sku.base_price_usd,
+        sku.price_floor_ratio,
+        state.config.demand_model,
+    )
     oldest = batches[0] if batches else None
     return d | {
         "sku_id": sku.sku_id,
@@ -79,7 +95,7 @@ def store_a_price(state: SimState, sku: SkuConfig, now: int) -> float:
 
 
 def forecast_24h(state: SimState, sku: SkuConfig, tick: int, price: float) -> float:
-    m = demand.price_mult(price, sku, state.config.max_demand_mult)
+    m = demand.price_mult(price, sku, state.config.max_demand_mult, state.config.demand_model)
     return demand.lam_sum(state, sku, tick, 24) * m
 
 
@@ -89,5 +105,5 @@ def surplus_risk_units(state: SimState, sku: SkuConfig, tick: int, price: float)
         return 0
     beta = beta_sku(state.beta_env, sku.weather_exposure)
     h = min(24, math.ceil(rsl_known(batches[0], beta)))
-    m = demand.price_mult(price, sku, state.config.max_demand_mult)
+    m = demand.price_mult(price, sku, state.config.max_demand_mult, state.config.demand_model)
     return max(0, math.ceil(sum(b.qty for b in batches) - demand.lam_sum(state, sku, tick, h) * m))

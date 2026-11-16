@@ -251,3 +251,22 @@ def test_day_shock_mean_one_and_constant_within_day():
     draws = [rng.gamma_mean1(0.3, s, "demand_shock", 0, 0) for s in range(4000)]
     assert sum(draws) / len(draws) == pytest.approx(1.0, abs=0.02)
     assert rng.gamma_mean1(0.0, 1, "demand_shock", 0, 0) == 1.0
+
+
+def test_constant_elasticity_mult_and_price():
+    sku = load_config(1).sku_by_id["STRW-01"]
+    assert price_mult(sku.base_price_usd * 0.5, sku, 9.0, "constant") == pytest.approx(0.5**-2.0)
+    d = pricing.gap_price(4.0, 2.5, -2.0, 4.99, 0.4, "constant")
+    assert d["p_raw"] == pytest.approx(4.99 * 1.6 ** (-0.5))
+
+
+def test_pull_forward_borrows_from_later_hours():
+    from app.sim import demand
+
+    state = engine.new_sim(load_config(1))
+    sku = state.config.sku_by_id["STRW-01"]
+    demand.realised(state, state.b, sku, 10, sku.base_price_usd * 0.5)  # markdown hour
+    assert state.b.pull_debt["STRW-01"] > 0
+    debt = state.b.pull_debt["STRW-01"]
+    demand.realised(state, state.b, sku, 11, sku.base_price_usd)  # full price: repays
+    assert state.b.pull_debt["STRW-01"] < debt

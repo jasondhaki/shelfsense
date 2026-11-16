@@ -205,7 +205,7 @@ def step(state: SimState, queued: Iterable[events.Event] = ()) -> tuple[SimState
     if is_open(t):
         for sku in cfg.skus:
             for store in (state.a, state.b):
-                d = demand.realised(state, sku, t, store.price[sku.sku_id])
+                d = demand.realised(state, store, sku, t, store.price[sku.sku_id])
                 _sell(state, store, sku.sku_id, d, store.price[sku.sku_id])
         bundling.sell_boxes(state, t)
     # 9. age, spoil, expire

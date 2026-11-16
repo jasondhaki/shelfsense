@@ -83,6 +83,13 @@ class SimConfig:
     camera_skus: tuple[str, ...] = ("STRW-01", "BANA-01")
     emergency_delivery_days: float = 0.5  # immediate cold-chain delivery size, days of demand
     fresh_picker_share: float = 0.7  # shoppers taking the newest unit, both stores (calibrated)
+    demand_model: str = "linear"  # linear (spec) | constant: (P/P_base)^ε
+    pull_forward_share: float = (
+        0.5  # share of markdown-induced extra sales borrowed from later hours (assumed)
+    )
+    pull_forward_repay_max: float = (
+        0.5  # at most this share of an hour's base demand repays the debt
+    )
     demand_daily_cv: float = 0.3  # day-level forecast error, Gamma(mean 1) per SKU-day (assumed)
 
     def __post_init__(self) -> None:
@@ -140,6 +147,7 @@ class StoreState:
     cost_received_usd: float = 0.0
     waste_kg: float = 0.0
     written_off_usd: float = 0.0
+    pull_debt: dict[str, float] = field(default_factory=dict)  # demand borrowed by past markdowns
 
     def on_hand(self, sku_id: str) -> int:
         return sum(b.qty for b in self.batches[sku_id])

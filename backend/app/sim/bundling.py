@@ -25,7 +25,10 @@ def build_boxes(state: SimState, tick: int) -> list[LogDraft]:
         d = state.pricing.get(sku.sku_id, {})
         beta = beta_sku(state.beta_env, sku.weather_exposure)
         m_floor = demand.price_mult(
-            round(sku.price_floor_ratio * sku.base_price_usd, 2), sku, cfg.max_demand_mult
+            round(sku.price_floor_ratio * sku.base_price_usd, 2),
+            sku,
+            cfg.max_demand_mult,
+            cfg.demand_model,
         )
         for b in state.b.batches[sku.sku_id]:
             r = rsl_known(b, beta)
