@@ -51,6 +51,7 @@ interface SimStore {
   selectedSku: string | null
   formula: FormulaBreakdown | null
   activeTab: 'procurement' | 'bundles'
+  eslStore: 'B' | 'A'
   notice: string | null
   vision: VisionState
   /** ShelfSense orders from the last regular (non-weather) PO run, to show what a weather recompute moved. */
@@ -65,6 +66,8 @@ interface SimStore {
   openFormula(skuId: string): Promise<void>
   closeFormula(): void
   setTab(t: 'procurement' | 'bundles'): void
+  setEslStore(s: 'B' | 'A'): void
+  exportReport(): Promise<void>
   dismissNotice(): void
   selectFrame(id: FrameId): void
   selectUpload(f: File): void
@@ -89,6 +92,7 @@ export const useSim = create<SimStore>()((set, get) => ({
   selectedSku: null,
   formula: null,
   activeTab: 'procurement',
+  eslStore: 'B',
   notice: null,
   poRegular: {},
   vision: { frameId: 'frame1', imageUrl: FRAMES[0].src, upload: null, result: null, scanning: false },
@@ -128,6 +132,7 @@ export const useSim = create<SimStore>()((set, get) => ({
           tick,
           kpis: delta.kpis,
           esl: delta.esl,
+          esl_a: delta.esl_a,
           po_table: delta.po_table ?? snap.po_table,
           bundles: delta.bundles ?? snap.bundles,
           weather: delta.weather ?? snap.weather,
@@ -177,6 +182,14 @@ export const useSim = create<SimStore>()((set, get) => ({
 
   closeFormula: () => set({ selectedSku: null, formula: null }),
   setTab: (activeTab) => set({ activeTab }),
+  setEslStore: (eslStore) => set({ eslStore }),
+  exportReport: async () => {
+    try {
+      await api.report()
+    } catch (e) {
+      set({ notice: failure(e) })
+    }
+  },
   dismissNotice: () => set({ notice: null }),
 
   selectFrame: (id) =>

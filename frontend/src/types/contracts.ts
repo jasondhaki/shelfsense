@@ -135,6 +135,7 @@ export interface SimSnapshot {
   weather: WeatherNow
   kpis: Kpis
   esl: EslView[]
+  esl_a: EslView[] // baseline store's labels (printed-date view)
   po_table: PoRow[]
   bundles: Bundle[]
   chart: ChartPoint[]
@@ -145,6 +146,7 @@ export interface SimSnapshot {
 export interface TickDelta {
   kpis: Kpis
   esl: EslView[]
+  esl_a: EslView[]
   po_table: PoRow[] | null
   bundles: Bundle[] | null
   chart_point: ChartPoint

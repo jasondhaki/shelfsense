@@ -4,6 +4,8 @@ run is reproducible from (seed, event timeline)."""
 
 import asyncio
 import contextlib
+import re
+from collections import OrderedDict
 
 from app import views
 from app.agents.bus import AgentBus
@@ -77,6 +79,7 @@ class SimController:
             weather=self.weather(),
             kpis=views.kpis(s),
             esl=views.esl(s),
+            esl_a=views.esl_a(s),
             po_table=views.po_table(s),
             bundles=views.bundles(s),
             chart=views.chart(s),
@@ -188,6 +191,7 @@ class SimController:
         return TickDelta(
             kpis=views.kpis(s),
             esl=views.esl(s),
+            esl_a=views.esl_a(s),
             po_table=changed("po", views.po_table(s)),
             bundles=changed("bundles", views.bundles(s)),
             chart_point=views.chart(s)[-1],
@@ -213,3 +217,33 @@ class SimController:
 
     def _broadcast_status(self) -> None:
         self._broadcast({"type": "status", "status": self.status, "speed": self.speed})
+
+
+SESSION_ID = re.compile(r"^[A-Za-z0-9-]{8,64}$")
+SHARED = "shared"
+
+
+class Sessions:
+    """One SimController per browser session (X-Session-Id header / ?session= on the WebSocket).
+    Requests without a valid id share one simulation. LRU-capped so a free instance's memory
+    stays bounded; an evicted session's loop is paused."""
+
+    def __init__(self, factory, cap: int = 25) -> None:
+        self.factory = factory
+        self.cap = cap
+        self.items: OrderedDict[str, SimController] = OrderedDict()
+
+    def get(self, session_id: str | None) -> SimController:
+        key = session_id if session_id and SESSION_ID.match(session_id) else SHARED
+        c = self.items.get(key)
+        if c is None:
+            c = self.items[key] = self.factory()
+            while len(self.items) > self.cap:
+                _, old = self.items.popitem(last=False)
+                old.playing = False  # its loop exits at the next tick boundary
+        self.items.move_to_end(key)
+        return c
+
+    async def pause_all(self) -> None:
+        for c in self.items.values():
+            await c.control("pause")

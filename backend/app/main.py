@@ -9,10 +9,11 @@ from starlette.exceptions import HTTPException
 from app.agents.rag_agent import all_queries
 from app.api import routes, ws
 from app.config import get_settings
-from app.controller import SimController
+from app.controller import Sessions, SimController
 from app.rag.retriever import Retriever
 from app.services import gemini
 from app.services.noaa import NoaaService
+from app.services.open_meteo import OpenMeteoService
 
 VERSION = "0.3.0"
 
@@ -26,19 +27,28 @@ def create_app() -> FastAPI:
 
     @asynccontextmanager
     async def lifespan(app: FastAPI):
-        noaa = NoaaService(settings)
+        noaa = (
+            OpenMeteoService(settings)
+            if settings.weather_provider == "open_meteo"
+            else NoaaService(settings)
+        )
         await noaa.refresh()
         retriever = Retriever(
             settings.rag_mode,
             vector_ready=bool(settings.gemini_api_key and settings.gemini_embed_model),
             embed_model=settings.gemini_embed_model,
         )
-        ctl = SimController(settings.sim_seed, noaa, retriever)
+        sessions = Sessions(lambda: SimController(settings.sim_seed, noaa, retriever))
+        shared = sessions.get(None)
         # vector mode: embed every templated query once now, so ticks never wait on the network
-        await retriever.warm(all_queries(ctl.state.config), lambda qs: gemini.embed(qs, settings))
-        app.state.controller = ctl
+        await retriever.warm(
+            all_queries(shared.state.config), lambda qs: gemini.embed(qs, settings)
+        )
+        app.state.sessions = sessions
+        app.state.retriever = retriever
+        app.state.noaa = noaa
         yield
-        await app.state.controller.control("pause")
+        await sessions.pause_all()
 
     app = FastAPI(title="ShelfSense", version=VERSION, lifespan=lifespan)
     app.add_middleware(
@@ -63,14 +73,16 @@ def create_app() -> FastAPI:
 
     @app.get("/api/health")
     def health(request: Request) -> dict:
-        ctl = getattr(request.app.state, "controller", None)
-        rag = ctl.retriever.mode if ctl else "bm25"
+        r = getattr(request.app.state, "retriever", None)
+        n = getattr(request.app.state, "noaa", None)
+        rag = r.mode if r else "bm25"
         return {
             "status": "ok",
             "version": VERSION,
             "vision_mode": settings.vision_mode,
             "rag_mode": rag,
-            "noaa": ctl.noaa.source if ctl else "snapshot",
+            "noaa": n.source if n else "snapshot",
+            "weather_provider": settings.weather_provider,
         }
 
     app.include_router(routes.router)

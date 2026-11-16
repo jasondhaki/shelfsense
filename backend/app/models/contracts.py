@@ -140,6 +140,7 @@ class SimSnapshot(BaseModel):
     weather: WeatherNow
     kpis: Kpis
     esl: list[EslView]
+    esl_a: list[EslView]  # baseline store's labels (printed-date view)
     po_table: list[PoRow]
     bundles: list[Bundle]
     chart: list[ChartPoint]
@@ -150,6 +151,7 @@ class SimSnapshot(BaseModel):
 class TickDelta(BaseModel):
     kpis: Kpis
     esl: list[EslView]
+    esl_a: list[EslView]
     po_table: list[PoRow] | None  # only when changed
     bundles: list[Bundle] | None  # only when changed
     chart_point: ChartPoint

@@ -18,7 +18,11 @@ class Settings(BaseSettings):
     gemini_vision_model: str = ""
     gemini_embed_model: str = ""
     rag_mode: Literal["auto", "vector", "bm25"] = "auto"
-    noaa_enabled: bool = True
+    weather_provider: Literal["noaa", "open_meteo"] = "noaa"  # header widget source
+    noaa_enabled: bool = True  # live weather on/off (either provider)
+    open_meteo_lat: float = 23.8103  # Dhaka
+    open_meteo_lon: float = 90.4125
+    open_meteo_location: str = "Dhaka, BD"
     noaa_lat: float = 40.7128
     noaa_lon: float = -74.0060
     noaa_user_agent: str = "ShelfSense (contact: your-email@example.com)"

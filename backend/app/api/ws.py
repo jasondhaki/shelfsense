@@ -21,7 +21,7 @@ def _is_ping(text: str) -> bool:
 @router.websocket("/ws/sim")
 async def sim_ws(ws: WebSocket) -> None:
     await ws.accept()
-    c = ws.app.state.controller
+    c = ws.app.state.sessions.get(ws.query_params.get("session"))
     q = c.subscribe()
     try:
         await ws.send_json({"type": "hello", "snapshot": c.snapshot().model_dump(mode="json")})

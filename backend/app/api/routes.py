@@ -1,6 +1,9 @@
 """REST routes (BACKEND §3). Validation only; behaviour lives in the controller."""
 
-from fastapi import APIRouter, File, Form, HTTPException, Request, UploadFile
+import csv
+import io
+
+from fastapi import APIRouter, File, Form, HTTPException, Request, Response, UploadFile
 
 from app import views
 from app.agents import vision_agent
@@ -24,7 +27,7 @@ router = APIRouter(prefix="/api")
 
 
 def ctl(request: Request) -> SimController:
-    return request.app.state.controller
+    return request.app.state.sessions.get(request.headers.get("x-session-id"))
 
 
 @router.get("/sim/state", response_model=SimSnapshot)
@@ -120,10 +123,10 @@ def meta_architecture(request: Request) -> Architecture:
         ),
         n(
             id="noaa",
-            label="NOAA weather",
+            label="Open-Meteo weather" if s.weather_provider == "open_meteo" else "NOAA weather",
             layer="source",
             status="live" if noaa_live else "fallback",
-            detail="Live forecast" if noaa_live else "Committed snapshot (NYC)",
+            detail="Live forecast" if noaa_live else "Committed snapshot",
         ),
         n(
             id="kaggle",
@@ -236,3 +239,45 @@ def meta_architecture(request: Request) -> Architecture:
         ("orchestrator", "boxes"),
     ]
     return Architecture(nodes=nodes, edges=[ArchEdge(source=a, target=b) for a, b in pairs])
+
+
+@router.get("/sim/report.csv")
+def sim_report(request: Request) -> Response:
+    """Hourly series of this session's run (backlog: export run report)."""
+    c = ctl(request)
+    s = c.state
+    buf = io.StringIO()
+    w = csv.writer(buf)
+    w.writerow(
+        [
+            "tick",
+            "sim_time",
+            "waste_kg_baseline",
+            "waste_kg_shelfsense",
+            "revenue_usd_baseline",
+            "revenue_usd_shelfsense",
+        ]
+    )
+    for p in s.chart:
+        t = p["tick"]
+        w.writerow(
+            [
+                t,
+                f"D{t // 24 + 1} {t % 24:02d}:00",
+                round(p["waste_kg_a"], 3),
+                round(p["waste_kg_b"], 3),
+                round(p["revenue_a"], 2),
+                round(p["revenue_b"], 2),
+            ]
+        )
+    k = views.kpis(s)
+    w.writerow([])
+    for name, value in k.model_dump().items():
+        w.writerow([name, "" if value is None else round(value, 3)])
+    return Response(
+        buf.getvalue(),
+        media_type="text/csv",
+        headers={
+            "Content-Disposition": f'attachment; filename="shelfsense-seed{c.seed}-t{s.tick}.csv"'
+        },
+    )

@@ -39,6 +39,10 @@ npm install
 npm run dev
 ```
 
+Weather: `WEATHER_PROVIDER=open_meteo` shows Dhaka weather (no key); `uv run python -m scripts.snapshot_open_meteo`
+rebuilds the simulation's weather snapshot for that location. Zone C toggles between the two stores'
+shelf labels, and *Export CSV* downloads the current run.
+
 Headless run: `cd backend && uv run python -m app.sim.cli --hours 168 --seed 42 --scenario demo`
 (`--seeds 1-20` for the benchmark, `--seeds 1-20 --calibrate` for Store A vs FAO waste rates).
 
@@ -102,7 +106,8 @@ Details, licences and dates: [`backend/data/seed/CREDITS.md`](backend/data/seed/
 - **Day-level forecast error is assumed** (CV 0.3), and Store B is otherwise well informed.
 - **Vision fixtures are hand-checked.** Cached scans are a reviewed extraction of three stock photos,
   not a trained, validated grader.
-- **Single shared simulation** per server: two visitors control the same week.
+- **Sessions are in memory:** each browser tab gets its own simulation (up to 25 at once); a server restart
+  or sleep on the free tier starts everyone over.
 
 ## Deploying (free tiers)
 

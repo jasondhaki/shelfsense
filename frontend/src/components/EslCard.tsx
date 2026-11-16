@@ -55,7 +55,7 @@ function StockBar({ esl }: { esl: EslView }) {
   )
 }
 
-export default function EslCard({ esl, onOpen }: { esl: EslView; onOpen: () => void }) {
+export default function EslCard({ esl, onOpen }: { esl: EslView; onOpen?: () => void }) {
   const [flash, setFlash] = useState(false)
   const prev = useRef(esl.current_price)
   useEffect(() => {
@@ -69,13 +69,18 @@ export default function EslCard({ esl, onOpen }: { esl: EslView; onOpen: () => v
   const ribbon = esl.risk_state === 'ok' ? null : RIBBON[esl.risk_state]
   const marked = esl.markdown_pct > 0.005
   const nutri = esl.nutri_score?.toLowerCase()
+  const Wrapper = onOpen ? 'button' : 'article'
 
   return (
-    <button
-      type="button"
-      onClick={onOpen}
-      aria-label={`${esl.name}: ${usd(esl.current_price)}. Open the price formula.`}
-      className="group relative flex flex-col gap-2.5 overflow-hidden rounded-md border border-line bg-panel-2 p-3 text-left transition-colors hover:border-accent/60 focus-visible:outline focus-visible:outline-2 focus-visible:outline-accent"
+    <Wrapper
+      {...(onOpen
+        ? {
+            type: 'button' as const,
+            onClick: onOpen,
+            'aria-label': `${esl.name}: ${usd(esl.current_price)}. Open the price formula.`,
+          }
+        : { 'aria-label': `${esl.name}: ${usd(esl.current_price)}` })}
+      className={`group relative flex flex-col gap-2.5 overflow-hidden rounded-md border border-line bg-panel-2 p-3 text-left transition-colors ${onOpen ? 'hover:border-accent/60 focus-visible:outline focus-visible:outline-2 focus-visible:outline-accent' : ''}`}
     >
       <div className="flex items-start justify-between gap-2">
         <div className="min-w-0">
@@ -153,6 +158,6 @@ export default function EslCard({ esl, onOpen }: { esl: EslView; onOpen: () => v
           {ribbon.label}
         </div>
       )}
-    </button>
+    </Wrapper>
   )
 }

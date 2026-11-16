@@ -125,3 +125,53 @@ def test_demo_scenario_reset_runs_scripted_events(client):
     logs = client.get("/api/sim/state").json()["logs"]
     assert any(x["agent"] == "VISION_AGENT" and "frame3 (scripted)" in x["message"] for x in logs)
     assert isinstance(types, list)
+
+
+def test_sessions_are_isolated(client):
+    a = {"X-Session-Id": "tab-aaaaaaaa"}
+    b = {"X-Session-Id": "tab-bbbbbbbb"}
+    for _ in range(3):
+        client.post("/api/sim/control", json={"action": "step"}, headers=a)
+    assert client.get("/api/sim/state", headers=a).json()["tick"] == 3
+    assert client.get("/api/sim/state", headers=b).json()["tick"] == 0
+    # malformed ids share the default simulation instead of creating new ones
+    bad = {"X-Session-Id": "x"}
+    assert (
+        client.get("/api/sim/state", headers=bad).json()["tick"]
+        == client.get("/api/sim/state").json()["tick"]
+    )
+    with client.websocket_connect("/ws/sim?session=tab-aaaaaaaa") as ws:
+        assert ws.receive_json()["snapshot"]["tick"] == 3
+
+
+def test_session_cap_evicts_least_recent():
+    from app.controller import Sessions
+
+    made = []
+
+    class Fake:
+        playing = True
+
+    s = Sessions(lambda: made.append(Fake()) or made[-1], cap=2)
+    first = s.get("session-0001")
+    s.get("session-0002")
+    s.get("session-0003")
+    assert len(s.items) == 2 and "session-0001" not in s.items and first.playing is False
+
+
+def test_report_csv(client):
+    step(client, 5)
+    r = client.get("/api/sim/report.csv")
+    assert r.status_code == 200 and r.headers["content-type"].startswith("text/csv")
+    lines = r.text.strip().splitlines()
+    assert lines[0].startswith("tick,sim_time,waste_kg_baseline")
+    assert lines[1].startswith("0,D1 00:00") and len([x for x in lines if x[:1].isdigit()]) == 5
+    assert any(x.startswith("waste_reduction_pct") for x in lines)
+
+
+def test_baseline_store_labels(client):
+    step(client, 2)
+    s = client.get("/api/sim/state").json()
+    a = {e["sku_id"]: e for e in s["esl_a"]}
+    assert len(a) == 8
+    assert all(e["rsl_hours"] == max(e["printed_remaining_hours"], 0) for e in a.values())

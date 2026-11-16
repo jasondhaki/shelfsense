@@ -99,11 +99,22 @@ def forecast_24h(state: SimState, sku: SkuConfig, tick: int, price: float) -> fl
     return demand.lam_sum(state, sku, tick, 24) * m
 
 
-def surplus_risk_units(state: SimState, sku: SkuConfig, tick: int, price: float) -> int:
-    batches = state.b.batches[sku.sku_id]
+def surplus_risk_units(
+    state: SimState,
+    sku: SkuConfig,
+    tick: int,
+    price: float,
+    store=None,
+    horizon_h: float | None = None,
+) -> int:
+    """Stock beyond expected sales within min(24 h, shelf life). Store B uses its known RSL;
+    pass `store` + `horizon_h` (e.g. printed remaining) for Store A's view."""
+    store = store or state.b
+    batches = store.batches[sku.sku_id]
     if not batches:
         return 0
-    beta = beta_sku(state.beta_env, sku.weather_exposure)
-    h = min(24, math.ceil(rsl_known(batches[0], beta)))
+    if horizon_h is None:
+        horizon_h = rsl_known(batches[0], beta_sku(state.beta_env, sku.weather_exposure))
+    h = min(24, math.ceil(max(horizon_h, 0)))
     m = demand.price_mult(price, sku, state.config.max_demand_mult, state.config.demand_model)
     return max(0, math.ceil(sum(b.qty for b in batches) - demand.lam_sum(state, sku, tick, h) * m))

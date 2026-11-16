@@ -83,3 +83,20 @@ def test_favorita_aggregates(tmp_path, monkeypatch):
     assert out["PRODUCE"]["promo_lift"] == pytest.approx(2.0)
     assert "GROCERY I" not in out
     assert read_json(tmp_path / "sales_profile.json")["dow_weight"]["berries"] == w
+
+
+def test_open_meteo_summary_counts_only_rain_codes():
+    from scripts import snapshot_open_meteo
+
+    d = {
+        "current": {"temperature_2m": 84.9, "weather_code": 3},
+        "hourly": {
+            "time": ["2026-01-01T10:00", "2026-01-02T10:00"],
+            "relative_humidity_2m": [50, 90],
+            "precipitation_probability": [60, 70],
+            "weather_code": [3, 63],  # overcast (not rain), rain
+        },
+    }
+    s = snapshot_open_meteo.summarise(d)
+    assert s["p_heavy_rain_by_day"][:2] == [0.0, 0.7] and s["short_forecast"] == "Overcast"
+    assert s["relative_humidity_pct"] == 70

@@ -284,8 +284,8 @@ Final (local build 2026-11-16, demo scenario seed 42): waste reduction 65.6%, di
 ```
 
 ## Backlog (after Phase 8, only if time allows)
-- Per-session simulations (client id → its own SimState)
-- Side-by-side Store A vs B ESL toggle
-- Export run report (CSV of the hourly series)
-- Open-Meteo provider for a Dhaka store location
-- Constant-elasticity demand model as an alternative to linear (compare results)
+- [x] Per-session simulations (client id → its own SimState)
+- [x] Side-by-side Store A vs B ESL toggle
+- [x] Export run report (CSV of the hourly series)
+- [x] Open-Meteo provider for a Dhaka store location
+- [x] Constant-elasticity demand model as an alternative to linear (compare results: linear 57.8% ± 8.5 vs constant, see decisions log)

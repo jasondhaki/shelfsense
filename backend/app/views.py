@@ -26,6 +26,46 @@ def esl(state: SimState) -> list[EslView]:
     return [esl_card(state, s) for s in state.config.skus]
 
 
+def esl_a(state: SimState) -> list[EslView]:
+    """Baseline store's labels: it knows only the printed date, marks down 50% on the last day."""
+    out = []
+    for sku in state.config.skus:
+        sid, t = sku.sku_id, state.tick
+        batches = state.a.batches[sid]
+        price = state.a.price[sid]
+        on_hand = sum(b.qty for b in batches)
+        printed = printed_remaining(batches[0], sku.sl_nominal_hours, t) if batches else 0.0
+        if on_hand == 0:
+            risk = "sold_out"
+        elif price < sku.base_price_usd:
+            risk = "surplus_risk"
+        else:
+            risk = "ok"
+        out.append(
+            EslView(
+                sku_id=sid,
+                name=sku.name,
+                category=sku.category,
+                nutri_score=sku.off.get("nutri_score"),
+                packaging=sku.off.get("packaging"),
+                ethylene=sku.off.get("ethylene"),
+                on_hand=on_hand,
+                forecast_24h=round(pricing.forecast_24h(state, sku, t, price), 1),
+                surplus_risk_units=pricing.surplus_risk_units(
+                    state, sku, t, price, state.a, printed
+                ),
+                rsl_hours=round(max(printed, 0.0), 1),
+                printed_remaining_hours=printed,
+                base_price=sku.base_price_usd,
+                current_price=price,
+                markdown_pct=round(1 - price / sku.base_price_usd, 4),
+                risk_state=risk,
+                store_a_price=price,
+            )
+        )
+    return out
+
+
 def esl_card(state: SimState, sku: SkuConfig) -> EslView:
     sid, t = sku.sku_id, state.tick
     batches = state.b.batches[sid]
