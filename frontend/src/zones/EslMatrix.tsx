@@ -48,7 +48,12 @@ export default function EslMatrix() {
       </div>
       <div className="grid grid-cols-2 gap-2 lg:grid-cols-4">
         {esl?.map((e) => (
-          <EslCard key={e.sku_id} esl={e} onOpen={which === 'B' ? () => openFormula(e.sku_id) : undefined} />
+          <EslCard
+            key={e.sku_id}
+            esl={e}
+            baseline={which === 'A'}
+            onOpen={which === 'B' ? () => openFormula(e.sku_id) : undefined}
+          />
         ))}
       </div>
     </section>

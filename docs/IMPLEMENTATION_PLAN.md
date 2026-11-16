@@ -288,4 +288,4 @@ Final (local build 2026-11-16, demo scenario seed 42): waste reduction 65.6%, di
 - [x] Side-by-side Store A vs B ESL toggle
 - [x] Export run report (CSV of the hourly series)
 - [x] Open-Meteo provider for a Dhaka store location
-- [x] Constant-elasticity demand model as an alternative to linear (compare results: linear 57.8% ± 8.5 vs constant, see decisions log)
+- [x] Constant-elasticity demand model as an alternative to linear (seeds 1–20: linear 57.8% ± 8.5 vs constant 4.0% ± 33.3; linear stays default)

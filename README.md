@@ -105,7 +105,7 @@ Details, licences and dates: [`backend/data/seed/CREDITS.md`](backend/data/seed/
 - **Elasticities are assumed** (−1.4 to −2.2). Half of any markdown's extra sales is treated as
   borrowed from later hours (assumed share 0.5); real promotions in the Favorita data lift sales only
   1.02–1.36×. A constant-elasticity model is available (`--demand-model constant`) but swings
-  widely between seeds.
+  widely between seeds and does much worse (4.0% ± 33.3 vs 57.8% ± 8.5, seeds 1–20).
 - **Store A is calibrated, not observed.** Shopper behaviour (70% pick the freshest unit), delivery
   schedules and Store A's stock level (1.25 cycles) were set so its waste lands near FAO retail rates; cherry
   tomatoes (10-day FoodKeeper life) never expire in a 7-day run.

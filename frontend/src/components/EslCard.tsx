@@ -55,7 +55,17 @@ function StockBar({ esl }: { esl: EslView }) {
   )
 }
 
-export default function EslCard({ esl, onOpen }: { esl: EslView; onOpen?: () => void }) {
+/** `baseline`: the printed-date store's label — its only markdown is the last-day 50%, and it has no
+ *  second store to compare against. */
+export default function EslCard({
+  esl,
+  onOpen,
+  baseline = false,
+}: {
+  esl: EslView
+  onOpen?: () => void
+  baseline?: boolean
+}) {
   const [flash, setFlash] = useState(false)
   const prev = useRef(esl.current_price)
   useEffect(() => {
@@ -66,7 +76,12 @@ export default function EslCard({ esl, onOpen }: { esl: EslView; onOpen?: () => 
     return () => window.clearTimeout(t)
   }, [esl.current_price])
 
-  const ribbon = esl.risk_state === 'ok' ? null : RIBBON[esl.risk_state]
+  const ribbon =
+    esl.risk_state === 'ok'
+      ? null
+      : baseline && esl.risk_state === 'surplus_risk'
+        ? { ...RIBBON.surplus_risk, label: 'Last-day markdown' }
+        : RIBBON[esl.risk_state]
   const marked = esl.markdown_pct > 0.005
   const nutri = esl.nutri_score?.toLowerCase()
   const Wrapper = onOpen ? 'button' : 'article'
@@ -144,9 +159,11 @@ export default function EslCard({ esl, onOpen }: { esl: EslView; onOpen?: () => 
           >
             {usd(esl.current_price)}
           </div>
-          <div className="mt-1 font-mono text-[11px] tabular-nums text-muted">
-            baseline store {usd(esl.store_a_price)}
-          </div>
+          {!baseline && (
+            <div className="mt-1 font-mono text-[11px] tabular-nums text-muted">
+              baseline store {usd(esl.store_a_price)}
+            </div>
+          )}
         </div>
       </div>
 
