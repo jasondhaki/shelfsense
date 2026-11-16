@@ -6,6 +6,7 @@ change is only *previewed* here; the engine applies it at the start of the next 
 
 from pathlib import Path
 
+from app.agents import rag_agent
 from app.config import Settings
 from app.controller import EventRejected, SimController
 from app.models.contracts import Citation, VisionExtraction, VisionScanResult
@@ -14,7 +15,6 @@ from app.sim.shelf_life import alpha_from_vision, beta_sku, printed_remaining, r
 
 DATA = Path(__file__).resolve().parents[2] / "data"
 FIXTURES = DATA / "fixtures" / "vision"
-CORPUS = DATA / "rag" / "corpus"
 LABEL_TO_SKU = {
     "strawberries": "STRW-01",
     "bananas": "BANA-01",
@@ -35,21 +35,6 @@ class ScanFailed(Exception):
 
 def fixture(frame_id: str) -> VisionExtraction:
     return VisionExtraction.model_validate_json((FIXTURES / f"{frame_id}.json").read_text("utf-8"))
-
-
-def foodkeeper_citation(sku_id: str) -> Citation | None:
-    """Direct FoodKeeper lookup for the SKU (Phase 7 replaces this with RAG retrieval)."""
-    f = CORPUS / f"foodkeeper_{sku_id}.md"
-    if not f.exists():
-        return None
-    head, _, body = f.read_text(encoding="utf-8").partition("---\n")[2].partition("---\n")
-    meta = dict(line.split(": ", 1) for line in head.splitlines() if ": " in line)
-    return Citation(
-        source=meta.get("source", "USDA FoodKeeper"),
-        title=meta.get("title", sku_id),
-        chunk_id=f.stem,
-        text=body.strip()[:400],
-    )
 
 
 async def scan(
@@ -117,7 +102,17 @@ async def scan(
         result.rsl_after_hours = round(
             max(0.0, (oldest.sl_true - oldest.age_true) / (alpha * beta)), 1
         )
-    result.foodkeeper_citation = foodkeeper_citation(sku_id)
+    hit = rag_agent.vision_citation(ctl.retriever, sku_id)
+    if hit:
+        result.foodkeeper_citation = Citation(
+            source=hit.source,
+            title=hit.title,
+            chunk_id=hit.chunk_id,
+            text=hit.text[:400],
+            url=hit.url,
+            score=round(hit.score, 3),
+            mode=hit.mode,
+        )
 
     payload = {
         "sku_id": sku_id,

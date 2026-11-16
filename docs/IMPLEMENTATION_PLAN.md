@@ -2,7 +2,7 @@
 
 Nine phases. Each one ends with something that runs and is tested. Don't start a phase until the previous phase's acceptance checks pass.
 
-**Current phase:** `Phase 6` ← update this line when a phase is done.
+**Current phase:** `Phase 8` ← update this line when a phase is done.
 
 | Phase | Goal | Rough effort |
 |---|---|---|
@@ -227,14 +227,23 @@ Phase 6 results (2026-11-16, cached mode, no key):
 **Kickoff prompt:**
 > Read docs/AI_PIPELINE.md §2. Do Phase 7: build_rag_index.py (vector + BM25), app/rag/retriever.py with mode auto/vector/bm25, and the RAG_KNOWLEDGE_AGENT wired into vision scans, cold-chain, humidity events and bundling (ethylene warnings). Citations appear in the log data and the vision result panel.
 
-- [ ] Corpus complete (FoodKeeper, OFF, ethylene, humidity, FAO)
-- [ ] `index.npz`, `chunks.json`, `bm25.json` committed
-- [ ] `retriever.py` + query cache
-- [ ] Agent hooks + log format
-- [ ] Ethylene check in bundling (producer + sensitive in one box → warn and swap if possible)
-- [ ] Tests: BM25 mode returns the FoodKeeper strawberry chunk for the strawberry query
+- [x] Corpus complete (FoodKeeper, OFF, ethylene, humidity, FAO)
+- [x] `chunks.json`, `bm25.json` committed; `index.npz` built by `build_rag_index.py --vector` at the live test (needs GEMINI_EMBED_MODEL)
+- [x] `retriever.py` + query cache
+- [x] Agent hooks + log format
+- [x] Ethylene check in bundling (producer + sensitive in one box → warn and swap if possible)
+- [x] Tests: BM25 mode returns the FoodKeeper strawberry chunk for the strawberry query
 
 **Acceptance:** with no key, every vision scan and event shows a cited source in Zone E.
+
+```
+Phase 7 results (2026-11-16, BM25, no key): 35 chunks from 33 files (8 FoodKeeper, 6 OFF, 8 ethylene,
+8 FAO, UC Davis spinach, USDA AMS climacteric, humidity model note marked "assumed").
+Test: rainstorm + cold-chain + Frame 3 scan in one tick → 5 RAG lines, each with source + chunk id
+(UC Davis for spinach, FoodKeeper for salmon/strawberries). Boxes now keep ethylene producers away from
+sensitive items, accepting a clash only to reach the 2-unit minimum (flagged + cited).
+No-event benchmark unchanged: 75.2% ± 12.4.
+```
 
 ---
 

@@ -241,6 +241,9 @@ class Citation(BaseModel):
     title: str
     chunk_id: str
     text: str
+    url: str = ""
+    score: float | None = None
+    mode: Literal["bm25", "vector"] | None = None
 
 
 class VisionScanResult(BaseModel):

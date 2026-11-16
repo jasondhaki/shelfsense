@@ -7,6 +7,14 @@ from app.sim.shelf_life import beta_sku, rsl_known
 from app.sim.state import Batch, Box, LogDraft, SimState
 
 BOX_MAX_UNITS = 3
+ETHYLENE_CLASH = {"producer", "sensitive"}
+
+
+def ethylene_clash(cfg, a: str, b: str) -> bool:
+    """An ethylene producer boxed with an ethylene-sensitive item (AI_PIPELINE §2.4)."""
+    ea = cfg.sku_by_id[a].off.get("ethylene")
+    eb = cfg.sku_by_id[b].off.get("ethylene")
+    return {ea, eb} == ETHYLENE_CLASH
 
 
 def build_boxes(state: SimState, tick: int) -> list[LogDraft]:
@@ -51,6 +59,7 @@ def build_boxes(state: SimState, tick: int) -> list[LogDraft]:
         group = cfg.sku_by_id[seed].bundle_group
         picked: dict[str, int] = {}
         in_box = [seed]
+        avoided: list[tuple[str, str]] = []
         take(seed, picked)
         while len(in_box) < BOX_MAX_UNITS:
             same = [
@@ -58,11 +67,23 @@ def build_boxes(state: SimState, tick: int) -> list[LogDraft]:
                 for s in order
                 if s not in in_box and group and cfg.sku_by_id[s].bundle_group == group
             ]
-            nxt = pick(same) or pick(order)
+
+            safe_same = [c for c in same if not any(ethylene_clash(cfg, c, x) for x in in_box)]
+            safe_any = [c for c in order if not any(ethylene_clash(cfg, c, x) for x in in_box)]
+            naive = pick(same) or pick(order)
+            nxt = pick(safe_same) or pick(safe_any)  # swap away from a clash if we can
+            if nxt is None and len(in_box) < 2:
+                nxt = naive  # only accept a clash when the box can't reach its 2-unit minimum
+            if naive and nxt != naive and any(ethylene_clash(cfg, naive, x) for x in in_box):
+                clash = next(x for x in in_box if ethylene_clash(cfg, naive, x))
+                avoided.append((naive, clash))
             if nxt is None:
                 break
             in_box.append(nxt)
             take(nxt, picked)
+        clashes = sorted(
+            {tuple(sorted((a, b))) for a in in_box for b in in_box if ethylene_clash(cfg, a, b)}
+        )
         items: list[Batch] = []
         for bid, n in picked.items():
             src = batches[bid]
@@ -77,14 +98,26 @@ def build_boxes(state: SimState, tick: int) -> list[LogDraft]:
         )
         state.b.boxes.append(box)
         contents = ", ".join(f"{i.qty}× {i.sku_id}" for i in items)
+        msg = (
+            f"Flash Surplus Mystery Box {box.box_id}: {contents} — ${box.price:.2f} "
+            f"(−{cfg.bundle_discount:.0%} off ${box.base_total:.2f})"
+        )
+        if avoided:
+            msg += "; kept " + ", ".join(f"{a} away from {b}" for a, b in avoided) + " (ethylene)"
+        if clashes:
+            msg += "; ethylene clash unavoidable: " + ", ".join(f"{a}+{b}" for a, b in clashes)
         logs.append(
             LogDraft(
                 tick,
                 "PRICING_AGENT",
-                "action",
-                f"Flash Surplus Mystery Box {box.box_id}: {contents} — ${box.price:.2f} "
-                f"(−{cfg.bundle_discount:.0%} off ${box.base_total:.2f})",
-                {"box_id": box.box_id, "items": [(i.sku_id, i.qty) for i in items]},
+                "warn" if clashes else "action",
+                msg,
+                {
+                    "box_id": box.box_id,
+                    "items": [(i.sku_id, i.qty) for i in items],
+                    "ethylene_avoided": avoided,
+                    "ethylene_clash": [list(c) for c in clashes],
+                },
             )
         )
     for s in order:

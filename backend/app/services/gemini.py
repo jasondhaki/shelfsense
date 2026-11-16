@@ -52,3 +52,24 @@ async def extract(image: bytes, mime: str, s: Settings) -> VisionExtraction | No
         except Exception as e:  # SDK/network errors: never let them reach the sim loop
             log.warning("Gemini vision attempt %d error: %s: %s", attempt + 1, type(e).__name__, e)
     return None
+
+
+async def embed(texts: list[str], s: Settings):
+    """Batched, L2-normalised embeddings as a float32 matrix, or None (never raises)."""
+    if not (s.gemini_api_key and s.gemini_embed_model) or not texts:
+        return None
+    import numpy as np
+    from google import genai
+
+    client = genai.Client(api_key=s.gemini_api_key)
+    for attempt in range(2):
+        try:
+            resp = await asyncio.wait_for(
+                client.aio.models.embed_content(model=s.gemini_embed_model, contents=texts),
+                timeout=max(s.http_timeout_s, 30),
+            )
+            m = np.array([e.values for e in resp.embeddings], dtype="float32")
+            return m / np.linalg.norm(m, axis=1, keepdims=True).clip(min=1e-9)
+        except Exception as e:  # never break callers
+            log.warning("Gemini embed attempt %d failed: %s: %s", attempt + 1, type(e).__name__, e)
+    return None

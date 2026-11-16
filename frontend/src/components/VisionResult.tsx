@@ -88,6 +88,13 @@ export default function VisionResult({ r }: { r: VisionScanResult }) {
           <BookOpen size={12} className="mt-0.5 shrink-0" aria-hidden />
           <span>
             Source: {r.foodkeeper_citation.source} — {r.foodkeeper_citation.title}
+            {r.foodkeeper_citation.score !== null && (
+              <span className="font-mono tabular-nums">
+                {' '}
+                ({r.foodkeeper_citation.mode} {r.foodkeeper_citation.score.toFixed(2)})
+              </span>
+            )}
+            <span className="mt-0.5 block text-muted/80">“{r.foodkeeper_citation.text.slice(0, 120)}”</span>
           </span>
         </div>
       )}

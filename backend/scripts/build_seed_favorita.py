@@ -50,7 +50,7 @@ def build(chunksize: int = 5_000_000) -> dict | None:
         )
         print(f"  chunk {i + 1}", end="\r")
     d = pd.concat(daily).groupby(level=[0, 1]).sum().reset_index()
-    d["dow"] = pd.to_datetime(d["date"]).dt.dayofweek  # Monday = 0, matches start_dow
+    d["dow"] = pd.to_datetime(d["date"]).dt.day_of_week  # Monday = 0, matches start_dow
     pr = pd.concat(promo).groupby(level=[0, 1]).sum()
     out = {}
     for fam, g in d.groupby("family"):

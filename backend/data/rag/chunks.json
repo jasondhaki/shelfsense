@@ -1,0 +1,351 @@
+[
+  {
+    "id": "ams_ethylene_climacteric#0",
+    "source": "USDA AMS",
+    "title": "Climacteric and non-climacteric produce — ethylene behaviour",
+    "url": "https://www.ams.usda.gov/sites/default/files/media/2023Technical_Report_Ethylene_Handling.pdf",
+    "sku_ids": [
+      "BANA-01",
+      "AVOC-01",
+      "TOMA-01",
+      "STRW-01"
+    ],
+    "text": "Bananas, avocados and tomatoes are climacteric fruits: as they ripen they show a strong peak in respiration with high internal ethylene production, and they respond to exogenous ethylene, which speeds softening and ripening.\n\nStrawberries are non-climacteric: respiration stays roughly constant or declines until senescence, with little or no increase in internal ethylene production. (USDA AMS National Organic Program, Ethylene — Handling Technical Report, 2023.)"
+  },
+  {
+    "id": "ethylene_AVOC-01#0",
+    "source": "ShelfSense ethylene table",
+    "title": "Hass Avocado — ethylene class",
+    "url": "backend/data/seed/ethylene.json",
+    "sku_ids": [
+      "AVOC-01"
+    ],
+    "text": "Hass Avocado is an ethylene producer — it can speed ripening and yellowing of ethylene-sensitive items stored or boxed with it.  Source: USDA AMS National Organic Program, 'Ethylene — Handling' Technical Report (2023), lines 177-183: bananas, avocado and tomato listed as climacteric; strawberry listed as non-climacteric with 'little or no increase in internal ethylene production'. https://www.ams.usda.gov/sites/default/files/media/2023Technical_Report_Ethylene_Handling.pdf"
+  },
+  {
+    "id": "ethylene_BANA-01#0",
+    "source": "ShelfSense ethylene table",
+    "title": "Cavendish Bananas (bunch) — ethylene class",
+    "url": "backend/data/seed/ethylene.json",
+    "sku_ids": [
+      "BANA-01"
+    ],
+    "text": "Cavendish Bananas (bunch) is an ethylene producer — it can speed ripening and yellowing of ethylene-sensitive items stored or boxed with it.  Source: USDA AMS National Organic Program, 'Ethylene — Handling' Technical Report (2023), lines 177-183: bananas, avocado and tomato listed as climacteric; strawberry listed as non-climacteric with 'little or no increase in internal ethylene production'. https://www.ams.usda.gov/sites/default/files/media/2023Technical_Report_Ethylene_Handling.pdf"
+  },
+  {
+    "id": "ethylene_MILK-01#0",
+    "source": "ShelfSense ethylene table",
+    "title": "Whole Milk 1 gal — ethylene class",
+    "url": "backend/data/seed/ethylene.json",
+    "sku_ids": [
+      "MILK-01"
+    ],
+    "text": "Whole Milk 1 gal is neither a notable ethylene producer nor classed as sensitive here. not plant tissue Source: n/a"
+  },
+  {
+    "id": "ethylene_SALM-01#0",
+    "source": "ShelfSense ethylene table",
+    "title": "Atlantic Salmon Fillet — ethylene class",
+    "url": "backend/data/seed/ethylene.json",
+    "sku_ids": [
+      "SALM-01"
+    ],
+    "text": "Atlantic Salmon Fillet is neither a notable ethylene producer nor classed as sensitive here. not plant tissue Source: n/a"
+  },
+  {
+    "id": "ethylene_SOUR-01#0",
+    "source": "ShelfSense ethylene table",
+    "title": "Artisanal Sourdough — ethylene class",
+    "url": "backend/data/seed/ethylene.json",
+    "sku_ids": [
+      "SOUR-01"
+    ],
+    "text": "Artisanal Sourdough is neither a notable ethylene producer nor classed as sensitive here. not plant tissue Source: n/a"
+  },
+  {
+    "id": "ethylene_SPIN-01#0",
+    "source": "ShelfSense ethylene table",
+    "title": "Baby Spinach 5 oz — ethylene class",
+    "url": "backend/data/seed/ethylene.json",
+    "sku_ids": [
+      "SPIN-01"
+    ],
+    "text": "Baby Spinach 5 oz is ethylene-sensitive — keep it away from ethylene producers such as bananas, avocados and tomatoes.  Source: Suslow, T. & Cantwell, M. 'Spinach: Recommendations for Maintaining Postharvest Quality', UC Davis Postharvest Research & Extension Center: spinach is highly sensitive to exogenous ethylene; low levels cause accelerated yellowing; do not mix with apples, melons and tomatoes. https://postharvest.ucdavis.edu/node/8161"
+  },
+  {
+    "id": "ethylene_STRW-01#0",
+    "source": "ShelfSense ethylene table",
+    "title": "Organic Strawberries 1 lb — ethylene class",
+    "url": "backend/data/seed/ethylene.json",
+    "sku_ids": [
+      "STRW-01"
+    ],
+    "text": "Organic Strawberries 1 lb is neither a notable ethylene producer nor classed as sensitive here. non-climacteric, very low producer; sensitivity not classified from a verified source Source: USDA AMS National Organic Program, 'Ethylene — Handling' Technical Report (2023), lines 177-183: bananas, avocado and tomato listed as climacteric; strawberry listed as non-climacteric with 'little or no increase in internal ethylene production'. https://www.ams.usda.gov/sites/default/files/media/2023Technical_Report_Ethylene_Handling.pdf"
+  },
+  {
+    "id": "ethylene_TOMA-01#0",
+    "source": "ShelfSense ethylene table",
+    "title": "Cherry Tomatoes 1 pt — ethylene class",
+    "url": "backend/data/seed/ethylene.json",
+    "sku_ids": [
+      "TOMA-01"
+    ],
+    "text": "Cherry Tomatoes 1 pt is an ethylene producer — it can speed ripening and yellowing of ethylene-sensitive items stored or boxed with it.  Source: USDA AMS National Organic Program, 'Ethylene — Handling' Technical Report (2023), lines 177-183: bananas, avocado and tomato listed as climacteric; strawberry listed as non-climacteric with 'little or no increase in internal ethylene production'. https://www.ams.usda.gov/sites/default/files/media/2023Technical_Report_Ethylene_Handling.pdf"
+  },
+  {
+    "id": "fao_avocados#0",
+    "source": "FAO",
+    "title": "Retail waste and CO2e — avocados",
+    "url": "https://www.fao.org/4/mb060e/mb060e.pdf",
+    "sku_ids": [
+      "AVOC-01"
+    ],
+    "text": "FAO (2011) estimates that 12.0% of fruits and vegetables entering supermarket retail in North America and Oceania is lost or wasted there. Producing one kilogram emits about 1.05 kg CO2e (Poore & Nemecek 2018, 'Other Fruit (proxy; avocado not itemised)')."
+  },
+  {
+    "id": "fao_bakery#0",
+    "source": "FAO",
+    "title": "Retail waste and CO2e — bakery",
+    "url": "https://www.fao.org/4/mb060e/mb060e.pdf",
+    "sku_ids": [
+      "SOUR-01"
+    ],
+    "text": "FAO (2011) estimates that 2.0% of cereals entering supermarket retail in North America and Oceania is lost or wasted there. Producing one kilogram emits about 1.57 kg CO2e (Poore & Nemecek 2018, 'Wheat & Rye (proxy for bread)')."
+  },
+  {
+    "id": "fao_bananas#0",
+    "source": "FAO",
+    "title": "Retail waste and CO2e — bananas",
+    "url": "https://www.fao.org/4/mb060e/mb060e.pdf",
+    "sku_ids": [
+      "BANA-01"
+    ],
+    "text": "FAO (2011) estimates that 12.0% of fruits and vegetables entering supermarket retail in North America and Oceania is lost or wasted there. Producing one kilogram emits about 0.86 kg CO2e (Poore & Nemecek 2018, 'Bananas')."
+  },
+  {
+    "id": "fao_berries#0",
+    "source": "FAO",
+    "title": "Retail waste and CO2e — berries",
+    "url": "https://www.fao.org/4/mb060e/mb060e.pdf",
+    "sku_ids": [
+      "STRW-01"
+    ],
+    "text": "FAO (2011) estimates that 12.0% of fruits and vegetables entering supermarket retail in North America and Oceania is lost or wasted there. Producing one kilogram emits about 1.53 kg CO2e (Poore & Nemecek 2018, 'Berries & Grapes')."
+  },
+  {
+    "id": "fao_dairy#0",
+    "source": "FAO",
+    "title": "Retail waste and CO2e — dairy",
+    "url": "https://www.fao.org/4/mb060e/mb060e.pdf",
+    "sku_ids": [
+      "MILK-01"
+    ],
+    "text": "FAO (2011) estimates that 0.5% of milk entering supermarket retail in North America and Oceania is lost or wasted there. Producing one kilogram emits about 3.15 kg CO2e (Poore & Nemecek 2018, 'Milk')."
+  },
+  {
+    "id": "fao_leafy_greens#0",
+    "source": "FAO",
+    "title": "Retail waste and CO2e — leafy_greens",
+    "url": "https://www.fao.org/4/mb060e/mb060e.pdf",
+    "sku_ids": [
+      "SPIN-01"
+    ],
+    "text": "FAO (2011) estimates that 12.0% of fruits and vegetables entering supermarket retail in North America and Oceania is lost or wasted there. Producing one kilogram emits about 0.53 kg CO2e (Poore & Nemecek 2018, 'Other Vegetables (proxy)')."
+  },
+  {
+    "id": "fao_seafood#0",
+    "source": "FAO",
+    "title": "Retail waste and CO2e — seafood",
+    "url": "https://www.fao.org/4/mb060e/mb060e.pdf",
+    "sku_ids": [
+      "SALM-01"
+    ],
+    "text": "FAO (2011) estimates that 9.0% of fish and seafood entering supermarket retail in North America and Oceania is lost or wasted there. Producing one kilogram emits about 13.63 kg CO2e (Poore & Nemecek 2018, 'Fish (farmed)')."
+  },
+  {
+    "id": "fao_vegetables#0",
+    "source": "FAO",
+    "title": "Retail waste and CO2e — vegetables",
+    "url": "https://www.fao.org/4/mb060e/mb060e.pdf",
+    "sku_ids": [
+      "TOMA-01"
+    ],
+    "text": "FAO (2011) estimates that 12.0% of fruits and vegetables entering supermarket retail in North America and Oceania is lost or wasted there. Producing one kilogram emits about 2.09 kg CO2e (Poore & Nemecek 2018, 'Tomatoes')."
+  },
+  {
+    "id": "foodkeeper_AVOC-01#0",
+    "source": "USDA FoodKeeper",
+    "title": "Avocados — storage",
+    "url": "https://catalog.data.gov/dataset/fsis-foodkeeper-data",
+    "sku_ids": [
+      "AVOC-01"
+    ],
+    "text": "Avocados: store in the refrigerator for 3–4 days. Timeline for refrigerator applies to ripe fruit."
+  },
+  {
+    "id": "foodkeeper_BANA-01#0",
+    "source": "USDA FoodKeeper",
+    "title": "Bananas — storage",
+    "url": "https://catalog.data.gov/dataset/fsis-foodkeeper-data",
+    "sku_ids": [
+      "BANA-01"
+    ],
+    "text": "Bananas: store in the refrigerator for 3–3 days. Timeline for refrigerator applies to ripe fruit; skin will blacken."
+  },
+  {
+    "id": "foodkeeper_MILK-01#0",
+    "source": "USDA FoodKeeper",
+    "title": "Milk — plain or flavored — storage",
+    "url": "https://catalog.data.gov/dataset/fsis-foodkeeper-data",
+    "sku_ids": [
+      "MILK-01"
+    ],
+    "text": "Milk — plain or flavored: storage time: Package use-by date."
+  },
+  {
+    "id": "foodkeeper_SALM-01#0",
+    "source": "USDA FoodKeeper",
+    "title": "Fatty fish — bluefish, catfish, mackerel, mullet, salmon, tuna, etc. — storage",
+    "url": "https://catalog.data.gov/dataset/fsis-foodkeeper-data",
+    "sku_ids": [
+      "SALM-01"
+    ],
+    "text": "Fatty fish — bluefish, catfish, mackerel, mullet, salmon, tuna, etc.: store in the refrigerator for 1–2 days from the date of purchase."
+  },
+  {
+    "id": "foodkeeper_SOUR-01#0",
+    "source": "USDA FoodKeeper",
+    "title": "Bread — homemade — storage",
+    "url": "https://catalog.data.gov/dataset/fsis-foodkeeper-data",
+    "sku_ids": [
+      "SOUR-01"
+    ],
+    "text": "Bread — homemade: store in the pantry for 3–5 days. May have shorter shelf life due to lack of preservatives."
+  },
+  {
+    "id": "foodkeeper_SPIN-01#0",
+    "source": "USDA FoodKeeper",
+    "title": "Bagged greens — leaf, spinach, lettuce, etc. — storage",
+    "url": "https://catalog.data.gov/dataset/fsis-foodkeeper-data",
+    "sku_ids": [
+      "SPIN-01"
+    ],
+    "text": "Bagged greens — leaf, spinach, lettuce, etc.: store in the refrigerator for 3–5 days. Unopened product will last 3 - 5 days after date on bag; after opening it will last 2 days."
+  },
+  {
+    "id": "foodkeeper_STRW-01#0",
+    "source": "USDA FoodKeeper",
+    "title": "Strawberries — storage",
+    "url": "https://catalog.data.gov/dataset/fsis-foodkeeper-data",
+    "sku_ids": [
+      "STRW-01"
+    ],
+    "text": "Strawberries: store in the refrigerator for 2–3 days from the date of purchase."
+  },
+  {
+    "id": "foodkeeper_TOMA-01#0",
+    "source": "USDA FoodKeeper",
+    "title": "Cherry tomatoes — storage",
+    "url": "https://catalog.data.gov/dataset/fsis-foodkeeper-data",
+    "sku_ids": [
+      "TOMA-01"
+    ],
+    "text": "Cherry tomatoes: store in the pantry for 10–10 days."
+  },
+  {
+    "id": "model_humidity#0",
+    "source": "ShelfSense model (assumed)",
+    "title": "How humidity speeds spoilage in the simulation",
+    "url": "docs/SIMULATION_ENGINE.md",
+    "sku_ids": [],
+    "text": "ShelfSense models ambient stress as an environment factor beta_env = 1 + 0.5 × clamp((RH − 50) / 50, 0, 1), so relative humidity above 50 % ages exposed products up to 1.5× faster. Each product's weather_exposure (0–1) scales how much of that stress reaches it: berries, bananas, avocados and tomatoes are fully exposed; spinach 0.8, bread 0.6, chilled salmon and milk 0.2."
+  },
+  {
+    "id": "model_humidity#1",
+    "source": "ShelfSense model (assumed)",
+    "title": "How humidity speeds spoilage in the simulation",
+    "url": "docs/SIMULATION_ENGINE.md",
+    "sku_ids": [],
+    "text": "During a heavy rainstorm humidity jumps toward 98 % for 12 hours, then eases back over 6 hours. This is a modelling assumption for the demo, not a measured coefficient."
+  },
+  {
+    "id": "off_BANA-01#0",
+    "source": "Open Food Facts",
+    "title": "Cavendish Bananas (bunch) — product metadata",
+    "url": "https://world.openfoodfacts.org/product/0717524611109",
+    "sku_ids": [
+      "BANA-01"
+    ],
+    "text": "Reference product for Cavendish Bananas (bunch): \"Bananas 3 lb bag, 30669\" (barcode 0717524611109). Nutri-Score: A. Packaging: Plastic. Categories: plant-based-foods-and-beverages, plant-based-foods, fruit-based-foods-and-beverages, fruits-and-vegetables-based-foods, fruit-based-foods, fruits. Data from Open Food Facts (ODbL)."
+  },
+  {
+    "id": "off_MILK-01#0",
+    "source": "Open Food Facts",
+    "title": "Whole Milk 1 gal — product metadata",
+    "url": "https://world.openfoodfacts.org/product/0071210788071",
+    "sku_ids": [
+      "MILK-01"
+    ],
+    "text": "Reference product for Whole Milk 1 gal: \"Milk: Whole: Kirkland Signature: Gallon\" (barcode 0071210788071). Nutri-Score: C. Packaging: plastic jug. Categories: dairies, milks-liquid-and-powder, milks. Data from Open Food Facts (ODbL)."
+  },
+  {
+    "id": "off_SALM-01#0",
+    "source": "Open Food Facts",
+    "title": "Atlantic Salmon Fillet — product metadata",
+    "url": "https://world.openfoodfacts.org/product/0099482477929",
+    "sku_ids": [
+      "SALM-01"
+    ],
+    "text": "Reference product for Atlantic Salmon Fillet: \"Farm-Raised Atlantic Salmon Fillets\" (barcode 0099482477929). Nutri-Score: A. Packaging: vacuum tray. Categories: seafood, frozen-foods, frozen-seafood. Data from Open Food Facts (ODbL)."
+  },
+  {
+    "id": "off_SOUR-01#0",
+    "source": "Open Food Facts",
+    "title": "Artisanal Sourdough — product metadata",
+    "url": "https://world.openfoodfacts.org/product/0073132031112",
+    "sku_ids": [
+      "SOUR-01"
+    ],
+    "text": "Reference product for Artisanal Sourdough: \"Sourdough Bread\" (barcode 0073132031112). Nutri-Score: C. Packaging: paper bag. Categories: plant-based-foods-and-beverages, plant-based-foods, cereals-and-potatoes, cereals-and-their-products, breads. Data from Open Food Facts (ODbL)."
+  },
+  {
+    "id": "off_SPIN-01#0",
+    "source": "Open Food Facts",
+    "title": "Baby Spinach 5 oz — product metadata",
+    "url": "https://world.openfoodfacts.org/product/0032601901509",
+    "sku_ids": [
+      "SPIN-01"
+    ],
+    "text": "Reference product for Baby Spinach 5 oz: \"Organic Baby Spinach\" (barcode 0032601901509). Nutri-Score: A. Packaging: plastic clamshell. Categories: plant-based-foods-and-beverages, plant-based-foods, fruits-and-vegetables-based-foods, vegetable-based-foods-and-beverages, vegetables-based-foods, vegetables. Data from Open Food Facts (ODbL)."
+  },
+  {
+    "id": "off_STRW-01#0",
+    "source": "Open Food Facts",
+    "title": "Organic Strawberries 1 lb — product metadata",
+    "url": "https://world.openfoodfacts.org/product/0715756200023",
+    "sku_ids": [
+      "STRW-01"
+    ],
+    "text": "Reference product for Organic Strawberries 1 lb: \"Strawberries\" (barcode 0715756200023). Nutri-Score: B. Packaging: plastic clamshell. Categories: plant-based-foods-and-beverages, plant-based-foods, fruit-based-foods-and-beverages, fruits-and-vegetables-based-foods, fruit-based-foods, fruits. Data from Open Food Facts (ODbL)."
+  },
+  {
+    "id": "ucdavis_spinach#0",
+    "source": "UC Davis Postharvest Center",
+    "title": "Spinach — postharvest handling and ethylene",
+    "url": "https://postharvest.ucdavis.edu/node/8161",
+    "sku_ids": [
+      "SPIN-01"
+    ],
+    "text": "Spinach is highly sensitive to exogenous ethylene: even low ethylene levels during distribution and short-term storage cause accelerated yellowing. Do not store or display spinach together with ethylene-producing items such as apples, melons and tomatoes."
+  },
+  {
+    "id": "ucdavis_spinach#1",
+    "source": "UC Davis Postharvest Center",
+    "title": "Spinach — postharvest handling and ethylene",
+    "url": "https://postharvest.ucdavis.edu/node/8161",
+    "sku_ids": [
+      "SPIN-01"
+    ],
+    "text": "Wilting, yellowing of leaves and decay increase with storage time, and faster at common distribution temperatures of 5–10 °C; the optimum storage temperature is 0 °C. (Suslow, T. & Cantwell, M., Spinach: Recommendations for Maintaining Postharvest Quality.)"
+  }
+]

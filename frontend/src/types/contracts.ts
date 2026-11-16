@@ -214,6 +214,9 @@ export interface Citation {
   title: string
   chunk_id: string
   text: string
+  url: string
+  score: number | null
+  mode: 'bm25' | 'vector' | null
 }
 
 export interface VisionScanResult {

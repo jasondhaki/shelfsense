@@ -9,6 +9,7 @@ from app import views
 from app.agents.bus import AgentBus
 from app.agents.orchestrator import Orchestrator
 from app.models.contracts import ControlResponse, SimSnapshot, TickDelta, WeatherNow
+from app.rag.retriever import Retriever
 from app.services.noaa import NoaaService
 from app.sim import engine
 from app.sim.cli import demo_timeline, load_config
@@ -25,10 +26,11 @@ class EventRejected(Exception):
 
 
 class SimController:
-    def __init__(self, seed: int, noaa: NoaaService) -> None:
+    def __init__(self, seed: int, noaa: NoaaService, retriever: Retriever) -> None:
         self.noaa = noaa
+        self.retriever = retriever
         self.bus = AgentBus()
-        self.orchestrator = Orchestrator(self.bus)
+        self.orchestrator = Orchestrator(self.bus, retriever)
         self.subscribers: set[asyncio.Queue] = set()
         self.lock = asyncio.Lock()
         self.task: asyncio.Task | None = None

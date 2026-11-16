@@ -6,9 +6,12 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from starlette.exceptions import HTTPException
 
+from app.agents.rag_agent import all_queries
 from app.api import routes, ws
 from app.config import get_settings
 from app.controller import SimController
+from app.rag.retriever import Retriever
+from app.services import gemini
 from app.services.noaa import NoaaService
 
 VERSION = "0.3.0"
@@ -25,7 +28,14 @@ def create_app() -> FastAPI:
     async def lifespan(app: FastAPI):
         noaa = NoaaService(settings)
         await noaa.refresh()
-        app.state.controller = SimController(settings.sim_seed, noaa)
+        retriever = Retriever(
+            settings.rag_mode,
+            vector_ready=bool(settings.gemini_api_key and settings.gemini_embed_model),
+        )
+        ctl = SimController(settings.sim_seed, noaa, retriever)
+        # vector mode: embed every templated query once now, so ticks never wait on the network
+        await retriever.warm(all_queries(ctl.state.config), lambda qs: gemini.embed(qs, settings))
+        app.state.controller = ctl
         yield
         await app.state.controller.control("pause")
 
@@ -52,10 +62,8 @@ def create_app() -> FastAPI:
 
     @app.get("/api/health")
     def health(request: Request) -> dict:
-        rag = settings.rag_mode
-        if rag == "auto":
-            rag = "vector" if settings.gemini_api_key else "bm25"
         ctl = getattr(request.app.state, "controller", None)
+        rag = ctl.retriever.mode if ctl else "bm25"
         return {
             "status": "ok",
             "version": VERSION,
