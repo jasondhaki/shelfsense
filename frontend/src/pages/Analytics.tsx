@@ -29,7 +29,7 @@ export default function Analytics() {
         </button>
       </PageHead>
 
-      <div className="grid gap-5 xl:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)]">
+      <div className="grid grid-cols-1 gap-5 xl:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)]">
         <section aria-label="Food wasted so far" className="zone h-[380px] p-4">
           <Suspense fallback={<p className="p-4 text-sm text-muted">Loading chart…</p>}>
             <WasteChart data={snap.chart} />

@@ -92,7 +92,63 @@ export default function InventoryTable({ rows, limit, detailed = false }: Props)
         ))}
       </div>
 
-      <div className="mt-3 overflow-x-auto">
+      {/* phones: one card per product */}
+      <ul className="mt-3 space-y-2 md:hidden">
+        {shown.map((e) => {
+          const nutri = e.nutri_score?.toLowerCase()
+          const marked = e.markdown_pct > 0.005
+          const body = (
+            <>
+              <div className="flex items-center gap-3">
+                <img src={productImg(e.sku_id)} alt="" className="h-12 w-12 shrink-0 rounded-lg object-cover" loading="lazy" />
+                <div className="min-w-0 flex-1">
+                  <div className="truncate text-sm font-semibold">{e.name}</div>
+                  <div className="text-xs text-muted">
+                    {e.sku_id} · {e.on_hand} on shelf
+                  </div>
+                </div>
+                <div className="shrink-0 text-right">
+                  {marked && (
+                    <div className="text-[11px] text-muted">
+                      <span className="line-through">{usd(e.base_price)}</span>{' '}
+                      <span className="font-bold text-warn">−{Math.round(e.markdown_pct * 100)}%</span>
+                    </div>
+                  )}
+                  <div className="text-base font-extrabold">{usd(e.current_price)}</div>
+                </div>
+              </div>
+              <div className="mt-2 flex items-center justify-between gap-2">
+                <Countdown e={e} />
+                <Fresh e={e} />
+                <span
+                  title={nutri ? `Nutri-Score ${nutri.toUpperCase()}` : 'Nutri-Score not available'}
+                  className={`grid h-6 w-6 shrink-0 place-items-center rounded-md text-[11px] font-bold ${nutri && NUTRI[nutri] ? NUTRI[nutri] : 'bg-line text-muted'}`}
+                >
+                  {nutri ? nutri.toUpperCase() : '–'}
+                </span>
+              </div>
+            </>
+          )
+          return (
+            <li key={e.sku_id}>
+              {which === 'B' ? (
+                <button
+                  type="button"
+                  onClick={() => openFormula(e.sku_id)}
+                  aria-label={`${e.name}, ${usd(e.current_price)}: see how its price is set`}
+                  className="block w-full rounded-xl border border-line/70 bg-panel p-3 text-left active:bg-panel-2"
+                >
+                  {body}
+                </button>
+              ) : (
+                <div className="rounded-xl border border-line/70 bg-panel p-3">{body}</div>
+              )}
+            </li>
+          )
+        })}
+      </ul>
+
+      <div className="mt-3 hidden overflow-x-auto md:block">
         <table className="w-full min-w-[620px] border-separate border-spacing-y-1.5 text-sm">
           <caption className="sr-only">Shelf items sorted by shelf life left</caption>
           <thead>
@@ -176,12 +232,12 @@ export default function InventoryTable({ rows, limit, detailed = false }: Props)
             })}
           </tbody>
         </table>
-        {shown.length === 0 && (
-          <p className="py-6 text-center text-sm text-muted">
-            {filter === 'risk' ? 'Nothing at risk right now.' : 'No items are discounted right now.'}
-          </p>
-        )}
       </div>
+      {shown.length === 0 && (
+        <p className="py-6 text-center text-sm text-muted">
+          {filter === 'risk' ? 'Nothing at risk right now.' : 'No items are discounted right now.'}
+        </p>
+      )}
     </section>
   )
 }

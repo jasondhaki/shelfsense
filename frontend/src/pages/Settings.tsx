@@ -16,7 +16,7 @@ export default function Settings() {
   return (
     <>
       <PageHead title="Settings" lead="Your profile is saved in this browser only." />
-      <div className="grid gap-5 lg:grid-cols-2">
+      <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
         <form
           className="zone space-y-4 p-4"
           onSubmit={(e) => {

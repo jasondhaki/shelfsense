@@ -51,7 +51,7 @@ export default function DataIngestion() {
           Feeds right now
         </h3>
         {error && <p className="mt-2 text-sm text-warn">Couldn’t load the live status from the server.</p>}
-        <ul className="mt-3 grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+        <ul className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3">
           {(nodes ?? []).map((n) => (
             <li key={n.id} className="rounded-xl border border-line p-3">
               <div className="flex items-center justify-between gap-2">

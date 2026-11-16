@@ -41,7 +41,7 @@ export default function Forecast() {
         </button>
       </PageHead>
 
-      <div className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_minmax(0,1.4fr)]">
+      <div className="grid grid-cols-1 gap-5 xl:grid-cols-[minmax(0,1fr)_minmax(0,1.4fr)]">
         <section aria-labelledby="wx-title" className="zone p-4">
           <h3 id="wx-title" className="h-card">
             Weather at the store
@@ -68,23 +68,29 @@ export default function Forecast() {
         </Suspense>
       </div>
 
-      <section aria-labelledby="fc-title" className="zone mt-5 overflow-x-auto p-4">
+      <section aria-labelledby="fc-title" className="zone mt-5 p-4">
         <h3 id="fc-title" className="h-card">
           Stock vs expected sales
         </h3>
-        <table className="mt-2 w-full min-w-[520px] text-sm">
+        <table className="mt-2 w-full text-sm">
           <thead>
             <tr className="border-b border-line text-left text-xs font-semibold text-muted">
               <th scope="col" className="py-2">Product</th>
               <th scope="col" className="py-2 text-right">On shelf</th>
-              <th scope="col" className="py-2 text-right">Next 24 h demand</th>
-              <th scope="col" className="py-2 text-right">Won’t sell in 24 h</th>
+              <th scope="col" className="py-2 text-right">
+                <span className="sm:hidden">24 h demand</span>
+                <span className="hidden sm:inline">Next 24 h demand</span>
+              </th>
+              <th scope="col" className="py-2 text-right">
+                <span className="sm:hidden">Surplus</span>
+                <span className="hidden sm:inline">Won’t sell in 24 h</span>
+              </th>
             </tr>
           </thead>
           <tbody>
             {snap.esl.map((e) => (
               <tr key={e.sku_id} className="border-b border-line/60 last:border-0">
-                <td className="py-2 font-semibold">{shortName(e.name)}</td>
+                <td className="py-2 pr-2 font-semibold">{shortName(e.name)}</td>
                 <td className="py-2 text-right">{e.on_hand}</td>
                 <td className="py-2 text-right">{e.forecast_24h.toFixed(1)}</td>
                 <td className={`py-2 text-right font-semibold ${e.surplus_risk_units ? 'text-warn' : 'text-muted'}`}>

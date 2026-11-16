@@ -26,10 +26,54 @@ export default function PoTable({
   const totalKg = rows.reduce((s, r) => s + r.waste_prevention_kg, 0)
 
   return (
-    <table className="w-full border-collapse text-xs">
+    <>
+    {/* phones: one card per product */}
+    <ul className="divide-y divide-line md:hidden">
+      {rows.map((r) => {
+        const before = regular[r.sku_id]
+        const moved = r.reason !== null && before !== undefined && before !== r.ai_order
+        return (
+          <li key={r.sku_id} className={`p-3 ${moved ? 'bg-agent-procurement/10' : ''}`}>
+            <div className="flex items-start justify-between gap-3">
+              <div className="min-w-0">
+                <div className="text-sm font-bold">{r.sku_id}</div>
+                <div className="truncate text-xs text-muted">
+                  {r.supplier} · delivers {simClock(r.delivery_tick)}
+                </div>
+              </div>
+              <div className="shrink-0 text-right">
+                <div className="text-lg font-extrabold leading-tight">{r.ai_order}</div>
+                <div className="text-[11px] text-muted">baseline {r.baseline_order}</div>
+              </div>
+            </div>
+            {moved && (
+              <div className="mt-1 inline-flex items-center gap-1 rounded-full bg-agent-procurement/15 px-2 py-0.5 text-[11px] text-agent-procurement">
+                <CloudRain size={11} aria-hidden />
+                {before} → {r.ai_order} after {r.reason}
+              </div>
+            )}
+            <div className="mt-1 flex flex-wrap gap-x-3 text-xs text-muted">
+              <span>carryover {r.projected_carryover}</span>
+              <span>weather ×{r.weather_modifier.toFixed(2)}</span>
+              <span className={r.waste_prevention_units > 0 ? 'font-semibold text-ok' : ''}>
+                waste prevented {r.waste_prevention_units > 0 ? '+' : ''}
+                {r.waste_prevention_units} · {r.waste_prevention_kg.toFixed(1)} kg
+              </span>
+            </div>
+          </li>
+        )
+      })}
+      <li className="flex justify-between p-3 text-sm font-bold">
+        <span>Total</span>
+        <span>
+          {total('ai_order')} <span className="text-xs font-semibold text-muted">vs baseline {total('baseline_order')}</span>
+        </span>
+      </li>
+    </ul>
+    <table className="hidden w-full border-collapse text-sm md:table">
       <caption className="sr-only">Next purchase orders, baseline store vs ShelfSense</caption>
-      <thead className="sticky top-0 bg-panel text-left text-[11px] text-muted">
-        <tr className="[&>th]:px-2 [&>th]:py-1.5 [&>th]:font-normal">
+      <thead className="sticky top-0 bg-panel text-left text-xs text-muted">
+        <tr className="[&>th]:px-3 [&>th]:py-2.5 [&>th]:font-semibold">
           <th scope="col">Product</th>
           <th scope="col">Supplier</th>
           <th scope="col" className="text-right">Baseline order</th>
@@ -46,9 +90,9 @@ export default function PoTable({
           return (
             <tr
               key={r.sku_id}
-              className={`border-t border-line [&>td]:px-2 [&>td]:py-1.5 ${moved ? 'bg-agent-procurement/10' : ''}`}
+              className={`border-t border-line [&>td]:px-3 [&>td]:py-2.5 ${moved ? 'bg-agent-procurement/10' : ''}`}
             >
-              <th scope="row" className="px-2 text-left font-mono font-normal">
+              <th scope="row" className="px-3 text-left font-semibold">
                 {r.sku_id}
                 <div className="font-sans text-[10px] text-muted">
                   delivers {simClock(r.delivery_tick)}
@@ -90,5 +134,6 @@ export default function PoTable({
         </tr>
       </tfoot>
     </table>
+    </>
   )
 }

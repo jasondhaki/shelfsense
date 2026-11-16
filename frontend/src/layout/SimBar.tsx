@@ -86,8 +86,8 @@ export default function SimBar() {
         )}
       </div>
 
-      <div className="min-w-[180px] flex-1 sm:max-w-xs">
-        <div className="flex items-baseline justify-between text-xs font-semibold">
+      <div className="min-w-[230px] flex-1 sm:max-w-xs">
+        <div className="flex items-baseline justify-between gap-2 whitespace-nowrap text-xs font-semibold">
           <span>
             Simulated week · <span className="text-accent">{simClock(snap.tick)}</span>
           </span>
@@ -107,8 +107,8 @@ export default function SimBar() {
         </div>
       </div>
 
-      <div className="ml-auto flex flex-wrap items-center gap-2" role="group" aria-label="Disruptions">
-        <span className="text-xs font-semibold text-muted">Test a disruption:</span>
+      <div className="flex flex-wrap items-center gap-2 sm:ml-auto" role="group" aria-label="Disruptions">
+        <span className="hidden text-xs font-semibold text-muted sm:inline">Test a disruption:</span>
         <button type="button" className="btn" disabled={finished || !!storm} onClick={() => triggerEvent('rainstorm')}>
           <CloudRain size={14} aria-hidden />
           {storm ? `Storm: ${stormLeft} h left` : 'Rainstorm'}

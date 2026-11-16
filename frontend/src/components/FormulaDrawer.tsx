@@ -108,8 +108,8 @@ export default function FormulaDrawer() {
       aria-modal="false"
       aria-label={esl ? `How ${esl.name} is priced` : 'Price formula'}
       aria-hidden={!sku}
-      className={`fixed bottom-2 right-2 top-[104px] z-30 flex w-[380px] max-w-[calc(100vw-1rem)] flex-col rounded-lg border border-line bg-panel shadow-2xl transition-transform duration-200 ${
-        sku ? 'translate-x-0' : 'pointer-events-none translate-x-[110%]'
+      className={`fixed inset-x-2 bottom-2 z-30 flex max-h-[78vh] flex-col rounded-2xl border border-line bg-panel shadow-2xl transition-transform duration-200 sm:inset-x-auto sm:right-2 sm:top-[104px] sm:max-h-none sm:w-[380px] ${
+        sku ? 'translate-x-0 translate-y-0' : 'pointer-events-none translate-y-[110%] sm:translate-x-[110%] sm:translate-y-0'
       }`}
     >
       <div className="flex items-start justify-between border-b border-line p-3">

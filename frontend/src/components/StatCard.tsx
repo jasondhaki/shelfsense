@@ -79,15 +79,15 @@ export default function StatCard({ label, value, format, change, history, Icon, 
   const up = change && change.value >= 0
   const moved = change && Math.abs(change.value) >= 0.05
   return (
-    <article className="zone relative overflow-hidden p-4 pb-12" title={hint}>
+    <article className="zone relative overflow-hidden p-3 pb-11 sm:p-4 sm:pb-12" title={hint}>
       <div className="flex items-center gap-3">
-        <span className={`grid h-12 w-12 shrink-0 place-items-center rounded-full ${tile}`}>
+        <span className={`hidden h-12 w-12 shrink-0 place-items-center rounded-full sm:grid ${tile}`}>
           <Icon size={24} aria-hidden />
         </span>
         <div className="min-w-0">
-          <h3 className="truncate text-sm font-semibold text-muted">{label}</h3>
+          <h3 className="truncate text-xs font-semibold text-muted sm:text-sm">{label}</h3>
           <div className="flex flex-wrap items-baseline gap-x-2">
-            <span className="text-2xl font-extrabold tracking-tight">{value === null ? '—' : format(shown)}</span>
+            <span className="text-xl font-extrabold tracking-tight sm:text-2xl">{value === null ? '—' : format(shown)}</span>
             {moved && change && (
               <span
                 className={`inline-flex items-center gap-0.5 rounded-full px-1.5 py-0.5 text-[11px] font-bold ${up ? 'bg-mint text-accent' : 'bg-crit/10 text-crit'}`}

@@ -40,7 +40,7 @@ export default function FreshnessHero() {
   const worst = det.find((d) => d.severity === 'clearance_required') ?? det.find((d) => d.severity === 'accelerated_ripening') ?? det[0]
 
   return (
-    <section aria-label="Freshness scanner" className="zone relative min-h-[260px] overflow-hidden">
+    <section aria-label="Freshness scanner" className="zone relative min-h-[300px] overflow-hidden sm:min-h-[260px]">
       <div ref={box} className="absolute inset-0">
         <img
           src={v.imageUrl}
@@ -73,7 +73,7 @@ export default function FreshnessHero() {
         )}
       </div>
 
-      <div className="absolute right-4 top-4 max-w-[min(300px,calc(100%-2rem))] rounded-xl border border-white/60 bg-white/85 p-3 shadow-card backdrop-blur-md">
+      <div className="absolute inset-x-3 bottom-3 rounded-xl sm:inset-x-auto sm:bottom-auto sm:right-4 sm:top-4 sm:max-w-[300px] border border-white/60 bg-white/85 p-3 shadow-card backdrop-blur-md">
         <div className="flex items-center gap-1.5 text-sm font-bold">
           Freshness scanner
           <span className="font-semibold text-muted">|</span>

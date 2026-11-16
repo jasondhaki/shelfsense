@@ -40,6 +40,13 @@ body {
   }
 }
 
+.no-scrollbar {
+  scrollbar-width: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
 .scanline {
   animation: scan 1.6s ease-in-out infinite;
 }

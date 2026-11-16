@@ -12,7 +12,7 @@ export default function Help() {
   return (
     <>
       <PageHead title="Help" lead="How to run a demo, and what is real versus simulated." />
-      <div className="grid gap-5 lg:grid-cols-2">
+      <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
         <section aria-labelledby="how-title" className="zone p-4">
           <h3 id="how-title" className="h-card">
             Run a demo in five steps

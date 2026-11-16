@@ -7,7 +7,10 @@ React 18 + TypeScript (strict) + Vite + Tailwind + Zustand + Recharts + lucide-r
 > header with a profile greeting (`profile` in the store, saved to localStorage, default "Atiqur" /
 > "Bay 2"), a simulation bar on every tab, and pages in `src/pages/`. Tokens live in
 > `tailwind.config.ts`; the zone components below are reused inside the pages. Below `lg` the sidebar
-> becomes a scrollable tab strip.
+> becomes a sticky top bar with the brand and a scrollable tab strip. Phones (checked at 360 and 390 px):
+> stat cards two per row, inventory and purchase orders become cards, the formula drawer is a bottom
+> sheet, the alerts popover is pinned to the screen, chart labels tilt. No page scrolls sideways at
+> 360, 390, 820, 1024 or 1280 px.
 
 ## 1. Layout (CSS grid)
 

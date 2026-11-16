@@ -33,7 +33,7 @@ export default function Agents() {
       </PageHead>
       <ArchitectureModal open={showArch} onClose={() => setShowArch(false)} />
 
-      <ul className="mb-5 grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
+      <ul className="mb-5 grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-5">
         {AGENT_CHIPS.map((c) => {
           const on = active.has(c.agent)
           const n = logs.filter((l) => l.agent === c.agent).length
@@ -53,7 +53,7 @@ export default function Agents() {
         })}
       </ul>
 
-      <div className="grid gap-5 xl:grid-cols-[380px_minmax(0,1fr)]">
+      <div className="grid grid-cols-1 gap-5 xl:grid-cols-[380px_minmax(0,1fr)]">
         <SmartCamInspector />
         <div className="h-[75vh] min-h-[480px]">
           <AgentLog />

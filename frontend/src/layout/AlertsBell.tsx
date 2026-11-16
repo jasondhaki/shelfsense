@@ -35,7 +35,7 @@ export default function AlertsBell() {
         )}
       </button>
       {open && (
-        <div className="absolute right-0 z-30 mt-2 w-[min(360px,calc(100vw-2rem))] rounded-2xl border border-line bg-panel p-3 shadow-card">
+        <div className="fixed inset-x-3 top-28 z-30 rounded-2xl border border-line bg-panel p-3 shadow-card sm:absolute sm:inset-x-auto sm:right-0 sm:top-auto sm:mt-2 sm:w-[360px]">
           <h2 className="mb-2 px-1 text-sm font-bold">Real-time alerts</h2>
           {alerts.length === 0 ? (
             <p className="px-1 pb-1 text-sm text-muted">All clear. Alerts show up when stock nears expiry or orders change.</p>

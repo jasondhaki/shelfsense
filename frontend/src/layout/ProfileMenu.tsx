@@ -23,7 +23,7 @@ export default function ProfileMenu() {
         aria-label={`Profile: ${profile.name}`}
         aria-expanded={open}
         onClick={() => setOpen((o) => !o)}
-        className="grid h-12 w-12 place-items-center rounded-full bg-forest-800 text-white ring-2 ring-white hover:bg-forest-700"
+        className="grid h-10 w-10 place-items-center rounded-full bg-forest-800 sm:h-12 sm:w-12 text-white ring-2 ring-white hover:bg-forest-700"
       >
         <User size={26} aria-hidden fill="currentColor" strokeWidth={1.5} />
       </button>

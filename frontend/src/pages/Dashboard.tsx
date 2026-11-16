@@ -89,8 +89,8 @@ export default function Dashboard() {
 
   return (
     <div className="space-y-5">
-      <div className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)]">
-        <div className="grid gap-4 sm:grid-cols-2">
+      <div className="grid grid-cols-1 gap-5 xl:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)]">
+        <div className="grid grid-cols-2 gap-3 sm:gap-4">
           <StatCard
             label="Waste reduction"
             value={k.waste_reduction_pct}
@@ -139,14 +139,14 @@ export default function Dashboard() {
         <FreshnessHero />
       </div>
 
-      <div className="grid gap-5 xl:grid-cols-[minmax(0,1.25fr)_minmax(0,1fr)]">
+      <div className="grid grid-cols-1 gap-5 xl:grid-cols-[minmax(0,1.25fr)_minmax(0,1fr)]">
         <InventoryTable rows={rows} limit={8} />
         <div className="space-y-5">
           <AgentsCard />
           <Suspense fallback={<div className="zone h-[320px]" aria-busy />}>
             <DemandWasteCard esl={snap.esl} chart={ch} />
           </Suspense>
-          <div className="grid gap-5 sm:grid-cols-[minmax(0,1.3fr)_minmax(0,1fr)]">
+          <div className="grid grid-cols-1 gap-5 sm:grid-cols-[minmax(0,1.3fr)_minmax(0,1fr)]">
             <AlertsCard />
             <section aria-labelledby="wr-title" className="zone flex flex-col items-center p-4">
               <h2 id="wr-title" className="h-card self-start">

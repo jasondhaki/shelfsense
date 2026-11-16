@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import {
   Area,
   AreaChart,
@@ -32,8 +32,21 @@ const tipStyle = {
 
 type Tab = 'demand' | 'waste'
 
+/** Narrow screens tilt the product labels so all eight stay readable. */
+function useNarrow(q = '(max-width: 639px)') {
+  const [narrow, setNarrow] = useState(() => window.matchMedia(q).matches)
+  useEffect(() => {
+    const m = window.matchMedia(q)
+    const on = () => setNarrow(m.matches)
+    m.addEventListener('change', on)
+    return () => m.removeEventListener('change', on)
+  }, [q])
+  return narrow
+}
+
 export default function DemandWasteCard({ esl, chart }: { esl: EslView[]; chart: ChartPoint[] }) {
   const [tab, setTab] = useState<Tab>('demand')
+  const narrow = useNarrow()
   const demand = esl.map((e) => ({
     name: shortName(e.name).split(' ').slice(-1)[0],
     full: e.name,
@@ -68,12 +81,21 @@ export default function DemandWasteCard({ esl, chart }: { esl: EslView[]; chart:
           </button>
         ))}
       </div>
-      <div className="mt-3 h-[220px]" role="tabpanel">
+      <div className="mt-3 h-[240px]" role="tabpanel">
         {tab === 'demand' ? (
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={demand} barGap={2} margin={{ top: 4, right: 4, left: -18, bottom: 0 }}>
               <CartesianGrid stroke={GRID} vertical={false} />
-              <XAxis dataKey="name" tick={AXIS} tickLine={false} axisLine={false} interval={0} />
+              <XAxis
+                dataKey="name"
+                tick={narrow ? { ...AXIS, fontSize: 10 } : AXIS}
+                tickLine={false}
+                axisLine={false}
+                interval={0}
+                angle={narrow ? -40 : 0}
+                textAnchor={narrow ? 'end' : 'middle'}
+                height={narrow ? 52 : 30}
+              />
               <YAxis tick={AXIS} tickLine={false} axisLine={false} allowDecimals={false} />
               <Tooltip
                 contentStyle={tipStyle}
