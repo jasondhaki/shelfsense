@@ -31,6 +31,7 @@ def create_app() -> FastAPI:
         retriever = Retriever(
             settings.rag_mode,
             vector_ready=bool(settings.gemini_api_key and settings.gemini_embed_model),
+            embed_model=settings.gemini_embed_model,
         )
         ctl = SimController(settings.sim_seed, noaa, retriever)
         # vector mode: embed every templated query once now, so ticks never wait on the network

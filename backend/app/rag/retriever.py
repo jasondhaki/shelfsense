@@ -76,8 +76,14 @@ class Hit:
 
 class Retriever:
     def __init__(
-        self, rag_mode: str = "bm25", vector_ready: bool = False, rag_dir: Path = RAG
+        self,
+        rag_mode: str = "bm25",
+        vector_ready: bool = False,
+        rag_dir: Path = RAG,
+        embed_model: str = "",
     ) -> None:
+        self.rag_dir = rag_dir
+        self.embed_model = embed_model
         self.chunks: list[dict] = json.loads((rag_dir / "chunks.json").read_text("utf-8"))
         toks = json.loads((rag_dir / "bm25.json").read_text("utf-8"))
         self.tf = [Counter(toks[c["id"]]) for c in self.chunks]
@@ -94,6 +100,11 @@ class Retriever:
             if all(c["id"] in order for c in self.chunks):
                 self.vectors = data["embeddings"][[order[c["id"]] for c in self.chunks]]
         self.query_vecs: dict[str, np.ndarray] = {}
+        cache = rag_dir / "query_cache.npz"  # committed: deployed servers warm with zero calls
+        if cache.exists():
+            c = np.load(cache)
+            if str(c["model"]) == embed_model:
+                self.query_vecs = dict(zip(c["queries"].tolist(), c["vecs"], strict=True))
         want_vector = rag_mode == "vector" or (rag_mode == "auto" and vector_ready)
         self.mode = "vector" if want_vector and self.vectors is not None else "bm25"
 
@@ -109,6 +120,15 @@ class Retriever:
             self.mode = "bm25"  # degrade, never break
             return
         self.query_vecs.update(zip(todo, vecs, strict=True))
+        try:  # best effort: a read-only disk just means re-embedding next start
+            np.savez(
+                self.rag_dir / "query_cache.npz",
+                model=np.array(self.embed_model),
+                queries=np.array(list(self.query_vecs)),
+                vecs=np.stack(list(self.query_vecs.values())),
+            )
+        except OSError:
+            pass
 
     def retrieve(
         self,

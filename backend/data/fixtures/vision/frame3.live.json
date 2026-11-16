@@ -1,0 +1,54 @@
+{
+  "_note": "RAW live output from gemini-3.5-flash-lite; review before use.",
+  "detections": [
+    {
+      "label": "strawberries",
+      "box_2d": [
+        443,
+        64,
+        832,
+        312
+      ],
+      "severity": "accelerated_ripening",
+      "defects": [
+        "surface_moisture"
+      ],
+      "confidence": 0.95
+    },
+    {
+      "label": "strawberries",
+      "box_2d": [
+        316,
+        340,
+        729,
+        608
+      ],
+      "severity": "clearance_required",
+      "defects": [
+        "mold",
+        "surface_moisture"
+      ],
+      "confidence": 0.97
+    },
+    {
+      "label": "strawberries",
+      "box_2d": [
+        414,
+        655,
+        796,
+        897
+      ],
+      "severity": "optimal",
+      "defects": [],
+      "confidence": 0.94
+    }
+  ],
+  "visual_quality_score": 6.5,
+  "defects_detected": [
+    "surface_moisture",
+    "mold"
+  ],
+  "estimated_unit_count": 3,
+  "primary_sku_label": "strawberries",
+  "rationale": "Three strawberries are displayed on a wooden surface, with the central strawberry showing visible mold and surface moisture."
+}

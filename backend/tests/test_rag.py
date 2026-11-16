@@ -118,3 +118,24 @@ def test_vector_mode_with_fake_embeddings(tmp_path):
     asyncio.run(r2.warm(["x"], broken))
     assert r2.mode == "bm25"  # embedding failure degrades, never breaks
     assert Retriever("vector", rag_dir=RAG).mode in ("bm25", "vector")
+
+
+def test_query_cache_survives_restart(tmp_path):
+    for f in ("chunks.json", "bm25.json"):
+        shutil.copy(RAG / f, tmp_path / f)
+    ids = [c["id"] for c in Retriever("bm25", rag_dir=tmp_path).chunks]
+    vecs = np.eye(len(ids), dtype="float32")
+    np.savez(tmp_path / "index.npz", embeddings=vecs, ids=np.array(ids))
+    calls = []
+
+    async def fake_embed(qs):
+        calls.append(len(qs))
+        return np.stack([vecs[0] for _ in qs])
+
+    r1 = Retriever("vector", rag_dir=tmp_path, embed_model="m1")
+    asyncio.run(r1.warm(["q1", "q2"], fake_embed))
+    r2 = Retriever("vector", rag_dir=tmp_path, embed_model="m1")
+    asyncio.run(r2.warm(["q1", "q2"], fake_embed))
+    assert calls == [2]  # second start: zero embedding calls
+    r3 = Retriever("vector", rag_dir=tmp_path, embed_model="other-model")
+    assert r3.query_vecs == {}  # cache from another model is ignored

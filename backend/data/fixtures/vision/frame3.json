@@ -1,13 +1,58 @@
 {
-  "_note": "Hand-corrected 2026-11-16 after one live gemini-3.8-flash call, which identified the berries as frozen (ice crystals), not mouldy. Defects re-labelled to freeze damage seen as collapse, leakage and wet surfaces. Boxes still hand-placed; regenerate frames 1-3 live with the relaxed prompt when quota allows.",
+  "_note": "Live output from gemini-3.5-flash-lite (2026-11-16), reviewed. Boxes and the right berry 'optimal' adopted. Hand-corrected: 'mold' -> freeze damage (gemini-3.8-flash and visual review both see ice crystals; flash-lite said mold), quality 6.5 -> 3.8 for the collapsed centre berry (AI_PIPELINE §1.5).",
   "detections": [
-    {"label": "strawberries", "box_2d": [444, 65, 826, 313], "severity": "accelerated_ripening", "defects": ["surface_moisture", "discoloration"], "confidence": 0.86},
-    {"label": "strawberries", "box_2d": [318, 343, 732, 606], "severity": "clearance_required", "defects": ["soft_spots", "leakage", "discoloration"], "confidence": 0.91},
-    {"label": "strawberries", "box_2d": [413, 659, 798, 894], "severity": "accelerated_ripening", "defects": ["surface_moisture"], "confidence": 0.84}
+    {
+      "label": "strawberries",
+      "box_2d": [
+        443,
+        64,
+        832,
+        312
+      ],
+      "severity": "accelerated_ripening",
+      "defects": [
+        "surface_moisture",
+        "discoloration"
+      ],
+      "confidence": 0.95
+    },
+    {
+      "label": "strawberries",
+      "box_2d": [
+        316,
+        340,
+        729,
+        608
+      ],
+      "severity": "clearance_required",
+      "defects": [
+        "soft_spots",
+        "leakage",
+        "discoloration"
+      ],
+      "confidence": 0.97
+    },
+    {
+      "label": "strawberries",
+      "box_2d": [
+        414,
+        655,
+        796,
+        897
+      ],
+      "severity": "optimal",
+      "defects": [],
+      "confidence": 0.94
+    }
   ],
   "visual_quality_score": 3.8,
-  "defects_detected": ["soft_spots", "leakage", "discoloration", "surface_moisture"],
+  "defects_detected": [
+    "soft_spots",
+    "leakage",
+    "discoloration",
+    "surface_moisture"
+  ],
   "estimated_unit_count": 3,
   "primary_sku_label": "strawberries",
-  "rationale": "Freeze damage: the centre berry has collapsed under a coat of ice crystals with juice pooling at its base, and the two neighbours look wet and dull."
+  "rationale": "Freeze damage: the centre berry has collapsed under a coat of ice crystals with juice pooling at its base; the left berry looks wet and dull, the right one sound."
 }

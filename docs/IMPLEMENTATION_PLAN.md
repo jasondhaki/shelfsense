@@ -205,7 +205,7 @@ Phase 5 results (2026-11-16, Chrome against the live backend):
 - [x] Source 3 preset images + `CREDITS.md`
 - [x] `services/gemini.py` (timeout, 1 retry, schema validation)
 - [x] `vision_agent.py` + `/api/vision/scan` (preset/upload, size/type checks)
-- [ ] Fixtures `frame1..3.json` generated live, then reviewed — hand-written drafts committed; `scripts/generate_vision_fixtures.py` ready, **needs GEMINI_API_KEY**
+- [x] Fixtures `frame1..3.json` generated live (gemini-3.5-flash-lite), then reviewed and hand-corrected; raw outputs kept as `frameN.live.json`
 - [x] `SmartCamInspector` + `BoundingBoxCanvas` (0–1000 coords) + result panel + mode badge
 - [x] Scan queues `vision_override`; ESL card for that SKU reacts next tick
 - [x] Tests: fixture path, invalid upload, Gemini failure → fallback
@@ -218,7 +218,8 @@ Phase 6 results (2026-11-16, cached mode, no key):
   recalibrated RSL 11.2 h → 4.5 h (α 2.50), "cached result" badge, FoodKeeper citation.
   API, seed 42, scan at D1 08:00: STRW-01 RSL 33.2 h → 13.3 h; price $2.70 → $2.00 one tick later;
   VISION + PRICING + RAG (FoodKeeper, direct lookup) log lines at D1 08:00.
-  Live half pending a GEMINI_API_KEY (custom upload + regenerating fixtures).
+  Live (2026-11-16): fixtures regenerated with gemini-3.5-flash-lite (boxes within a few units of the drafts);
+  custom upload in live mode → bananas, 1 box, α 1.29, RSL 61.8 h → 47.8 h, vector citation (cos 0.83), 1.8 s.
 ```
 
 ---
@@ -228,7 +229,7 @@ Phase 6 results (2026-11-16, cached mode, no key):
 > Read docs/AI_PIPELINE.md §2. Do Phase 7: build_rag_index.py (vector + BM25), app/rag/retriever.py with mode auto/vector/bm25, and the RAG_KNOWLEDGE_AGENT wired into vision scans, cold-chain, humidity events and bundling (ethylene warnings). Citations appear in the log data and the vision result panel.
 
 - [x] Corpus complete (FoodKeeper, OFF, ethylene, humidity, FAO)
-- [x] `chunks.json`, `bm25.json` committed; `index.npz` built by `build_rag_index.py --vector` at the live test (needs GEMINI_EMBED_MODEL)
+- [x] `index.npz` (gemini-embedding-001, 35×3072), `chunks.json`, `bm25.json`, `query_cache.npz` committed
 - [x] `retriever.py` + query cache
 - [x] Agent hooks + log format
 - [x] Ethylene check in bundling (producer + sensitive in one box → warn and swap if possible)

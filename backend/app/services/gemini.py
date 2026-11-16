@@ -54,6 +54,8 @@ async def extract(image: bytes, mime: str, s: Settings) -> VisionExtraction | No
             log.warning("Gemini vision attempt %d: invalid reply: %s", attempt + 1, e)
         except Exception as e:  # SDK/network errors: never let them reach the sim loop
             log.warning("Gemini vision attempt %d error: %s: %s", attempt + 1, type(e).__name__, e)
+            if _client_error(e):
+                return None  # 4xx (bad model, auth, quota): retrying can't help
     return None
 
 
@@ -75,4 +77,11 @@ async def embed(texts: list[str], s: Settings):
             return m / np.linalg.norm(m, axis=1, keepdims=True).clip(min=1e-9)
         except Exception as e:  # never break callers
             log.warning("Gemini embed attempt %d failed: %s: %s", attempt + 1, type(e).__name__, e)
+            if _client_error(e):
+                return None
     return None
+
+
+def _client_error(e: Exception) -> bool:
+    code = getattr(e, "code", None)
+    return isinstance(code, int) and 400 <= code < 500

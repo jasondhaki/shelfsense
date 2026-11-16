@@ -28,17 +28,18 @@ async def main() -> None:
         if ext is None:
             print(f"frame{n}: no valid response (see warnings above)")
             continue
-        a = alpha_from_vision(ext.visual_quality_score, ext.defects_detected)
-        print(
-            f"frame{n}: q={ext.visual_quality_score} α={a:.2f} primary={ext.primary_sku_label} "
-            f"defects={ext.defects_detected} boxes={len(ext.detections)}"
-        )
-        write_json(
+        write_json(  # save first: never lose a paid call to a console error
             OUT / f"frame{n}.live.json",
             {
                 "_note": f"RAW live output from {s.gemini_vision_model}; review before use.",
                 **ext.model_dump(),
             },
+        )
+        a = alpha_from_vision(ext.visual_quality_score, ext.defects_detected)
+        print(
+            f"frame{n}: q={ext.visual_quality_score} alpha={a:.2f} "
+            f"primary={ext.primary_sku_label} defects={ext.defects_detected} "
+            f"boxes={len(ext.detections)}"
         )
 
 

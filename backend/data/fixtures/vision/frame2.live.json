@@ -1,0 +1,28 @@
+{
+  "_note": "RAW live output from gemini-3.5-flash-lite; review before use.",
+  "detections": [
+    {
+      "label": "bananas",
+      "box_2d": [
+        64,
+        313,
+        820,
+        949
+      ],
+      "severity": "accelerated_ripening",
+      "defects": [
+        "sugar_spotting",
+        "stem_browning"
+      ],
+      "confidence": 0.98
+    }
+  ],
+  "visual_quality_score": 7.5,
+  "defects_detected": [
+    "sugar_spotting",
+    "stem_browning"
+  ],
+  "estimated_unit_count": 3,
+  "primary_sku_label": "bananas",
+  "rationale": "The bananas show prominent sugar spotting and slight stem browning indicating advanced ripeness."
+}

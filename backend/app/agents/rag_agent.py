@@ -48,7 +48,10 @@ def all_queries(cfg: SimConfig) -> list[str]:
     """Every templated query, for warming the vector cache at startup."""
     ids = [s.sku_id for s in cfg.skus if s.sku_id in NOUN]
     out = [f(s) for s in ids for f in (q_vision, q_cold_chain, q_humidity)]
-    return out + [q_ethylene(a, b) for a in ids for b in ids if a != b]
+    eth = {s.sku_id: s.off.get("ethylene") for s in cfg.skus}
+    # only producer/sensitive pairs are ever queried (box clashes), in both orders
+    clash = [(a, b) for a in ids for b in ids if {eth[a], eth[b]} == {"producer", "sensitive"}]
+    return out + [q_ethylene(a, b) for a, b in clash]
 
 
 def vision_citation(r: Retriever, sku: str) -> Hit | None:
