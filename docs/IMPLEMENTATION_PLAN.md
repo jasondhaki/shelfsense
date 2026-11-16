@@ -2,7 +2,7 @@
 
 Nine phases. Each one ends with something that runs and is tested. Don't start a phase until the previous phase's acceptance checks pass.
 
-**Current phase:** `Phase 8` ← update this line when a phase is done.
+**Current phase:** `Done — backlog only` ← update this line when a phase is done.
 
 | Phase | Goal | Rough effort |
 |---|---|---|
@@ -255,7 +255,7 @@ No-event benchmark unchanged: 75.2% ± 12.4.
 - [x] `ArchitectureModal` + `/api/meta/architecture`
 - [x] Reduced motion, focus rings, aria labels, colour + icon severity
 - [x] `README.md` (what it is, screenshot/GIF, run locally, data credits, limitations)
-- [x] `render.yaml` or documented Render settings; Vercel env vars — **not deployed yet (needs your Render + Vercel accounts)**
+- [x] `render.yaml` or documented Render settings; Vercel env vars — deployed 2026-11-16: https://shelfsense-tau.vercel.app + https://shelfsense-api-66nh.onrender.com
 - [x] Demo preset: `POST /api/sim/control {"action":"reset","scenario":"demo"}` loads the scripted timeline (UI: Reset → Demo script)
 - [x] Final benchmark recorded below (local build)
 
@@ -278,7 +278,8 @@ No-event benchmark unchanged: 75.2% ± 12.4.
 Phase 1: engine complete; baseline waste ≈ 0 with spec parameters (calibration open)
 Phase 2: all 5 sources merged; Store A calibrated to FAO; no-event reduction 75.1% ± 12.4, demo 65.6%
 Final (local build 2026-11-16, demo scenario seed 42): waste reduction 65.6%, diverted 213.5 kg, CO₂e 268.8 kg, margin $1,617.64
-  No events, seeds 1–20: 75.2% ± 12.4. Deployed build: pending.
+  No events, seeds 1–20: 75.2% ± 12.4. Deployed build verified in Chrome: ticks over WSS, NOAA live, Frame 3 scan
+  (cached) → STRW-01 RSL 41.2 h → 17.5 h and repriced to the $2.00 floor next tick, FoodKeeper citation in the log.
 ```
 
 ## Backlog (after Phase 8, only if time allows)

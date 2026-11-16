@@ -5,6 +5,8 @@ prices and orders by the printed date, and how much less it wastes when it price
 what is actually happening on the shelf. Built in the FoodSphere AI domain (food-waste reduction
 in retail).
 
+**Live demo:** https://shelfsense-tau.vercel.app (API: https://shelfsense-api-66nh.onrender.com — free tier, the first load may take up to a minute while the server wakes).
+
 ![ShelfSense dashboard, mid-week of the demo script](docs/screenshot.jpg)
 
 Two stores serve the **same shoppers** (common random numbers) through the **same weather** for a
