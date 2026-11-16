@@ -238,6 +238,36 @@ export interface VisionScanResult {
   note: string | null
 }
 
+// --- accounts (backend/app/api/auth.py) ---
+export interface UserOut {
+  id: string
+  email: string
+  name: string
+  store: string
+}
+
+export interface AuthResponse {
+  token: string
+  user: UserOut
+}
+
+export interface SignupRequest {
+  email: string
+  password: string
+  name: string
+  store: string
+}
+
+export interface LoginRequest {
+  email: string
+  password: string
+}
+
+export interface ProfileUpdate {
+  name: string
+  store: string
+}
+
 // --- meta (Phase 8) ---
 export interface ArchNode {
   id: string

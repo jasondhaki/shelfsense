@@ -35,3 +35,7 @@ services:
         sync: false
       - key: HTTP_TIMEOUT_S
         value: "8"
+      - key: DATABASE_URL # Neon Postgres connection string for accounts
+        sync: false
+      - key: AUTH_SECRET # signs login tokens; Render generates it once
+        generateValue: true

@@ -1,6 +1,7 @@
 import { create } from 'zustand'
 import { api, ApiFailure } from '../lib/api'
 import { rejectReason, shrinkForVision } from '../lib/image'
+import { getToken, setToken } from '../lib/token'
 import type {
   AgentName,
   PoRow,
@@ -11,8 +12,10 @@ import type {
   VisionScanResult,
   LogEntry,
   ServerMessage,
+  SignupRequest,
   SimSnapshot,
   TickMessage,
+  UserOut,
 } from '../types/contracts'
 
 const LOG_LIMIT = 500
@@ -51,17 +54,34 @@ export interface Profile {
   name: string
   store: string
 }
-const PROFILE_KEY = 'shelfsense.profile'
-const DEFAULT_PROFILE: Profile = { name: 'Atiqur', store: 'Bay 2' }
 
-function loadProfile(): Profile {
+/** checking: validating a saved token · signed_out: show the sign-in screen ·
+ *  guest: per-tab simulation, profile kept in this browser · signed_in: own account and run */
+export type AuthMode = 'checking' | 'signed_out' | 'guest' | 'signed_in'
+
+const GUEST_KEY = 'shelfsense.guest' // sessionStorage: guest choice lasts for the tab
+const GUEST_PROFILE_KEY = 'shelfsense.guestProfile'
+const GUEST_DEFAULT: Profile = { name: 'Guest', store: 'Bay 2' }
+
+function store(kind: 'local' | 'session') {
   try {
-    const p = JSON.parse(localStorage.getItem(PROFILE_KEY) ?? 'null') as Partial<Profile> | null
-    return { ...DEFAULT_PROFILE, ...p }
+    return kind === 'local' ? localStorage : sessionStorage
   } catch {
-    return DEFAULT_PROFILE
+    return null
   }
 }
+
+function guestProfile(): Profile {
+  try {
+    const p = JSON.parse(store('local')?.getItem(GUEST_PROFILE_KEY) ?? 'null') as Partial<Profile> | null
+    return { ...GUEST_DEFAULT, ...p }
+  } catch {
+    return GUEST_DEFAULT
+  }
+}
+
+const initialMode = (): AuthMode =>
+  getToken() ? 'checking' : store('session')?.getItem(GUEST_KEY) ? 'guest' : 'signed_out'
 
 export const FRAMES: { id: FrameId; label: string; src: string }[] = [
   { id: 'frame1', label: 'Day 1 morning', src: '/frames/frame1.jpg' },
@@ -89,6 +109,8 @@ interface SimStore {
   eslStore: 'B' | 'A'
   page: Page
   profile: Profile
+  auth: AuthMode
+  user: UserOut | null
   notice: string | null
   vision: VisionState
   /** ShelfSense orders from the last regular (non-weather) PO run, to show what a weather recompute moved. */
@@ -106,7 +128,12 @@ interface SimStore {
   setEslStore(s: 'B' | 'A'): void
   setPage(p: Page): void
   syncPage(): void
-  setProfile(p: Profile): void
+  saveProfile(p: Profile): Promise<boolean>
+  restoreSession(): Promise<void>
+  signIn(email: string, password: string): Promise<string | null>
+  signUp(body: SignupRequest): Promise<string | null>
+  continueAsGuest(): void
+  signOut(): void
   exportReport(): Promise<void>
   dismissNotice(): void
   selectFrame(id: FrameId): void
@@ -134,7 +161,9 @@ export const useSim = create<SimStore>()((set, get) => ({
   activeTab: 'procurement',
   eslStore: 'B',
   page: pageFromHash(),
-  profile: loadProfile(),
+  profile: getToken() ? { name: '', store: '' } : guestProfile(),
+  auth: initialMode(),
+  user: null,
   notice: null,
   poRegular: {},
   vision: { frameId: 'frame1', imageUrl: FRAMES[0].src, upload: null, result: null, scanning: false },
@@ -231,13 +260,74 @@ export const useSim = create<SimStore>()((set, get) => ({
     window.scrollTo({ top: 0 })
   },
   syncPage: () => set({ page: pageFromHash() }),
-  setProfile: (profile) => {
+  saveProfile: async (profile) => {
+    if (get().auth === 'signed_in') {
+      try {
+        const user = await api.updateMe(profile)
+        set({ user, profile: { name: user.name, store: user.store } })
+        return true
+      } catch (e) {
+        set({ notice: failure(e) })
+        return false
+      }
+    }
     try {
-      localStorage.setItem(PROFILE_KEY, JSON.stringify(profile))
+      store('local')?.setItem(GUEST_PROFILE_KEY, JSON.stringify(profile))
     } catch {
-      // private mode: keep it for this tab only
+      // storage blocked: keep it for this page only
     }
     set({ profile })
+    return true
+  },
+
+  restoreSession: async () => {
+    if (get().auth !== 'checking') return
+    try {
+      const user = await api.me()
+      set({ auth: 'signed_in', user, profile: { name: user.name, store: user.store } })
+    } catch (e) {
+      // only a rejected token signs you out; a sleeping server keeps you waiting instead
+      if (e instanceof ApiFailure && e.code === 'unauthorized') {
+        setToken(null)
+        set({ auth: 'signed_out' })
+      } else {
+        window.setTimeout(() => void get().restoreSession(), 3000)
+      }
+    }
+  },
+
+  signIn: async (email, password) => {
+    try {
+      const r = await api.login({ email, password })
+      setToken(r.token)
+      set({ auth: 'signed_in', user: r.user, profile: { name: r.user.name, store: r.user.store } })
+      return null
+    } catch (e) {
+      return failure(e)
+    }
+  },
+
+  signUp: async (body) => {
+    try {
+      const r = await api.signup(body)
+      setToken(r.token)
+      set({ auth: 'signed_in', user: r.user, profile: { name: r.user.name, store: r.user.store } })
+      return null
+    } catch (e) {
+      return failure(e)
+    }
+  },
+
+  continueAsGuest: () => {
+    store('session')?.setItem(GUEST_KEY, '1')
+    set({ auth: 'guest', user: null, profile: guestProfile() })
+  },
+
+  signOut: () => {
+    setToken(null)
+    store('session')?.removeItem(GUEST_KEY)
+    location.hash = ''
+    location.reload() // drops this user's socket, snapshot and logs in one go
   },
   exportReport: async () => {
     try {

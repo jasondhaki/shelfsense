@@ -18,6 +18,9 @@ dist/
 # Raw downloads (licence: never commit raw Kaggle rows)
 backend/data/raw/
 
+# Local accounts DB (offline fallback when DATABASE_URL is unset)
+backend/data/local/
+
 # OS / editor
 .DS_Store
 Thumbs.db

@@ -1,6 +1,11 @@
 import type {
   ApiError,
   Architecture,
+  AuthResponse,
+  LoginRequest,
+  ProfileUpdate,
+  SignupRequest,
+  UserOut,
   ControlRequest,
   ControlResponse,
   EventRequest,
@@ -11,6 +16,7 @@ import type {
 } from '../types/contracts'
 
 import { sessionId } from './session'
+import { getToken } from './token'
 
 const BASE = import.meta.env.VITE_API_URL ?? ''
 
@@ -22,6 +28,11 @@ export class ApiFailure extends Error {
   }
 }
 
+function authHeader(): Record<string, string> {
+  const t = getToken()
+  return t ? { Authorization: `Bearer ${t}` } : {}
+}
+
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
   let res: Response
   try {
@@ -30,6 +41,7 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
       ...init,
       headers: {
         'X-Session-Id': sessionId(),
+        ...authHeader(),
         ...(json ? { 'Content-Type': 'application/json' } : {}),
         ...init?.headers,
       },
@@ -46,7 +58,12 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
 }
 
 export const api = {
-  health: (signal?: AbortSignal) => request<{ status: string }>('/health', { signal }),
+  health: (signal?: AbortSignal) => request<{ status: string; accounts?: string }>('/health', { signal }),
+  signup: (body: SignupRequest) =>
+    request<AuthResponse>('/auth/signup', { method: 'POST', body: JSON.stringify(body) }),
+  login: (body: LoginRequest) => request<AuthResponse>('/auth/login', { method: 'POST', body: JSON.stringify(body) }),
+  me: () => request<UserOut>('/auth/me'),
+  updateMe: (body: ProfileUpdate) => request<UserOut>('/auth/me', { method: 'PATCH', body: JSON.stringify(body) }),
   state: () => request<SimSnapshot>('/sim/state'),
   control: (body: ControlRequest) =>
     request<ControlResponse>('/sim/control', { method: 'POST', body: JSON.stringify(body) }),
@@ -55,7 +72,9 @@ export const api = {
   scan: (form: FormData) => request<VisionScanResult>('/vision/scan', { method: 'POST', body: form }),
   /** This tab's run as CSV (header-authenticated fetch, then a local download). */
   report: async () => {
-    const res = await fetch(`${BASE}/api/sim/report.csv`, { headers: { 'X-Session-Id': sessionId() } })
+    const res = await fetch(`${BASE}/api/sim/report.csv`, {
+      headers: { 'X-Session-Id': sessionId(), ...authHeader() },
+    })
     if (!res.ok) throw new ApiFailure(String(res.status), 'Couldn’t build the report.')
     const name = /filename="([^"]+)"/.exec(res.headers.get('Content-Disposition') ?? '')?.[1]
     const a = document.createElement('a')

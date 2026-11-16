@@ -4,7 +4,11 @@ import { useSim } from '../store/simStore'
 
 export default function Settings() {
   const profile = useSim((s) => s.profile)
-  const setProfile = useSim((s) => s.setProfile)
+  const saveProfile = useSim((s) => s.saveProfile)
+  const auth = useSim((s) => s.auth)
+  const user = useSim((s) => s.user)
+  const signOut = useSim((s) => s.signOut)
+  const [saving, setSaving] = useState(false)
   const control = useSim((s) => s.control)
   const [name, setName] = useState(profile.name)
   const [store, setStore] = useState(profile.store)
@@ -15,18 +19,31 @@ export default function Settings() {
 
   return (
     <>
-      <PageHead title="Settings" lead="Your profile is saved in this browser only." />
+      <PageHead
+        title="Settings"
+        lead={
+          auth === 'signed_in'
+            ? 'Your profile is saved to your account and follows you to any device.'
+            : 'You’re a guest: this profile is kept in this browser only.'
+        }
+      />
       <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
         <form
           className="zone space-y-4 p-4"
-          onSubmit={(e) => {
+          onSubmit={async (e) => {
             e.preventDefault()
             if (!valid) return
-            setProfile({ name: name.trim(), store: store.trim() })
-            setSaved(true)
+            setSaving(true)
+            setSaved(await saveProfile({ name: name.trim(), store: store.trim() }))
+            setSaving(false)
           }}
         >
           <h3 className="h-card">Profile</h3>
+          {user && (
+            <p className="text-sm">
+              Signed in as <strong>{user.email}</strong>
+            </p>
+          )}
           <label className="block">
             <span className="text-sm font-semibold">Your name</span>
             <input
@@ -54,8 +71,8 @@ export default function Settings() {
           </label>
           {!valid && <p className="text-xs text-crit">Name and store can’t be empty.</p>}
           <div className="flex items-center gap-3">
-            <button type="submit" className="btn-primary" disabled={!dirty || !valid}>
-              Save profile
+            <button type="submit" className="btn-primary" disabled={!dirty || !valid || saving}>
+              {saving ? 'Saving…' : 'Save profile'}
             </button>
             {saved && (
               <span role="status" className="text-xs font-semibold text-accent">
@@ -81,6 +98,14 @@ export default function Settings() {
               Restart with the demo script
             </button>
           </div>
+          <p className="text-xs text-muted">
+            {auth === 'signed_in'
+              ? 'Your week runs on the server under your account, so you can pick it up in another tab or device. A server restart starts a new week.'
+              : 'Create an account to keep your store name and pick your week up on another device.'}
+          </p>
+          <button type="button" className="btn" onClick={signOut}>
+            {auth === 'signed_in' ? 'Sign out' : 'Sign in or create an account'}
+          </button>
           <p className="text-xs text-muted">
             Demo script: rain on Day 2 at 10:00, a cold-chain delay on Day 3, and a damaged-strawberry scan on Day 4
             at 14:00.

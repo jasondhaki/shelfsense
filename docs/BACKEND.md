@@ -48,6 +48,16 @@ All under `/api`. JSON in/out. Errors: `{"error": {"code": "...", "message": "..
 | POST | `/vision/scan` | multipart: `frame_id` (`frame1..3`) **or** `file` (jpg/png ≤ 5 MB), optional `sku_hint` | `VisionScanResult` | See AI_PIPELINE.md. |
 | GET | `/meta/architecture` | — | `{nodes, edges}` | Feeds the System Architecture modal (live status per node). |
 | GET | `/meta/weather` | — | `WeatherNow` | Header widget. |
+| POST | `/auth/signup` | `{email, password (≥ 8), name, store}` | `201 {token, user}` | `409` if the email exists. |
+| POST | `/auth/login` | `{email, password}` | `{token, user}` | `401` on a wrong password; `429` after 10 failures per email in 15 min. |
+| GET | `/auth/me` | — (`Authorization: Bearer <token>`) | `UserOut {id, email, name, store}` | `401` without a valid token. |
+| PATCH | `/auth/me` | `{name, store}` | `UserOut` | Profile shown in the header. |
+
+**Whose simulation:** a valid `Authorization: Bearer` token (or `?token=` on `/ws/sim`) selects the
+user's own run (`Sessions` key `u-<id>`); otherwise `X-Session-Id` / `?session=` selects the tab's
+guest run. Guest ids starting `u-` are ignored so nobody can open another user's run. Accounts live in
+Postgres (`DATABASE_URL`, Neon free) or, without it, a local SQLite file; tokens are HMAC-signed with
+`AUTH_SECRET` (30-day expiry), passwords scrypt-hashed. Simulations themselves stay in memory.
 
 ## 4. WebSocket `/ws/sim`
 

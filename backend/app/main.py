@@ -1,3 +1,5 @@
+import logging
+import secrets
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, Request
@@ -7,13 +9,16 @@ from fastapi.responses import JSONResponse
 from starlette.exceptions import HTTPException
 
 from app.agents.rag_agent import all_queries
-from app.api import routes, ws
+from app.api import auth, routes, ws
 from app.config import get_settings
 from app.controller import Sessions, SimController
 from app.rag.retriever import Retriever
 from app.services import gemini
 from app.services.noaa import NoaaService
 from app.services.open_meteo import OpenMeteoService
+from app.services.users import UserStore
+
+log = logging.getLogger(__name__)
 
 VERSION = "0.3.0"
 
@@ -45,6 +50,14 @@ def create_app() -> FastAPI:
             all_queries(shared.state.config), lambda qs: gemini.embed(qs, settings)
         )
         app.state.sessions = sessions
+        app.state.auth_secret = settings.auth_secret or secrets.token_urlsafe(32)
+        if not settings.auth_secret:
+            log.warning("AUTH_SECRET not set: sign-ins last until this process restarts")
+        try:
+            app.state.users = UserStore(settings.database_url, settings.users_db_path)
+        except Exception as e:  # accounts down must not take the demo down (rule 4)
+            log.error("User store unavailable, guests only: %s", e)
+            app.state.users = None
         app.state.retriever = retriever
         app.state.noaa = noaa
         yield
@@ -60,9 +73,15 @@ def create_app() -> FastAPI:
 
     @app.exception_handler(HTTPException)
     async def http_error(_: Request, exc: HTTPException) -> JSONResponse:
-        code = {404: "not_found", 409: "conflict", 413: "too_large", 422: "invalid_request"}.get(
-            exc.status_code, "http_error"
-        )
+        code = {
+            401: "unauthorized",
+            404: "not_found",
+            409: "conflict",
+            413: "too_large",
+            422: "invalid_request",
+            429: "rate_limited",
+            503: "unavailable",
+        }.get(exc.status_code, "http_error")
         return _error(exc.status_code, code, str(exc.detail))
 
     @app.exception_handler(RequestValidationError)
@@ -83,8 +102,10 @@ def create_app() -> FastAPI:
             "rag_mode": rag,
             "noaa": n.source if n else "snapshot",
             "weather_provider": settings.weather_provider,
+            "accounts": (u.backend if (u := getattr(request.app.state, "users", None)) else "off"),
         }
 
+    app.include_router(auth.router)
     app.include_router(routes.router)
     app.include_router(ws.router)
     return app

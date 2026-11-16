@@ -28,6 +28,9 @@ class Settings(BaseSettings):
     noaa_user_agent: str = "ShelfSense (contact: your-email@example.com)"
     http_timeout_s: float = 8
     vision_timeout_s: float = 60  # multimodal + reasoning models are slow; one try, no retry
+    database_url: str = ""  # Postgres for accounts (Neon free); empty → local SQLite file
+    users_db_path: Path = ROOT / "backend" / "data" / "local" / "users.db"
+    auth_secret: str = ""  # signs login tokens; empty → random per process (dev only)
 
     @property
     def cors_list(self) -> list[str]:

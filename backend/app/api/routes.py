@@ -4,9 +4,11 @@ import csv
 import io
 
 from fastapi import APIRouter, File, Form, HTTPException, Request, Response, UploadFile
+from starlette.requests import HTTPConnection
 
 from app import views
 from app.agents import vision_agent
+from app.api.auth import user_id
 from app.config import get_settings
 from app.controller import EventRejected, SimController
 from app.models.contracts import (
@@ -27,7 +29,19 @@ router = APIRouter(prefix="/api")
 
 
 def ctl(request: Request) -> SimController:
-    return request.app.state.sessions.get(request.headers.get("x-session-id"))
+    return request.app.state.sessions.get(session_key(request))
+
+
+def session_key(
+    request: HTTPConnection, token: str | None = None, guest: str | None = None
+) -> str | None:
+    """Signed-in users get their own simulation; guests use their tab's id. `u-` keys are
+    reserved, so a guest can't open someone's run by guessing it."""
+    uid = user_id(request, token)
+    if uid:
+        return f"u-{uid}"
+    g = guest if guest is not None else request.headers.get("x-session-id")
+    return None if g and g.startswith("u-") else g
 
 
 @router.get("/sim/state", response_model=SimSnapshot)

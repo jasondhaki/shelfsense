@@ -10,6 +10,7 @@ import { api } from './lib/api'
 import { connectSim } from './lib/ws'
 import Agents from './pages/Agents'
 import Analytics from './pages/Analytics'
+import AuthScreen from './pages/AuthScreen'
 import Dashboard from './pages/Dashboard'
 import DataIngestion from './pages/DataIngestion'
 import Forecast from './pages/Forecast'
@@ -96,7 +97,8 @@ function Notice() {
   )
 }
 
-export default function App() {
+/** The signed-in (or guest) app: one simulation, connected once we know whose it is. */
+function Shell() {
   useServerConnection()
   const connection = useSim((s) => s.connection)
   const page = useSim((s) => s.page)
@@ -125,4 +127,26 @@ export default function App() {
       <Notice />
     </div>
   )
+}
+
+export default function App() {
+  const auth = useSim((s) => s.auth)
+  const restoreSession = useSim((s) => s.restoreSession)
+
+  useEffect(() => {
+    void restoreSession()
+  }, [restoreSession])
+
+  if (auth === 'checking') {
+    return (
+      <div className="grid min-h-full place-items-center" role="status" aria-label="Signing you in">
+        <div className="flex flex-col items-center gap-3 text-sm text-muted">
+          <div className="h-10 w-10 rounded-full border-4 border-mint border-t-accent motion-safe:animate-spin" />
+          Signing you in… a sleeping free server can take up to a minute.
+        </div>
+      </div>
+    )
+  }
+  if (auth === 'signed_out') return <AuthScreen />
+  return <Shell />
 }

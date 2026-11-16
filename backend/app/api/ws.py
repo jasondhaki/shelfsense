@@ -6,6 +6,8 @@ import json
 import anyio  # Starlette's own concurrency layer; cooperates with its cancel scopes
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect
 
+from app.api.routes import session_key
+
 router = APIRouter()
 
 
@@ -21,7 +23,8 @@ def _is_ping(text: str) -> bool:
 @router.websocket("/ws/sim")
 async def sim_ws(ws: WebSocket) -> None:
     await ws.accept()
-    c = ws.app.state.sessions.get(ws.query_params.get("session"))
+    q_ = ws.query_params
+    c = ws.app.state.sessions.get(session_key(ws, q_.get("token"), q_.get("session") or ""))
     q = c.subscribe()
     try:
         await ws.send_json({"type": "hello", "snapshot": c.snapshot().model_dump(mode="json")})
