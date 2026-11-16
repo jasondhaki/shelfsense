@@ -11,6 +11,8 @@ React 18 + TypeScript (strict) + Vite + Tailwind + Zustand + Recharts + lucide-r
 > stat cards two per row, inventory and purchase orders become cards, the formula drawer is a bottom
 > sheet, the alerts popover is pinned to the screen, chart labels tilt. No page scrolls sideways at
 > 360, 390, 820, 1024 or 1280 px.
+> Dashboard inventory: single-column product cards below 1700 px (its half-width column can't fit the
+> table), the full table from 1700 px; the Inventory tab shows the table from `md` up.
 
 ## 1. Layout (CSS grid)
 

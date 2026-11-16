@@ -7,7 +7,11 @@ in retail).
 
 **Live demo:** https://shelfsense-tau.vercel.app (API: https://shelfsense-api-66nh.onrender.com — free tier, the first load may take up to a minute while the server wakes).
 
-![ShelfSense dashboard on Day 6: KPIs with sparklines, freshness scanner, shelf inventory, agents, alerts](docs/screenshot.jpg)
+![ShelfSense dashboard for a signed-in store manager on Day 4: KPIs with 24-hour change and sparklines, freshness scanner, shelf inventory with photos and countdowns, agents, demand forecast](docs/screenshot.jpg)
+
+Sign in, create an account, or continue as a guest; each account has its own store name and simulated week.
+
+<img src="docs/signin.jpg" alt="Sign-in screen: create an account or continue as a guest" width="640">
 
 The app is split into tabs: Dashboard, Inventory, Forecast, Pricing & Discounts, AI Agents, Orders,
 Analytics, Data Ingestion, Settings (profile name and store, saved in the browser) and Help.

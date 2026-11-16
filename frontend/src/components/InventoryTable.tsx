@@ -12,7 +12,7 @@ function Countdown({ e }: { e: EslView }) {
   const h = e.rsl_hours
   const tone = h < 8 ? 'bg-crit/10 text-crit' : h < 24 ? 'bg-warn/10 text-warn' : 'bg-mint text-accent'
   return (
-    <span className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-bold ${tone}`}>
+    <span className={`inline-flex items-center gap-1 whitespace-nowrap rounded-full px-2.5 py-1 text-xs font-bold ${tone}`}>
       <Clock size={13} aria-hidden />
       {h < 8 && <span className="sr-only">Critical: </span>}
       Expires: {h < 48 ? `${h.toFixed(h < 10 ? 1 : 0)} h` : `${(h / 24).toFixed(1)} d`}
@@ -25,7 +25,7 @@ function Fresh({ e }: { e: EslView }) {
   const bar = f < 0.15 ? 'bg-crit' : f < 0.3 ? 'bg-warn' : 'bg-accent'
   return (
     <div className="flex items-center gap-2" title={`${e.rsl_hours.toFixed(1)} h left of ${e.shelf_life_hours} h nominal shelf life`}>
-      <div className="h-2 w-20 overflow-hidden rounded-full bg-line" aria-hidden>
+      <div className="h-2 w-12 overflow-hidden rounded-full bg-line 2xl:w-20" aria-hidden>
         <div className={`h-full rounded-full ${bar}`} style={{ width: `${f * 100}%` }} />
       </div>
       <span className="w-9 text-right text-sm font-semibold">{e.on_hand ? `${Math.round(f * 100)}%` : '—'}</span>
@@ -92,8 +92,10 @@ export default function InventoryTable({ rows, limit, detailed = false }: Props)
         ))}
       </div>
 
-      {/* phones: one card per product */}
-      <ul className="mt-3 space-y-2 md:hidden">
+      {/* cards on phones, and in the dashboard's half-width column below 1700 px; a table above */}
+      <ul
+        className={`mt-3 space-y-2 ${detailed ? 'sm:grid sm:grid-cols-2 sm:gap-2 sm:space-y-0 md:hidden' : 'min-[1700px]:hidden'}`}
+      >
         {shown.map((e) => {
           const nutri = e.nutri_score?.toLowerCase()
           const marked = e.markdown_pct > 0.005
@@ -148,13 +150,13 @@ export default function InventoryTable({ rows, limit, detailed = false }: Props)
         })}
       </ul>
 
-      <div className="mt-3 hidden overflow-x-auto md:block">
-        <table className="w-full min-w-[620px] border-separate border-spacing-y-1.5 text-sm">
+      <div className={`mt-3 hidden overflow-x-auto ${detailed ? 'md:block' : 'min-[1700px]:block'}`}>
+        <table className="w-full min-w-[580px] border-separate border-spacing-y-1.5 text-sm">
           <caption className="sr-only">Shelf items sorted by shelf life left</caption>
           <thead>
             <tr className="text-left text-xs font-semibold text-muted">
               <th scope="col" className="rounded-l-lg bg-panel-2 px-3 py-2">Product</th>
-              <th scope="col" className="bg-panel-2 px-2 py-2 text-center">On shelf</th>
+              <th scope="col" className="whitespace-nowrap bg-panel-2 px-2 py-2 text-center">On shelf</th>
               {detailed && <th scope="col" className="bg-panel-2 px-2 py-2 text-center">Next 24 h demand</th>}
               <th scope="col" className="bg-panel-2 px-2 py-2">Countdown</th>
               <th scope="col" className="bg-panel-2 px-2 py-2">Freshness</th>
@@ -174,7 +176,7 @@ export default function InventoryTable({ rows, limit, detailed = false }: Props)
                 >
                   <td className="rounded-l-xl border-y border-l border-line/70 bg-panel px-3 py-2 group-hover:bg-panel-2">
                     <div className="flex items-center gap-3">
-                      <img src={productImg(e.sku_id)} alt="" className="h-12 w-12 shrink-0 rounded-lg object-cover" loading="lazy" />
+                      <img src={productImg(e.sku_id)} alt="" className="h-11 w-11 shrink-0 rounded-lg object-cover" loading="lazy" />
                       <div className="min-w-0">
                         {clickable ? (
                           <button
@@ -195,7 +197,7 @@ export default function InventoryTable({ rows, limit, detailed = false }: Props)
                       </div>
                       <span
                         title={nutri ? `Nutri-Score ${nutri.toUpperCase()}` : 'Nutri-Score not available'}
-                        className={`ml-auto grid h-7 w-7 shrink-0 place-items-center rounded-md text-xs font-bold ${nutri && NUTRI[nutri] ? NUTRI[nutri] : 'bg-line text-muted'}`}
+                        className={`ml-auto grid h-6 w-6 shrink-0 place-items-center rounded-md text-[11px] font-bold ${nutri && NUTRI[nutri] ? NUTRI[nutri] : 'bg-line text-muted'}`}
                       >
                         {nutri ? nutri.toUpperCase() : '–'}
                       </span>
@@ -218,7 +220,7 @@ export default function InventoryTable({ rows, limit, detailed = false }: Props)
                   <td className="border-y border-line/70 bg-panel px-2 py-2 group-hover:bg-panel-2">
                     <Fresh e={e} />
                   </td>
-                  <td className="rounded-r-xl border-y border-r border-line/70 bg-panel px-3 py-2 text-right group-hover:bg-panel-2">
+                  <td className="whitespace-nowrap rounded-r-xl border-y border-r border-line/70 bg-panel px-3 py-2 text-right group-hover:bg-panel-2">
                     {marked && (
                       <div className="text-xs text-muted">
                         <span className="line-through">{usd(e.base_price)}</span>{' '}
