@@ -9,6 +9,12 @@ in retail).
 
 ![ShelfSense dashboard, mid-week of the demo script](docs/screenshot.jpg)
 
+<details><summary>Demo week in motion (GIF, 1.3 MB)</summary>
+
+![Demo script: play, Frame 3 scan, fast-forward to Day 7](docs/demo.gif)
+
+</details>
+
 Two stores serve the **same shoppers** (common random numbers) through the **same weather** for a
 7-day, 168-hour week:
 
