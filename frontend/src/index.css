@@ -27,6 +27,18 @@ body {
   }
 }
 
+.scanline {
+  animation: scan 1.6s ease-in-out infinite;
+}
+@keyframes scan {
+  from {
+    top: -2rem;
+  }
+  to {
+    top: 100%;
+  }
+}
+
 :focus-visible {
   outline: 2px solid theme('colors.accent');
   outline-offset: 2px;

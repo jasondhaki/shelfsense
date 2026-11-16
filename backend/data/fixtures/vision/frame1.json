@@ -1,0 +1,12 @@
+{
+  "_note": "DRAFT, hand-written from the image (no Gemini key yet). Regenerate live, then hand-correct (AI_PIPELINE §1.5).",
+  "detections": [
+    {"label": "strawberries", "box_2d": [0, 0, 1000, 421], "severity": "optimal", "defects": [], "confidence": 0.94},
+    {"label": "strawberries", "box_2d": [0, 569, 1000, 1000], "severity": "optimal", "defects": [], "confidence": 0.92}
+  ],
+  "visual_quality_score": 9.2,
+  "defects_detected": [],
+  "estimated_unit_count": 2,
+  "primary_sku_label": "strawberries",
+  "rationale": "Two clamshells of firm, glossy, evenly red strawberries with bright green calyces; no visible bruising or mold."
+}

@@ -3,7 +3,7 @@ frontend/src/types/contracts.ts (CLAUDE.md rule 5)."""
 
 from typing import Literal
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field, field_validator
 
 AgentName = Literal[
     "SYSTEM",
@@ -181,3 +181,77 @@ class EventRequest(BaseModel):
 class EventResponse(BaseModel):
     queued: bool
     apply_at_tick: int
+
+
+# --- vision (AI_PIPELINE §1) --------------------------------------------------------
+
+SkuLabel = Literal[
+    "strawberries",
+    "bananas",
+    "avocados",
+    "spinach",
+    "cherry_tomatoes",
+    "sourdough",
+    "salmon",
+    "milk",
+    "other",
+]
+Severity = Literal["optimal", "accelerated_ripening", "clearance_required"]
+Defect = Literal[
+    "stem_browning",
+    "surface_moisture",
+    "ethylene_bruising",
+    "sugar_spotting",
+    "mold",
+    "wilting",
+    "soft_spots",
+    "discoloration",
+    "leakage",
+]
+FrameId = Literal["frame1", "frame2", "frame3"]
+
+
+class Detection(BaseModel):
+    label: SkuLabel
+    box_2d: list[int] = Field(min_length=4, max_length=4)  # [ymin, xmin, ymax, xmax], 0..1000
+    severity: Severity
+    defects: list[Defect]
+    confidence: float = Field(ge=0, le=1)
+
+    @field_validator("box_2d")
+    @classmethod
+    def _box(cls, v: list[int]) -> list[int]:
+        ymin, xmin, ymax, xmax = v
+        if not (0 <= ymin < ymax <= 1000 and 0 <= xmin < xmax <= 1000):
+            raise ValueError("box_2d must be [ymin, xmin, ymax, xmax] within 0..1000")
+        return v
+
+
+class VisionExtraction(BaseModel):
+    detections: list[Detection]
+    visual_quality_score: float | None = Field(default=None, ge=1, le=10)
+    defects_detected: list[Defect]
+    estimated_unit_count: int = Field(ge=0)
+    primary_sku_label: SkuLabel
+    rationale: str
+
+
+class Citation(BaseModel):
+    source: str
+    title: str
+    chunk_id: str
+    text: str
+
+
+class VisionScanResult(BaseModel):
+    frame_id: FrameId | Literal["custom"]
+    mode: Literal["cached", "live"]
+    extraction: VisionExtraction
+    target_sku: str | None  # None when the image isn't one of our SKUs ("other")
+    alpha_vision: float
+    rsl_before_hours: float | None  # Store B belief, oldest batch, before the scan
+    printed_remaining_hours: float | None
+    rsl_after_hours: float | None
+    foodkeeper_citation: Citation | None
+    applied_at_tick: int | None  # tick the shelf-life override is applied (next tick)
+    note: str | None = None  # e.g. why live mode fell back to the cached result

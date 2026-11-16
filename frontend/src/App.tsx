@@ -2,13 +2,13 @@ import { X } from 'lucide-react'
 import { useEffect } from 'react'
 import FormulaDrawer from './components/FormulaDrawer'
 import WakingOverlay from './components/WakingOverlay'
-import ZonePlaceholder from './components/ZonePlaceholder'
 import { api } from './lib/api'
 import { connectSim } from './lib/ws'
 import { useSim } from './store/simStore'
 import AgentLog from './zones/AgentLog'
 import EslMatrix from './zones/EslMatrix'
 import ExecutionModules from './zones/ExecutionModules'
+import SmartCamInspector from './zones/SmartCamInspector'
 import TelemetryBar from './zones/TelemetryBar'
 
 const WAKE_AFTER_MS = 3000
@@ -83,8 +83,8 @@ export default function App() {
       <div className="xl:col-span-3">
         <TelemetryBar />
       </div>
-      <div className="xl:row-span-2">
-        <ZonePlaceholder title="Smart-cam inspector" note="Camera scans arrive in Phase 6" />
+      <div className="xl:row-span-2 xl:min-h-0">
+        <SmartCamInspector />
       </div>
       <div className="min-h-0 xl:overflow-y-auto">
         <EslMatrix />

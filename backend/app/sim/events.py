@@ -96,11 +96,24 @@ def _vision_override(state: SimState, payload: dict, tick: int) -> list[LogDraft
             tick,
             "VISION_AGENT",
             "action",
-            f"{sid} oldest batch: α_vision {alpha:.2f} applied "
-            f"(frame {payload.get('frame_id', '—')})",
+            _vision_message(sid, alpha, payload),
             dict(payload),
         )
     ]
+
+
+def _vision_message(sid: str, alpha: float, p: dict) -> str:
+    msg = f"{sid} scan {p.get('frame_id', '—')}"
+    if p.get("mode"):
+        msg += f" ({p['mode']})"
+    if p.get("quality") is not None:
+        msg += f": quality {p['quality']:.1f}"
+    if p.get("defects"):
+        msg += f", {', '.join(p['defects'])}"
+    msg += f". α_vision {alpha:.2f}"
+    if p.get("rsl_before_h") is not None and p.get("rsl_after_h") is not None:
+        msg += f" → RSL {p['rsl_before_h']:.1f}h → {p['rsl_after_h']:.1f}h"
+    return msg + " (oldest batch, both stores; ShelfSense now knows)"
 
 
 HANDLERS = {

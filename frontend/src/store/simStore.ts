@@ -1,11 +1,14 @@
 import { create } from 'zustand'
 import { api, ApiFailure } from '../lib/api'
+import { rejectReason, shrinkForVision } from '../lib/image'
 import type {
   AgentName,
   PoRow,
   ControlAction,
   EventType,
   FormulaBreakdown,
+  FrameId,
+  VisionScanResult,
   LogEntry,
   ServerMessage,
   SimSnapshot,
@@ -25,6 +28,21 @@ export const AGENTS: AgentName[] = [
 
 export type Connection = 'connecting' | 'waking' | 'open' | 'closed'
 
+export const FRAMES: { id: FrameId; label: string; src: string }[] = [
+  { id: 'frame1', label: 'Day 1 morning', src: '/frames/frame1.jpg' },
+  { id: 'frame2', label: 'Day 3 afternoon', src: '/frames/frame2.jpg' },
+  { id: 'frame3', label: 'Thermal anomaly', src: '/frames/frame3.jpg' },
+]
+
+interface VisionState {
+  frameId: FrameId | 'custom'
+  imageUrl: string
+  upload: File | null
+  result: VisionScanResult | null
+  scanning: boolean
+  error?: string
+}
+
 interface SimStore {
   connection: Connection
   snapshot: SimSnapshot | null
@@ -34,6 +52,7 @@ interface SimStore {
   formula: FormulaBreakdown | null
   activeTab: 'procurement' | 'bundles'
   notice: string | null
+  vision: VisionState
   /** ShelfSense orders from the last regular (non-weather) PO run, to show what a weather recompute moved. */
   poRegular: Record<string, number>
   setConnection(c: Connection): void
@@ -47,6 +66,9 @@ interface SimStore {
   closeFormula(): void
   setTab(t: 'procurement' | 'bundles'): void
   dismissNotice(): void
+  selectFrame(id: FrameId): void
+  selectUpload(f: File): void
+  scan(): Promise<void>
 }
 
 const trim = (logs: LogEntry[]) => (logs.length > LOG_LIMIT ? logs.slice(-LOG_LIMIT) : logs)
@@ -69,6 +91,7 @@ export const useSim = create<SimStore>()((set, get) => ({
   activeTab: 'procurement',
   notice: null,
   poRegular: {},
+  vision: { frameId: 'frame1', imageUrl: FRAMES[0].src, upload: null, result: null, scanning: false },
 
   setConnection: (connection) => set({ connection }),
 
@@ -155,4 +178,38 @@ export const useSim = create<SimStore>()((set, get) => ({
   closeFormula: () => set({ selectedSku: null, formula: null }),
   setTab: (activeTab) => set({ activeTab }),
   dismissNotice: () => set({ notice: null }),
+
+  selectFrame: (id) =>
+    set((s) => {
+      if (s.vision.upload) URL.revokeObjectURL(s.vision.imageUrl)
+      const f = FRAMES.find((x) => x.id === id) ?? FRAMES[0]
+      return { vision: { frameId: id, imageUrl: f.src, upload: null, result: null, scanning: false } }
+    }),
+
+  selectUpload: (file) =>
+    set((s) => {
+      const error = rejectReason(file)
+      if (error) return { vision: { ...s.vision, error } }
+      if (s.vision.upload) URL.revokeObjectURL(s.vision.imageUrl)
+      const imageUrl = URL.createObjectURL(file)
+      return { vision: { frameId: 'custom', imageUrl, upload: file, result: null, scanning: false } }
+    }),
+
+  scan: async () => {
+    const v = get().vision
+    set({ vision: { ...v, scanning: true, error: undefined, result: null } })
+    try {
+      // Presets send their image too, so live mode can analyse it; cached mode uses the fixture.
+      let source: Blob
+      if (v.upload) source = v.upload
+      else source = await (await fetch(v.imageUrl)).blob()
+      const form = new FormData()
+      if (v.frameId !== 'custom') form.append('frame_id', v.frameId)
+      form.append('file', await shrinkForVision(source), 'frame.jpg')
+      const result = await api.scan(form)
+      if (get().vision.imageUrl === v.imageUrl) set((s) => ({ vision: { ...s.vision, result, scanning: false } }))
+    } catch (e) {
+      set((s) => ({ vision: { ...s.vision, scanning: false, error: failure(e) } }))
+    }
+  },
 }))

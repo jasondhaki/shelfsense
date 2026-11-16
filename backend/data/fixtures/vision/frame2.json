@@ -1,0 +1,11 @@
+{
+  "_note": "DRAFT, hand-written from the image (no Gemini key yet). Regenerate live, then hand-correct (AI_PIPELINE §1.5).",
+  "detections": [
+    {"label": "bananas", "box_2d": [63, 315, 822, 949], "severity": "accelerated_ripening", "defects": ["sugar_spotting", "stem_browning"], "confidence": 0.95}
+  ],
+  "visual_quality_score": 6.4,
+  "defects_detected": ["sugar_spotting", "stem_browning"],
+  "estimated_unit_count": 1,
+  "primary_sku_label": "bananas",
+  "rationale": "One bunch of bananas with dense brown sugar spotting across the peel and a darkened crown; ripe but past peak shelf appeal."
+}

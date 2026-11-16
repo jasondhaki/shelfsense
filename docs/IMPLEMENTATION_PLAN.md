@@ -202,15 +202,24 @@ Phase 5 results (2026-11-16, Chrome against the live backend):
 **Kickoff prompt:**
 > Read docs/AI_PIPELINE.md §1. Do Phase 6: services/gemini.py using the google-genai SDK with structured output, the VisionAgent with cached/live modes and fallbacks, POST /api/vision/scan, the alpha mapping, and the SmartCamInspector zone with frame carousel, upload dropzone, BoundingBoxCanvas and the result panel. Then help me generate and hand-correct the three fixture files.
 
-- [ ] Source 3 preset images + `CREDITS.md`
-- [ ] `services/gemini.py` (timeout, 1 retry, schema validation)
-- [ ] `vision_agent.py` + `/api/vision/scan` (preset/upload, size/type checks)
-- [ ] Fixtures `frame1..3.json` generated live, then reviewed
-- [ ] `SmartCamInspector` + `BoundingBoxCanvas` (0–1000 coords) + result panel + mode badge
-- [ ] Scan queues `vision_override`; ESL card for that SKU reacts next tick
-- [ ] Tests: fixture path, invalid upload, Gemini failure → fallback
+- [x] Source 3 preset images + `CREDITS.md`
+- [x] `services/gemini.py` (timeout, 1 retry, schema validation)
+- [x] `vision_agent.py` + `/api/vision/scan` (preset/upload, size/type checks)
+- [ ] Fixtures `frame1..3.json` generated live, then reviewed — hand-written drafts committed; `scripts/generate_vision_fixtures.py` ready, **needs GEMINI_API_KEY**
+- [x] `SmartCamInspector` + `BoundingBoxCanvas` (0–1000 coords) + result panel + mode badge
+- [x] Scan queues `vision_override`; ESL card for that SKU reacts next tick
+- [x] Tests: fixture path, invalid upload, Gemini failure → fallback
 
 **Acceptance:** with `VISION_MODE=cached` and no key, Frame 3 scan draws red boxes, shows RSL drop, strawberries' price falls within 1–2 ticks · with a key and `live`, a custom upload returns boxes or a friendly error.
+
+```
+Phase 6 results (2026-11-16, cached mode, no key):
+  Chrome: Frame 3 scan drew red "mold 91%" + amber "surface moisture" boxes, quality 3.8/10,
+  recalibrated RSL 11.2 h → 4.5 h (α 2.50), "cached result" badge, FoodKeeper citation.
+  API, seed 42, scan at D1 08:00: STRW-01 RSL 33.2 h → 13.3 h; price $2.70 → $2.00 one tick later;
+  VISION + PRICING + RAG (FoodKeeper, direct lookup) log lines at D1 08:00.
+  Live half pending a GEMINI_API_KEY (custom upload + regenerating fixtures).
+```
 
 ---
 

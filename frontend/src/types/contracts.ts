@@ -187,3 +187,45 @@ export type ServerMessage =
   | { type: 'status'; status: SimStatus; speed: number }
   | { type: 'event_applied'; event: AppliedEvent }
   | { type: 'pong' }
+
+// --- vision (AI_PIPELINE §1) ---
+export type FrameId = 'frame1' | 'frame2' | 'frame3'
+export type Severity = 'optimal' | 'accelerated_ripening' | 'clearance_required'
+
+export interface Detection {
+  label: string
+  box_2d: [number, number, number, number] // [ymin, xmin, ymax, xmax], 0..1000
+  severity: Severity
+  defects: string[]
+  confidence: number
+}
+
+export interface VisionExtraction {
+  detections: Detection[]
+  visual_quality_score: number | null
+  defects_detected: string[]
+  estimated_unit_count: number
+  primary_sku_label: string
+  rationale: string
+}
+
+export interface Citation {
+  source: string
+  title: string
+  chunk_id: string
+  text: string
+}
+
+export interface VisionScanResult {
+  frame_id: FrameId | 'custom'
+  mode: 'cached' | 'live'
+  extraction: VisionExtraction
+  target_sku: string | null
+  alpha_vision: number
+  rsl_before_hours: number | null
+  printed_remaining_hours: number | null
+  rsl_after_hours: number | null
+  foodkeeper_citation: Citation | null
+  applied_at_tick: number | null
+  note: string | null
+}

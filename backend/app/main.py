@@ -39,7 +39,9 @@ def create_app() -> FastAPI:
 
     @app.exception_handler(HTTPException)
     async def http_error(_: Request, exc: HTTPException) -> JSONResponse:
-        code = {404: "not_found", 409: "conflict"}.get(exc.status_code, "http_error")
+        code = {404: "not_found", 409: "conflict", 413: "too_large", 422: "invalid_request"}.get(
+            exc.status_code, "http_error"
+        )
         return _error(exc.status_code, code, str(exc.detail))
 
     @app.exception_handler(RequestValidationError)

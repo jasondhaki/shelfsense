@@ -6,6 +6,7 @@ import type {
   EventResponse,
   FormulaBreakdown,
   SimSnapshot,
+  VisionScanResult,
 } from '../types/contracts'
 
 const BASE = import.meta.env.VITE_API_URL ?? ''
@@ -21,9 +22,10 @@ export class ApiFailure extends Error {
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
   let res: Response
   try {
+    const json = !(init?.body instanceof FormData) // FormData sets its own multipart header
     res = await fetch(`${BASE}/api${path}`, {
       ...init,
-      headers: { 'Content-Type': 'application/json', ...init?.headers },
+      headers: json ? { 'Content-Type': 'application/json', ...init?.headers } : init?.headers,
     })
   } catch {
     throw new ApiFailure('network', 'The simulation server is unreachable.')
@@ -43,6 +45,7 @@ export const api = {
     request<ControlResponse>('/sim/control', { method: 'POST', body: JSON.stringify(body) }),
   event: (body: EventRequest) =>
     request<EventResponse>('/sim/events', { method: 'POST', body: JSON.stringify(body) }),
+  scan: (form: FormData) => request<VisionScanResult>('/vision/scan', { method: 'POST', body: form }),
   formula: (skuId: string) =>
     request<FormulaBreakdown>(`/sim/skus/${encodeURIComponent(skuId)}/formula`),
 }

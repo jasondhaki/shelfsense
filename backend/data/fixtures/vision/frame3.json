@@ -1,0 +1,13 @@
+{
+  "_note": "DRAFT, hand-written from the image (no Gemini key yet). Regenerate live, then hand-correct (AI_PIPELINE §1.5).",
+  "detections": [
+    {"label": "strawberries", "box_2d": [444, 65, 826, 313], "severity": "accelerated_ripening", "defects": ["surface_moisture"], "confidence": 0.86},
+    {"label": "strawberries", "box_2d": [318, 343, 732, 606], "severity": "clearance_required", "defects": ["mold", "soft_spots", "leakage"], "confidence": 0.91},
+    {"label": "strawberries", "box_2d": [413, 659, 798, 894], "severity": "accelerated_ripening", "defects": ["surface_moisture"], "confidence": 0.84}
+  ],
+  "visual_quality_score": 3.8,
+  "defects_detected": ["mold", "soft_spots", "leakage", "surface_moisture"],
+  "estimated_unit_count": 3,
+  "primary_sku_label": "strawberries",
+  "rationale": "Centre berry is collapsed with a white fuzzy coating and juice pooling at its base; the two neighbours look wet and dull."
+}
