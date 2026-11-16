@@ -19,9 +19,9 @@ Two stores serve the **same shoppers** (common random numbers) through the **sam
 | Pricing | 50% off on the last printed day | Elasticity-based markdown sized to the velocity gap, with a price floor |
 | Leftovers | Binned | Flash Surplus Mystery Boxes, ethylene-aware |
 
-**Result (no events, seeds 1–20): 75.2% ± 12.4 less waste.** Demo script (seed 42, rain + cold-chain
-delay + a damaged-strawberry scan): **65.6% less waste, 213.5 kg diverted, 268.8 kg CO₂e avoided,
-$1,617.64 margin recovered.** See *Limitations* before quoting these.
+**Result (no events, seeds 1–20): 57.8% ± 8.5 less waste.** Demo script (seed 42, rain + cold-chain
+delay + a damaged-strawberry scan): **50.0% less waste, 106.6 kg diverted, 150.7 kg CO₂e avoided,
+$769.71 margin recovered.** See *Limitations* before quoting these.
 
 ## Run it locally
 
@@ -92,11 +92,12 @@ Details, licences and dates: [`backend/data/seed/CREDITS.md`](backend/data/seed/
 ## Limitations — read before quoting the numbers
 
 - **It's a simulation.** Prices, costs, daily volumes and suppliers are illustrative.
-- **Elasticities are assumed** (−1.4 to −2.2), and price cuts create extra demand without pulling it
-  from later hours, which flatters Store B. Real promotions in the Favorita data lift sales only
-  1.02–1.36×.
+- **Elasticities are assumed** (−1.4 to −2.2). Half of any markdown's extra sales is treated as
+  borrowed from later hours (assumed share 0.5); real promotions in the Favorita data lift sales only
+  1.02–1.36×. A constant-elasticity model is available (`--demand-model constant`) but swings
+  widely between seeds.
 - **Store A is calibrated, not observed.** Shopper behaviour (70% pick the freshest unit), delivery
-  schedules and Store A's stock level were set so its waste lands near FAO retail rates; cherry
+  schedules and Store A's stock level (1.25 cycles) were set so its waste lands near FAO retail rates; cherry
   tomatoes (10-day FoodKeeper life) never expire in a 7-day run.
 - **Day-level forecast error is assumed** (CV 0.3), and Store B is otherwise well informed.
 - **Vision fixtures are hand-checked.** Cached scans are a reviewed extraction of three stock photos,

@@ -20,4 +20,5 @@ Every number the simulation uses that did not come from a public source is label
 - `hour_share` within-day traffic curve (Favorita is daily data).
 - `delivery_every_days` supplier schedule (bakery and seafood daily, everything else every other day), identical for both stores.
 - `demand_daily_cv = 0.3`: day-level forecast error per SKU (Gamma, mean 1), shared by both stores, unseen by forecasts.
-- `fresh_picker_share = 0.7` (70% of shoppers take the newest unit) and `store_a_par_mult = 1.5` — chosen in Phase 2 so Store A's waste by category lands near the FAO retail figures; see `docs/ARCHITECTURE.md` decisions log.
+- `fresh_picker_share = 0.7` (70% of shoppers take the newest unit) and `store_a_par_mult = 1.25` — chosen in Phase 2 (re-checked after demand pull-forward) so Store A's waste by category lands near the FAO retail figures; see `docs/ARCHITECTURE.md` decisions log.
+- `pull_forward_share = 0.5`: half of markdown-induced extra sales is borrowed from later hours (both stores).

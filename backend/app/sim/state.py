@@ -72,7 +72,7 @@ class SimConfig:
     bundle_rsl_threshold_h: float = 8
     bundle_discount: float = 0.65
     bundle_base_rate_per_h: float = 1.5
-    store_a_par_mult: float = 1.5  # calibrated vs FAO retail waste (Phase 2); spec 1.25
+    store_a_par_mult: float = 1.25  # calibrated vs FAO retail waste (= spec default)
     store_a_markdown: float = 0.50
     safety_z: float = 1.0
     max_demand_mult: float = 3.0

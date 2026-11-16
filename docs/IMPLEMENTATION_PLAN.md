@@ -278,7 +278,8 @@ No-event benchmark unchanged: 75.2% ± 12.4.
 Phase 1: engine complete; baseline waste ≈ 0 with spec parameters (calibration open)
 Phase 2: all 5 sources merged; Store A calibrated to FAO; no-event reduction 75.1% ± 12.4, demo 65.6%
 Final (local build 2026-11-16, demo scenario seed 42): waste reduction 65.6%, diverted 213.5 kg, CO₂e 268.8 kg, margin $1,617.64
-  No events, seeds 1–20: 75.2% ± 12.4. Deployed build verified in Chrome: ticks over WSS, NOAA live, Frame 3 scan
+  After demand pull-forward + recalibration (fresh 0.7, par 1.25): no events 57.8% ± 8.5; demo 50.0%, 106.6 kg,
+  150.7 kg CO2e, $769.71. (Before pull-forward: 75.2% ± 12.4.) Deployed build verified in Chrome: ticks over WSS, NOAA live, Frame 3 scan
   (cached) → STRW-01 RSL 41.2 h → 17.5 h and repriced to the $2.00 floor next tick, FoodKeeper citation in the log.
 ```
 
