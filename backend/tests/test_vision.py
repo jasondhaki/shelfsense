@@ -44,7 +44,7 @@ def test_frame3_cached_scan_recalibrates_strawberries(client):
     assert r.status_code == 200
     body = r.json()
     assert body["mode"] == "cached" and body["target_sku"] == "STRW-01"
-    assert body["alpha_vision"] == pytest.approx(2.5)
+    assert body["alpha_vision"] == pytest.approx(2.35)
     assert body["rsl_after_hours"] < body["rsl_before_hours"]
     assert body["applied_at_tick"] == 10
     assert body["foodkeeper_citation"]["source"] == "USDA FoodKeeper"
@@ -53,7 +53,7 @@ def test_frame3_cached_scan_recalibrates_strawberries(client):
     step(client)
     s = client.get("/api/sim/state").json()
     lines = [x for x in s["logs"] if x["tick"] == 10]
-    assert any(x["agent"] == "VISION_AGENT" and "α_vision 2.50" in x["message"] for x in lines)
+    assert any(x["agent"] == "VISION_AGENT" and "α_vision 2.35" in x["message"] for x in lines)
     assert any(x["agent"] == "RAG_KNOWLEDGE_AGENT" and "FoodKeeper" in x["message"] for x in lines)
     after = esl(client, "STRW-01")
     assert after["rsl_hours"] < before["rsl_hours"] - 10  # oldest batch now decays 2.5× faster

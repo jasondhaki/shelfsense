@@ -15,4 +15,4 @@ Then give overall:
 - primary_sku_label: the label covering the largest area
 - rationale: one short sentence describing the visual evidence
 
-Judge only what is visible. Do not guess expiry dates. If the image is not of food on a shelf, set primary_sku_label to "other" and visual_quality_score to null.
+Judge only what is visible. Do not guess expiry dates. The photo may be a close-up rather than a whole shelf; grade the produce shown. If the image shows no food products, set primary_sku_label to "other" and visual_quality_score to null.

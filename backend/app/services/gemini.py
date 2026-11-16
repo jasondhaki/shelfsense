@@ -38,17 +38,20 @@ async def extract(image: bytes, mime: str, s: Settings) -> VisionExtraction | No
         response_schema=VisionExtraction,
     )
     contents = [PROMPT, types.Part.from_bytes(data=image, mime_type=mime)]
-    for attempt in range(2):  # first try + 1 retry
+    for attempt in range(2):  # first try + 1 retry (not after a timeout: slow + spends quota)
         try:
             resp = await asyncio.wait_for(
                 client.aio.models.generate_content(
                     model=s.gemini_vision_model, contents=contents, config=config
                 ),
-                timeout=max(s.http_timeout_s, 20),  # vision calls are slower than plain HTTP
+                timeout=s.vision_timeout_s,
             )
             return VisionExtraction.model_validate_json(resp.text or "")
-        except (TimeoutError, ValidationError, ValueError) as e:
-            log.warning("Gemini vision attempt %d failed: %s", attempt + 1, e)
+        except TimeoutError:
+            log.warning("Gemini vision timed out after %.0fs", s.vision_timeout_s)
+            return None
+        except (ValidationError, ValueError) as e:
+            log.warning("Gemini vision attempt %d: invalid reply: %s", attempt + 1, e)
         except Exception as e:  # SDK/network errors: never let them reach the sim loop
             log.warning("Gemini vision attempt %d error: %s: %s", attempt + 1, type(e).__name__, e)
     return None

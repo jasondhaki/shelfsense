@@ -23,6 +23,7 @@ class Settings(BaseSettings):
     noaa_lon: float = -74.0060
     noaa_user_agent: str = "ShelfSense (contact: your-email@example.com)"
     http_timeout_s: float = 8
+    vision_timeout_s: float = 60  # multimodal + reasoning models are slow; one try, no retry
 
     @property
     def cors_list(self) -> list[str]:
