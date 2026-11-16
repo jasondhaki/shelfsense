@@ -7,6 +7,9 @@ from app.agents import vision_agent
 from app.config import get_settings
 from app.controller import EventRejected, SimController
 from app.models.contracts import (
+    ArchEdge,
+    Architecture,
+    ArchNode,
     ControlRequest,
     ControlResponse,
     EventRequest,
@@ -90,3 +93,146 @@ async def vision_scan(
         return await vision_agent.scan(c, get_settings(), frame_id, image, mime, sku_hint)
     except vision_agent.ScanFailed as e:
         raise HTTPException(e.status, str(e)) from None
+
+
+@router.get("/meta/architecture", response_model=Architecture)
+def meta_architecture(request: Request) -> Architecture:
+    c = ctl(request)
+    s = get_settings()
+    vision_live = s.vision_mode == "live" and bool(s.gemini_api_key and s.gemini_vision_model)
+    vector = c.retriever.mode == "vector"
+    noaa_live = c.noaa.source == "live"
+    n = ArchNode
+    nodes = [
+        n(
+            id="usda",
+            label="USDA FoodKeeper",
+            layer="source",
+            status="static",
+            detail="Shelf-life ranges, merged into seed data",
+        ),
+        n(
+            id="off",
+            label="Open Food Facts",
+            layer="source",
+            status="static",
+            detail="Nutri-Score, packaging (6 barcodes)",
+        ),
+        n(
+            id="noaa",
+            label="NOAA weather",
+            layer="source",
+            status="live" if noaa_live else "fallback",
+            detail="Live forecast" if noaa_live else "Committed snapshot (NYC)",
+        ),
+        n(
+            id="kaggle",
+            label="Kaggle Favorita",
+            layer="source",
+            status="static",
+            detail="Weekday demand patterns (aggregates)",
+        ),
+        n(
+            id="fao",
+            label="FAO + Poore & Nemecek",
+            layer="source",
+            status="static",
+            detail="Retail waste %, CO2e factors",
+        ),
+        n(
+            id="seed",
+            label="Seed data",
+            layer="knowledge",
+            status="static",
+            detail="skus.json, sales profile, weather, FAO",
+        ),
+        n(
+            id="rag",
+            label="RAG index",
+            layer="knowledge",
+            status="live" if vector else "fallback",
+            detail="Gemini embeddings"
+            if vector
+            else f"BM25 keyword search ({len(c.retriever.chunks)} chunks)",
+        ),
+        n(
+            id="vision",
+            label="Vision agent",
+            layer="agent",
+            status="live" if vision_live else "fallback",
+            detail="Gemini multimodal" if vision_live else "Cached fixtures",
+            agent="VISION_AGENT",
+        ),
+        n(
+            id="rag_agent",
+            label="RAG knowledge agent",
+            layer="agent",
+            status="live",
+            detail="Cites FoodKeeper, UC Davis, USDA AMS, FAO",
+            agent="RAG_KNOWLEDGE_AGENT",
+        ),
+        n(
+            id="demand",
+            label="Demand agent",
+            layer="agent",
+            status="live",
+            detail="Hourly forecast x weather",
+            agent="DEMAND_AGENT",
+        ),
+        n(
+            id="pricing",
+            label="Pricing agent",
+            layer="agent",
+            status="live",
+            detail="Velocity gap -> elasticity markdown, boxes",
+            agent="PRICING_AGENT",
+        ),
+        n(
+            id="procurement",
+            label="Procurement agent",
+            layer="agent",
+            status="live",
+            detail="Throttled next-delivery POs",
+            agent="PROCUREMENT_AGENT",
+        ),
+        n(
+            id="orchestrator",
+            label="Orchestrator + engine",
+            layer="core",
+            status="live",
+            detail=f"Deterministic tick loop, seed {c.seed}",
+            agent="SYSTEM",
+        ),
+        n(id="esl", label="Shelf labels", layer="output", status="live", detail="8 ESL prices"),
+        n(
+            id="po",
+            label="Purchase orders",
+            layer="output",
+            status="live",
+            detail="Next deliveries",
+        ),
+        n(id="boxes", label="Surplus boxes", layer="output", status="live", detail="Flash bundles"),
+    ]
+    pairs = [
+        ("usda", "seed"),
+        ("off", "seed"),
+        ("kaggle", "seed"),
+        ("fao", "seed"),
+        ("noaa", "seed"),
+        ("usda", "rag"),
+        ("off", "rag"),
+        ("fao", "rag"),
+        ("seed", "demand"),
+        ("seed", "pricing"),
+        ("seed", "procurement"),
+        ("rag", "rag_agent"),
+        ("vision", "orchestrator"),
+        ("rag_agent", "orchestrator"),
+        ("demand", "orchestrator"),
+        ("pricing", "orchestrator"),
+        ("procurement", "orchestrator"),
+        ("orchestrator", "esl"),
+        ("orchestrator", "po"),
+        ("orchestrator", "boxes"),
+    ]
+    return Architecture(nodes=nodes, edges=[ArchEdge(source=a, target=b) for a, b in pairs])

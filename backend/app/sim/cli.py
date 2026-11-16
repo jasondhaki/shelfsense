@@ -52,14 +52,22 @@ def load_config(seed: int = 42, seed_dir: Path = SEED_DIR, **overrides) -> SimCo
 def demo_timeline() -> dict[int, list[Event]]:
     """Scripted demo (SIMULATION_ENGINE §13): rain D2 10:00, cold-chain hitting the D3 06:00
     delivery, thermal-anomaly scan (Frame 3 fixture values) of strawberries D4 14:00."""
-    frame3_alpha = alpha_from_vision(3.8, ["mold", "ethylene_bruising", "soft_spots"])
+    frame3_defects = ["mold", "soft_spots", "leakage", "surface_moisture"]  # Frame 3 fixture
+    frame3_alpha = alpha_from_vision(3.8, frame3_defects)
     return {
         24 + 10: [Event("rainstorm")],
         48 + 2: [Event("cold_chain_delay", {"skus": ["STRW-01", "SPIN-01", "SALM-01"]})],
         72 + 14: [
             Event(
                 "vision_override",
-                {"sku_id": "STRW-01", "alpha": frame3_alpha, "frame_id": "frame3"},
+                {
+                    "sku_id": "STRW-01",
+                    "alpha": frame3_alpha,
+                    "frame_id": "frame3",
+                    "mode": "scripted",
+                    "quality": 3.8,
+                    "defects": frame3_defects,
+                },
             )
         ],
     }

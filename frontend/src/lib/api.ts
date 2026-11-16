@@ -1,5 +1,6 @@
 import type {
   ApiError,
+  Architecture,
   ControlRequest,
   ControlResponse,
   EventRequest,
@@ -46,6 +47,7 @@ export const api = {
   event: (body: EventRequest) =>
     request<EventResponse>('/sim/events', { method: 'POST', body: JSON.stringify(body) }),
   scan: (form: FormData) => request<VisionScanResult>('/vision/scan', { method: 'POST', body: form }),
+  architecture: () => request<Architecture>('/meta/architecture'),
   formula: (skuId: string) =>
     request<FormulaBreakdown>(`/sim/skus/${encodeURIComponent(skuId)}/formula`),
 }

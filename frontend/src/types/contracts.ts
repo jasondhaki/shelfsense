@@ -232,3 +232,23 @@ export interface VisionScanResult {
   applied_at_tick: number | null
   note: string | null
 }
+
+// --- meta (Phase 8) ---
+export interface ArchNode {
+  id: string
+  label: string
+  layer: 'source' | 'knowledge' | 'agent' | 'core' | 'output'
+  status: 'live' | 'fallback' | 'static'
+  detail: string
+  agent: AgentName | null
+}
+
+export interface ArchEdge {
+  source: string
+  target: string
+}
+
+export interface Architecture {
+  nodes: ArchNode[]
+  edges: ArchEdge[]
+}

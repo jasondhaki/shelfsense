@@ -258,3 +258,27 @@ class VisionScanResult(BaseModel):
     foodkeeper_citation: Citation | None
     applied_at_tick: int | None  # tick the shelf-life override is applied (next tick)
     note: str | None = None  # e.g. why live mode fell back to the cached result
+
+
+# --- meta (Phase 8) ------------------------------------------------------------------
+
+
+class ArchNode(BaseModel):
+    id: str
+    label: str
+    layer: Literal["source", "knowledge", "agent", "core", "output"]
+    status: Literal[
+        "live", "fallback", "static"
+    ]  # live = running/connected; fallback = offline path
+    detail: str
+    agent: AgentName | None = None  # ties the node to log lines for the activity pulse
+
+
+class ArchEdge(BaseModel):
+    source: str
+    target: str
+
+
+class Architecture(BaseModel):
+    nodes: list[ArchNode]
+    edges: list[ArchEdge]

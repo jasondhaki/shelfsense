@@ -1,0 +1,112 @@
+# ShelfSense
+
+A twin-store grocery simulation that shows how much perishable food a store throws away when it
+prices and orders by the printed date, and how much less it wastes when it prices and orders by
+what is actually happening on the shelf. Built in the FoodSphere AI domain (food-waste reduction
+in retail).
+
+![ShelfSense dashboard, mid-week of the demo script](docs/screenshot.jpg)
+
+Two stores serve the **same shoppers** (common random numbers) through the **same weather** for a
+7-day, 168-hour week:
+
+| | Store A — baseline | Store B — ShelfSense |
+|---|---|---|
+| Ordering | Fixed order-up-to level | Weather- and weekday-adjusted forecast, throttled POs |
+| Shelf life | Printed date | Effective-age model; camera scans recalibrate damaged batches |
+| Pricing | 50% off on the last printed day | Elasticity-based markdown sized to the velocity gap, with a price floor |
+| Leftovers | Binned | Flash Surplus Mystery Boxes, ethylene-aware |
+
+**Result (no events, seeds 1–20): 75.2% ± 12.4 less waste.** Demo script (seed 42, rain + cold-chain
+delay + a damaged-strawberry scan): **65.6% less waste, 213.5 kg diverted, 268.8 kg CO₂e avoided,
+$1,617.64 margin recovered.** See *Limitations* before quoting these.
+
+## Run it locally
+
+Needs Python 3.12 with [uv](https://docs.astral.sh/uv/) and Node 20+. No API keys required.
+
+```bash
+# backend  (http://localhost:8000)
+cd backend
+uv sync
+uv run uvicorn app.main:app --reload --port 8000
+
+# frontend (http://localhost:5173, proxies /api and /ws to :8000)
+cd frontend
+npm install
+npm run dev
+```
+
+Headless run: `cd backend && uv run python -m app.sim.cli --hours 168 --seed 42 --scenario demo`
+(`--seeds 1-20` for the benchmark, `--seeds 1-20 --calibrate` for Store A vs FAO waste rates).
+
+Tests and checks: `uv run pytest -q` (57 tests) · `npm run typecheck && npm run lint && npm run build`.
+
+### Optional: live AI
+
+Copy `.env.example` to `.env`. With `VISION_MODE=live`, `GEMINI_API_KEY` and `GEMINI_VISION_MODEL`
+set, camera scans and uploads go to Gemini; with `GEMINI_EMBED_MODEL` set and
+`uv run python -m scripts.build_rag_index --vector`, retrieval uses embeddings. Without them the
+app uses cached scan results and BM25 keyword search, and says so in the UI.
+
+## How to demo it (about 3 minutes)
+
+1. **Reset → Demo script.** Two identical stores, same shoppers, same weather.
+2. **Play.** Store B's shelf labels mark down short-life items; the log explains each price with numbers.
+3. The script adds a **rainstorm** (Day 2 10:00): demand, pricing and purchase-order lines appear; open *Purchase orders*.
+4. Day 4 14:00: a **Frame 3 scan** of damaged strawberries; shelf life drops and the label reprices next hour. Click a label for the step-by-step formula.
+5. **Fast-forward.** Surplus boxes appear in *Flash surplus boxes*.
+6. Day 7 23:00: final KPIs. Open **System architecture** for the live status of every part.
+
+## How it works
+
+- `backend/app/sim/` — a pure, deterministic engine (no I/O): same seed + same events ⇒ identical
+  output. The maths is specified in [`docs/SIMULATION_ENGINE.md`](docs/SIMULATION_ENGINE.md).
+- Agents (demand, pricing, procurement, vision, RAG) are thin wrappers that log *why*. The vision
+  model only extracts what it sees and retrieved text only explains decisions; no LLM ever sets a
+  price, shelf life or order.
+- FastAPI streams a tick per simulated hour over `/ws/sim`; React + Zustand render five zones.
+- Every external dependency has an offline fallback (NOAA → snapshot, Gemini → cached fixtures,
+  embeddings → BM25).
+
+Full design: [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) (with a decisions log).
+
+## Data and credits
+
+| Source | Used for |
+|---|---|
+| USDA FSIS FoodKeeper (CC0) | Shelf lives (lower bound of storage range), citations |
+| Open Food Facts (ODbL) | Nutri-Score, packaging for 6 reference products |
+| Kaggle — Corporación Favorita | Weekday demand patterns (aggregates only, never raw rows) |
+| NOAA api.weather.gov | Weather snapshot (NYC) and the live header widget |
+| FAO (2011) Annex 4 | Retail waste rates, the calibration target for Store A |
+| Poore & Nemecek (2018) via Our World in Data | CO₂e per kg |
+| USDA AMS, UC Davis Postharvest Center | Ethylene producer / sensitive classes |
+| Unsplash (Zoshua Colah, Matt L, Radek Sochocki) | Camera frames |
+
+Details, licences and dates: [`backend/data/seed/CREDITS.md`](backend/data/seed/CREDITS.md) and
+[`frontend/public/frames/CREDITS.md`](frontend/public/frames/CREDITS.md).
+
+## Limitations — read before quoting the numbers
+
+- **It's a simulation.** Prices, costs, daily volumes and suppliers are illustrative.
+- **Elasticities are assumed** (−1.4 to −2.2), and price cuts create extra demand without pulling it
+  from later hours, which flatters Store B. Real promotions in the Favorita data lift sales only
+  1.02–1.36×.
+- **Store A is calibrated, not observed.** Shopper behaviour (70% pick the freshest unit), delivery
+  schedules and Store A's stock level were set so its waste lands near FAO retail rates; cherry
+  tomatoes (10-day FoodKeeper life) never expire in a 7-day run.
+- **Day-level forecast error is assumed** (CV 0.3), and Store B is otherwise well informed.
+- **Vision fixtures are hand-checked.** Cached scans are a reviewed extraction of three stock photos,
+  not a trained, validated grader.
+- **Single shared simulation** per server: two visitors control the same week.
+
+## Deploying (free tiers)
+
+- **Backend → Render:** New → Blueprint → this repo (uses [`render.yaml`](render.yaml)). Set
+  `CORS_ORIGINS` to the Vercel URL, `NOAA_USER_AGENT` to an app name + contact, and optionally the
+  Gemini variables. Free instances sleep when idle; the UI shows "Waking the simulation server…"
+  and reconnects by itself.
+- **Frontend → Vercel:** import the repo with root directory `frontend` (Vite preset). Set
+  `VITE_API_URL=https://<render-app>.onrender.com` and
+  `VITE_WS_URL=wss://<render-app>.onrender.com/ws/sim`.

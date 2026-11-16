@@ -1,5 +1,6 @@
-import { CloudRain, FastForward, Pause, Play, RotateCcw, StepForward } from 'lucide-react'
+import { CloudRain, FastForward, Network, Pause, Play, RotateCcw, StepForward } from 'lucide-react'
 import { useState } from 'react'
+import ArchitectureModal from '../components/ArchitectureModal'
 import ColdChainPopover from '../components/ColdChainPopover'
 import KpiCard from '../components/KpiCard'
 import { CYCLE_TICKS, simClock, usd } from '../lib/format'
@@ -12,6 +13,7 @@ export default function TelemetryBar() {
   const control = useSim((s) => s.control)
   const triggerEvent = useSim((s) => s.triggerEvent)
   const [confirmReset, setConfirmReset] = useState(false)
+  const [showArch, setShowArch] = useState(false)
 
   if (!snap) return <header className="zone h-[76px]" aria-busy />
 
@@ -83,6 +85,17 @@ export default function TelemetryBar() {
             >
               Reset
             </button>
+            <button
+              type="button"
+              className="btn"
+              title="Rain on Day 2 10:00, cold-chain delay on Day 3, a Frame 3 scan on Day 4 14:00"
+              onClick={() => {
+                setConfirmReset(false)
+                void control('reset', { scenario: 'demo' })
+              }}
+            >
+              Demo script
+            </button>
             <button type="button" className="btn" onClick={() => setConfirmReset(false)}>
               Keep run
             </button>
@@ -148,6 +161,12 @@ export default function TelemetryBar() {
           onTrigger={(skus, immediate) => triggerEvent('cold_chain_delay', { skus, immediate })}
         />
       </div>
+
+      <button type="button" className="btn" onClick={() => setShowArch(true)}>
+        <Network size={14} aria-hidden />
+        System architecture
+      </button>
+      <ArchitectureModal open={showArch} onClose={() => setShowArch(false)} />
 
       <div className="ml-auto flex gap-2">
         <KpiCard

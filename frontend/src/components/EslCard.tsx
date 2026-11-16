@@ -1,4 +1,4 @@
-import { AlertTriangle, Ban, Gift, Leaf, Package, TrendingDown } from 'lucide-react'
+import { AlertTriangle, Ban, Clock, Gift, Leaf, Package, TrendingDown } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 import type { EslView, RiskState } from '../types/contracts'
 import { usd } from '../lib/format'
@@ -109,8 +109,15 @@ export default function EslCard({ esl, onOpen }: { esl: EslView; onOpen: () => v
       <div className="flex items-end justify-between">
         <div>
           <div className="text-[11px] text-muted">Shelf life left</div>
-          <div className={`font-mono text-base tabular-nums ${rslTone(esl.rsl_hours)}`}>
+          <div className={`flex items-center gap-1 font-mono text-base tabular-nums ${rslTone(esl.rsl_hours)}`}>
+            {esl.on_hand > 0 && esl.rsl_hours < 24 && (
+              <Clock size={13} aria-hidden className={esl.rsl_hours < 8 ? 'hidden' : ''} />
+            )}
+            {esl.on_hand > 0 && esl.rsl_hours < 8 && <AlertTriangle size={13} aria-hidden />}
             {esl.on_hand ? `${esl.rsl_hours.toFixed(1)} h` : '—'}
+            {esl.on_hand > 0 && esl.rsl_hours < 24 && (
+              <span className="sr-only">{esl.rsl_hours < 8 ? '(critical)' : '(under a day)'}</span>
+            )}
           </div>
           <div className="font-mono text-[11px] tabular-nums text-muted">
             label says {esl.on_hand ? `${Math.max(esl.printed_remaining_hours, 0).toFixed(0)} h` : '—'}

@@ -251,12 +251,12 @@ No-event benchmark unchanged: 75.2% ± 12.4.
 **Kickoff prompt:**
 > Do Phase 8: the System Architecture modal with live node status, accessibility and reduced-motion pass, README with setup and screenshots, deploy the backend to Render (free) and the frontend to Vercel, and a scripted demo mode. Walk me through the deploy steps that need my accounts.
 
-- [ ] `ArchitectureModal` + `/api/meta/architecture`
-- [ ] Reduced motion, focus rings, aria labels, colour + icon severity
-- [ ] `README.md` (what it is, screenshot/GIF, run locally, data credits, limitations)
-- [ ] `render.yaml` or documented Render settings; Vercel env vars
-- [ ] Demo preset: `POST /api/sim/control {"action":"reset","scenario":"demo"}` loads the scripted timeline
-- [ ] Final benchmark recorded below
+- [x] `ArchitectureModal` + `/api/meta/architecture`
+- [x] Reduced motion, focus rings, aria labels, colour + icon severity
+- [x] `README.md` (what it is, screenshot/GIF, run locally, data credits, limitations)
+- [x] `render.yaml` or documented Render settings; Vercel env vars — **not deployed yet (needs your Render + Vercel accounts)**
+- [x] Demo preset: `POST /api/sim/control {"action":"reset","scenario":"demo"}` loads the scripted timeline (UI: Reset → Demo script)
+- [x] Final benchmark recorded below (local build)
 
 **Acceptance:** public URLs work from a fresh browser · cold start handled gracefully · the 3-minute demo below runs without touching a terminal.
 
@@ -276,7 +276,8 @@ No-event benchmark unchanged: 75.2% ± 12.4.
 ```
 Phase 1: engine complete; baseline waste ≈ 0 with spec parameters (calibration open)
 Phase 2: all 5 sources merged; Store A calibrated to FAO; no-event reduction 75.1% ± 12.4, demo 65.6%
-Final (deployed build, demo scenario seed 42): waste reduction __%, diverted __ kg, CO₂e __ kg, margin $__
+Final (local build 2026-11-16, demo scenario seed 42): waste reduction 65.6%, diverted 213.5 kg, CO₂e 268.8 kg, margin $1,617.64
+  No events, seeds 1–20: 75.2% ± 12.4. Deployed build: pending.
 ```
 
 ## Backlog (after Phase 8, only if time allows)

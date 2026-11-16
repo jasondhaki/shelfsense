@@ -1,7 +1,10 @@
 import BundleCard from '../components/BundleCard'
 import PoTable from '../components/PoTable'
-import WasteChart from '../components/WasteChart'
 import { useSim } from '../store/simStore'
+import { lazy, Suspense } from 'react'
+
+// Recharts is the heaviest dependency; load it after the first paint
+const WasteChart = lazy(() => import('../components/WasteChart'))
 
 const TABS = [
   { id: 'procurement', label: 'Purchase orders' },
@@ -69,7 +72,9 @@ export default function ExecutionModules() {
         </div>
       </div>
       <div className="min-h-[220px] lg:min-h-0">
-        <WasteChart data={snap?.chart ?? []} />
+        <Suspense fallback={<p className="p-4 text-xs text-muted">Loading chart…</p>}>
+          <WasteChart data={snap?.chart ?? []} />
+        </Suspense>
       </div>
     </section>
   )

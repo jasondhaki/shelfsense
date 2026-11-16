@@ -1,0 +1,37 @@
+# Render Blueprint — backend web service (free tier).
+# Render dashboard → New → Blueprint → pick this repo. Secrets marked `sync: false` are entered
+# in the dashboard, never committed.
+services:
+  - type: web
+    name: shelfsense-api
+    runtime: python
+    plan: free
+    rootDir: backend
+    buildCommand: pip install uv && uv sync --frozen --no-dev
+    startCommand: uv run --no-dev uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/health
+    envVars:
+      - key: PYTHON_VERSION
+        value: "3.12.8"
+      - key: APP_ENV
+        value: prod
+      - key: CORS_ORIGINS # your Vercel URL, e.g. https://shelfsense.vercel.app
+        sync: false
+      - key: SIM_SEED
+        value: "42"
+      - key: VISION_MODE # cached keeps the public demo inside free-tier limits
+        value: cached
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: GEMINI_VISION_MODEL
+        sync: false
+      - key: GEMINI_EMBED_MODEL
+        sync: false
+      - key: RAG_MODE
+        value: auto
+      - key: NOAA_ENABLED
+        value: "true"
+      - key: NOAA_USER_AGENT # api.weather.gov asks for an app name + contact
+        sync: false
+      - key: HTTP_TIMEOUT_S
+        value: "8"

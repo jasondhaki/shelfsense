@@ -106,3 +106,22 @@ def test_websocket_hello_ticks_and_ping(client):
         ws.send_text("ping")
         while (m := ws.receive_json())["type"] != "pong":
             pass
+
+
+def test_architecture_reports_offline_status(client):
+    a = client.get("/api/meta/architecture").json()
+    nodes = {n["id"]: n for n in a["nodes"]}
+    assert nodes["vision"]["status"] == "fallback" and nodes["rag"]["status"] == "fallback"
+    assert nodes["noaa"]["status"] == "fallback" and nodes["pricing"]["agent"] == "PRICING_AGENT"
+    ids = set(nodes)
+    assert all(e["source"] in ids and e["target"] in ids for e in a["edges"])
+
+
+def test_demo_scenario_reset_runs_scripted_events(client):
+    r = client.post("/api/sim/control", json={"action": "reset", "scenario": "demo"})
+    assert r.json()["tick"] == 0
+    step(client, 87)
+    types = [e["type"] for e in client.get("/api/sim/state").json()["active_events"]]
+    logs = client.get("/api/sim/state").json()["logs"]
+    assert any(x["agent"] == "VISION_AGENT" and "frame3 (scripted)" in x["message"] for x in logs)
+    assert isinstance(types, list)
