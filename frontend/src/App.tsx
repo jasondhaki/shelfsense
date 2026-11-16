@@ -1,5 +1,6 @@
 import { X } from 'lucide-react'
 import { useEffect } from 'react'
+import FormulaDrawer from './components/FormulaDrawer'
 import WakingOverlay from './components/WakingOverlay'
 import ZonePlaceholder from './components/ZonePlaceholder'
 import { api } from './lib/api'
@@ -7,6 +8,7 @@ import { connectSim } from './lib/ws'
 import { useSim } from './store/simStore'
 import AgentLog from './zones/AgentLog'
 import EslMatrix from './zones/EslMatrix'
+import ExecutionModules from './zones/ExecutionModules'
 import TelemetryBar from './zones/TelemetryBar'
 
 const WAKE_AFTER_MS = 3000
@@ -90,9 +92,10 @@ export default function App() {
       <div className="h-[70vh] xl:row-span-2 xl:h-auto xl:min-h-0">
         <AgentLog />
       </div>
-      <div className="min-h-[200px]">
-        <ZonePlaceholder title="Purchase orders and surplus boxes" note="Arrives in Phase 5" />
+      <div>
+        <ExecutionModules />
       </div>
+      <FormulaDrawer />
       {connection === 'waking' && <WakingOverlay />}
       <Notice />
     </div>

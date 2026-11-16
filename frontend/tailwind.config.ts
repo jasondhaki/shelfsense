@@ -16,6 +16,7 @@ export default {
         crit: '#EF4444',
         accent: '#38BDF8',
         baseline: '#94A3B8',
+        'chart-a': '#7C8BA1', // Store A line: separates from accent on panel (dataviz validator, ΔE 16)
         agent: {
           vision: '#A78BFA',
           rag: '#2DD4BF',

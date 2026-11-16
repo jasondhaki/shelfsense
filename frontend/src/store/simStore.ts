@@ -2,6 +2,7 @@ import { create } from 'zustand'
 import { api, ApiFailure } from '../lib/api'
 import type {
   AgentName,
+  PoRow,
   ControlAction,
   EventType,
   FormulaBreakdown,
@@ -33,6 +34,8 @@ interface SimStore {
   formula: FormulaBreakdown | null
   activeTab: 'procurement' | 'bundles'
   notice: string | null
+  /** ShelfSense orders from the last regular (non-weather) PO run, to show what a weather recompute moved. */
+  poRegular: Record<string, number>
   setConnection(c: Connection): void
   handleMessage(m: ServerMessage): void
   applyHello(s: SimSnapshot): void
@@ -48,6 +51,11 @@ interface SimStore {
 
 const trim = (logs: LogEntry[]) => (logs.length > LOG_LIMIT ? logs.slice(-LOG_LIMIT) : logs)
 
+const regularOrders = (rows: PoRow[], prev: Record<string, number>) =>
+  rows.length && rows.every((r) => r.reason === null)
+    ? Object.fromEntries(rows.map((r) => [r.sku_id, r.ai_order]))
+    : prev
+
 const failure = (e: unknown) =>
   e instanceof ApiFailure ? e.message : 'Something went wrong talking to the server.'
 
@@ -60,6 +68,7 @@ export const useSim = create<SimStore>()((set, get) => ({
   formula: null,
   activeTab: 'procurement',
   notice: null,
+  poRegular: {},
 
   setConnection: (connection) => set({ connection }),
 
@@ -79,7 +88,12 @@ export const useSim = create<SimStore>()((set, get) => ({
     }
   },
 
-  applyHello: (snapshot) => set({ snapshot, logs: trim(snapshot.logs) }),
+  applyHello: (snapshot) =>
+    set({
+      snapshot,
+      logs: trim(snapshot.logs),
+      poRegular: regularOrders(snapshot.po_table, {}),
+    }),
 
   applyTick: ({ tick, delta, logs }) =>
     set((s) => {
@@ -97,6 +111,7 @@ export const useSim = create<SimStore>()((set, get) => ({
           active_events: delta.active_events ?? snap.active_events,
           chart: [...snap.chart, delta.chart_point],
         },
+        poRegular: delta.po_table ? regularOrders(delta.po_table, s.poRegular) : s.poRegular,
         logs: logs.length ? trim([...s.logs, ...logs]) : s.logs,
       }
     }),
@@ -127,7 +142,8 @@ export const useSim = create<SimStore>()((set, get) => ({
   },
 
   openFormula: async (skuId) => {
-    set({ selectedSku: skuId, formula: null })
+    // same SKU = refresh in place (no flicker); a new SKU clears the old numbers
+    set((s) => (s.selectedSku === skuId ? {} : { selectedSku: skuId, formula: null }))
     try {
       const formula = await api.formula(skuId)
       if (get().selectedSku === skuId) set({ formula })

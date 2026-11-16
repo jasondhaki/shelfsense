@@ -2,7 +2,7 @@
 
 Nine phases. Each one ends with something that runs and is tested. Don't start a phase until the previous phase's acceptance checks pass.
 
-**Current phase:** `Phase 5` ← update this line when a phase is done.
+**Current phase:** `Phase 6` ← update this line when a phase is done.
 
 | Phase | Goal | Rough effort |
 |---|---|---|
@@ -178,13 +178,23 @@ stopping the backend showed the waking overlay after 3 s and the page recovered 
 **Kickoff prompt:**
 > Do Phase 5 from docs/IMPLEMENTATION_PLAN.md: Zone D with the Procurement PO table and Flash Surplus Bundles tab, the Store A vs Store B cumulative waste chart, and the FormulaDrawer that opens when an ESL card is clicked (uses /api/sim/skus/{id}/formula).
 
-- [ ] `ExecutionModules` with both tabs + empty states
-- [ ] PO rows highlight when changed by weather
-- [ ] Bundle cards with expiry countdown and status
-- [ ] Recharts waste comparison chart
-- [ ] `FormulaDrawer` with step-by-step numbers and "assumed" label on ε
+- [x] `ExecutionModules` with both tabs + empty states
+- [x] PO rows highlight when changed by weather
+- [x] Bundle cards with expiry countdown and status
+- [x] Recharts waste comparison chart
+- [x] `FormulaDrawer` with step-by-step numbers and "assumed" label on ε
 
 **Acceptance:** in a fast-forward run you can see at least one bundle created and sold/expired · PO table changes after a rainstorm · formula drawer numbers match the CLI for the same tick (spot-check one SKU).
+
+```
+Phase 5 results (2026-11-16, Chrome against the live backend):
+  bundles: fast-forward run showed boxes "For sale" (with countdown), "Sold" and "Expired unsold"
+  PO: rainstorm at D1 22:00 recomputed 7 of 8 orders, rows tinted + "120 → 117 after rainstorm" tags
+  formula spot-check, seed 42, decision tick 39, STRW-01 — API, CLI and drawer identical:
+    RSL 2.202 h · I 17 · V_target 7.721/h · V_forecast 4.316/h · ΔQ +78.9% · ΔP −39.5% · P $3.02
+  Observed (spec behaviour, not changed): most boxes are 3× one SKU, because usually only one SKU
+  is under 8 h at a time; 1.5 boxes/h sell, so many expire overnight.
+```
 
 ---
 
