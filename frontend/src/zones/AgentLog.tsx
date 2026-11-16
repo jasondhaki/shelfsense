@@ -57,7 +57,7 @@ export default function AgentLog() {
   }, [])
 
   return (
-    <section aria-label="Agent reasoning log" className="zone relative flex min-h-0 flex-col">
+    <section aria-label="Agent reasoning log" className="zone relative flex h-full min-h-0 flex-col overflow-hidden">
       <div className="border-b border-line p-3">
         <h2 className="mb-2 text-sm font-medium">Agent reasoning log</h2>
         <div className="flex flex-wrap gap-1" role="group" aria-label="Show agents">

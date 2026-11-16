@@ -93,7 +93,9 @@ export default function FreshnessHero() {
                       ? ` (was ${r.rsl_before_hours.toFixed(0)} h)`
                       : ''
                   }`
-                : 'No matching shelf item'}
+                : target
+                  ? 'Not on the shelf right now'
+                  : 'No matching shelf item'}
               {worst && worst.severity !== 'optimal' && <> · {SEVERITY[worst.severity].label.toLowerCase()}</>}
             </div>
           </div>
