@@ -9,9 +9,15 @@ in retail).
 
 ![ShelfSense dashboard in the dark theme for a store manager on Day 4: KPIs with 24-hour change and sparklines, freshness scanner, shelf inventory with photos and countdowns, agents, demand forecast](docs/screenshot.jpg)
 
+<details><summary>The same dashboard in Bengali</summary>
+
+![ShelfSense dashboard with the interface in Bengali, Day 4 after a shelf scan](docs/screenshot-bn.jpg)
+
+</details>
+
 Sign in, create an account (confirmed with a 6-digit code by email), or continue as a guest; each account has its own store name and a simulated week that is saved between visits.
 
-<img src="docs/signin.jpg" alt="Sign-in screen in the dark theme: create an account or continue as a guest" width="640">
+<img src="docs/signin.jpg" alt="Sign-in screen in the dark theme: create an account or continue as a guest" width="420"> <img src="docs/signin-bn.jpg" alt="The same sign-in screen in Bengali" width="420">
 
 The app is split into tabs: Dashboard, Inventory, Forecast, Pricing & Discounts, AI Agents, Orders,
 Analytics, Data Ingestion, Settings (profile name and store, saved in the browser) and Help. A sun/moon button switches
