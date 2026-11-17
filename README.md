@@ -16,9 +16,9 @@ Sign in, create an account (confirmed with a 6-digit code by email), or continue
 The app is split into tabs: Dashboard, Inventory, Forecast, Pricing & Discounts, AI Agents, Orders,
 Analytics, Data Ingestion, Settings (profile name and store, saved in the browser) and Help.
 
-<details><summary>Demo week in motion (GIF, 0.8 MB)</summary>
+<details><summary>Demo week in motion (GIF, 0.9 MB)</summary>
 
-![Demo script: the week fast-forwards through a rainstorm, a freeze-damaged strawberry scan reprices the shelf, the price formula opens, and the week ends at 50% less waste](docs/demo.gif)
+![From the login screen to a guest dashboard; the demo-script week fast-forwards through a rainstorm and a cold-chain delay, a strawberry price formula opens, and the week ends on Analytics at 50% less waste](docs/demo.gif)
 
 </details>
 
