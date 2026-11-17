@@ -26,7 +26,7 @@ between English and Bengali (বাংলা).
 
 <details><summary>Demo week in motion (GIF, 1.2 MB)</summary>
 
-![In the dark theme, from the login screen to a guest dashboard; the demo-script week fast-forwards through a rainstorm and a cold-chain delay and a strawberry price formula opens, then the interface switches to Bengali for the rest of the week and Analytics at 50% less waste](docs/demo.gif)
+![In the light theme, from the login screen to a guest dashboard; the demo-script week fast-forwards through a rainstorm and a cold-chain delay and a strawberry price formula opens, then the page switches to the dark theme and to Bengali for the rest of the week and Analytics at 50% less waste](docs/demo.gif)
 
 </details>
 
