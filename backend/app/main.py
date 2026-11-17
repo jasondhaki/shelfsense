@@ -91,7 +91,30 @@ def create_app() -> FastAPI:
             vector_ready=bool(settings.gemini_api_key and settings.gemini_embed_model),
             embed_model=settings.gemini_embed_model,
         )
-        sessions = Sessions(lambda: SimController(settings.sim_seed, noaa, retriever))
+        try:
+            app.state.users = UserStore(settings.database_url, settings.users_db_path)
+        except Exception as e:  # accounts down must not take the demo down (rule 4)
+            log.error("User store unavailable, guests only: %s", e)
+            app.state.users = None
+
+        def make(key: str) -> SimController:
+            c = SimController(settings.sim_seed, noaa, retriever)
+            users = app.state.users
+            if users is None or not key.startswith("u-"):
+                return c  # guests: in memory only
+            uid = key[2:]
+            try:
+                saved = users.load_sim(uid)
+                if saved:
+                    c.restore(saved)
+            except Exception as e:  # don't save over a run we couldn't read
+                log.error("loading the saved simulation failed; not saving this run: %s", e)
+                return SimController(settings.sim_seed, noaa, retriever)
+            c.persist = lambda data: users.save_sim(uid, data)
+            return c
+
+        # ponytail: the first request of a returning user reads + replays (~0.2 s) in-line
+        sessions = Sessions(make)
         shared = sessions.get(None)
         # vector mode: embed every templated query once now, so ticks never wait on the network
         await retriever.warm(
@@ -101,11 +124,11 @@ def create_app() -> FastAPI:
         app.state.auth_secret = settings.auth_secret or secrets.token_urlsafe(32)
         if not settings.auth_secret:
             log.warning("AUTH_SECRET not set: sign-ins last until this process restarts")
-        try:
-            app.state.users = UserStore(settings.database_url, settings.users_db_path)
-        except Exception as e:  # accounts down must not take the demo down (rule 4)
-            log.error("User store unavailable, guests only: %s", e)
-            app.state.users = None
+        if not settings.email_ready:
+            log.warning(
+                "SMTP not configured: %s",
+                "email sign-up is off" if settings.app_env == "prod" else "codes go to this log",
+            )
         app.state.retriever = retriever
         app.state.noaa = noaa
         yield
@@ -152,6 +175,7 @@ def create_app() -> FastAPI:
             "noaa": n.source if n else "snapshot",
             "weather_provider": settings.weather_provider,
             "accounts": (u.backend if (u := getattr(request.app.state, "users", None)) else "off"),
+            "email_signup": settings.email_ready or settings.app_env != "prod",
         }
 
     app.include_router(auth.router)

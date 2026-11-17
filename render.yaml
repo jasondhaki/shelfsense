@@ -39,3 +39,7 @@ services:
         sync: false
       - key: AUTH_SECRET # signs login tokens; Render generates it once
         generateValue: true
+      - key: SMTP_USER # Gmail address that sends sign-up codes
+        sync: false
+      - key: SMTP_PASSWORD # Google app password for SMTP_USER (not the account password)
+        sync: false

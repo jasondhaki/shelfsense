@@ -268,6 +268,16 @@ export interface LoginRequest {
   password: string
 }
 
+/** Sign-up accepted: a 6-digit code was emailed; POST /auth/verify with it for a token. */
+export interface VerifyPending {
+  verify: true
+  email: string
+}
+
+export interface VerifyRequest extends LoginRequest {
+  code: string
+}
+
 export interface ProfileUpdate {
   name: string
   store: string

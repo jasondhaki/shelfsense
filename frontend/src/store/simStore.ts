@@ -59,6 +59,10 @@ export interface Profile {
 /** checking: validating a saved token · signed_out: show the sign-in screen ·
  *  guest: per-tab simulation, profile kept in this browser · signed_in: own account and run */
 export type AuthMode = 'checking' | 'signed_out' | 'guest' | 'signed_in'
+export interface AuthResult {
+  error: string | null
+  verify?: string
+}
 
 const GUEST_KEY = 'shelfsense.guest' // sessionStorage: guest choice lasts for the tab
 const GUEST_PROFILE_KEY = 'shelfsense.guestProfile'
@@ -131,8 +135,10 @@ interface SimStore {
   syncPage(): void
   saveProfile(p: Profile): Promise<boolean>
   restoreSession(): Promise<void>
-  signIn(email: string, password: string): Promise<string | null>
-  signUp(body: SignupRequest): Promise<string | null>
+  /** error: message to show; verify: the address still needs its emailed code (message). */
+  signIn(email: string, password: string): Promise<AuthResult>
+  signUp(body: SignupRequest): Promise<AuthResult>
+  verifyEmail(email: string, password: string, code: string): Promise<string | null>
   continueAsGuest(): void
   signOut(): Promise<void>
   exportReport(): Promise<void>
@@ -302,15 +308,25 @@ export const useSim = create<SimStore>()((set, get) => ({
       const r = await api.login({ email, password })
       setToken(r.token)
       set({ auth: 'signed_in', user: r.user, profile: { name: r.user.name, store: r.user.store } })
-      return null
+      return { error: null }
     } catch (e) {
-      return failure(e)
+      if (e instanceof ApiFailure && e.code === 'email_unverified') return { error: null, verify: e.message }
+      return { error: failure(e) }
     }
   },
 
   signUp: async (body) => {
     try {
       const r = await api.signup(body)
+      return { error: null, verify: `Enter the 6-digit code we emailed to ${r.email}.` }
+    } catch (e) {
+      return { error: failure(e) }
+    }
+  },
+
+  verifyEmail: async (email, password, code) => {
+    try {
+      const r = await api.verify({ email, password, code })
       setToken(r.token)
       set({ auth: 'signed_in', user: r.user, profile: { name: r.user.name, store: r.user.store } })
       return null

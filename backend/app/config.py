@@ -31,6 +31,15 @@ class Settings(BaseSettings):
     database_url: str = ""  # Postgres for accounts (Neon free); empty → local SQLite file
     users_db_path: Path = ROOT / "backend" / "data" / "local" / "users.db"
     auth_secret: str = ""  # signs login tokens; empty → random per process (dev only)
+    # sign-up verification codes (Gmail: SMTP_USER = the address, SMTP_PASSWORD = an app password)
+    smtp_host: str = "smtp.gmail.com"
+    smtp_port: int = 465  # implicit TLS
+    smtp_user: str = ""  # empty → dev: codes are logged; prod: email sign-up is unavailable
+    smtp_password: str = ""
+
+    @property
+    def email_ready(self) -> bool:
+        return bool(self.smtp_user and self.smtp_password)
 
     @property
     def cors_list(self) -> list[str]:

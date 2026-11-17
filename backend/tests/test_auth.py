@@ -5,6 +5,7 @@ from fastapi.testclient import TestClient
 
 from app.main import app
 from app.services.users import LoginLimiter, make_token, read_token
+from tests.conftest import SENT
 
 
 @pytest.fixture(scope="module")
@@ -20,13 +21,25 @@ def signup(c, email, name="Ayesha", store="Bay 7", password="correct horse"):
     )
 
 
+def verify(c, email, code=None, password="correct horse"):
+    code = code or SENT[email.strip().lower()]
+    return c.post("/api/auth/verify", json={"email": email, "password": password, "code": code})
+
+
+def register(c, email, **kw):
+    """Sign up + verify: the {token, user} a new account ends with."""
+    assert signup(c, email, **kw).status_code == 202
+    r = verify(c, email, password=kw.get("password", "correct horse"))
+    assert r.status_code == 200, r.text
+    return r
+
+
 def auth(token):
     return {"Authorization": f"Bearer {token}"}
 
 
 def test_signup_login_me_and_profile(client):
-    r = signup(client, "Ayesha@Example.com ")
-    assert r.status_code == 201
+    r = register(client, "Ayesha@Example.com ")
     body = r.json()
     assert body["user"]["email"] == "ayesha@example.com" and body["user"]["name"] == "Ayesha"
     assert "password" not in str(body["user"])
@@ -55,8 +68,8 @@ def test_validation_and_unauthenticated(client):
 
 
 def test_each_user_has_their_own_simulation(client):
-    a = signup(client, "a@example.com").json()["token"]
-    b = signup(client, "b@example.com").json()["token"]
+    a = register(client, "a@example.com").json()["token"]
+    b = register(client, "b@example.com").json()["token"]
     client.post("/api/sim/control", headers=auth(a), json={"action": "step"})
     assert client.get("/api/sim/state", headers=auth(a)).json()["tick"] == 1
     assert client.get("/api/sim/state", headers=auth(b)).json()["tick"] == 0
@@ -67,7 +80,7 @@ def test_each_user_has_their_own_simulation(client):
 
 
 def test_websocket_uses_the_token(client):
-    tok = signup(client, "ws@example.com").json()["token"]
+    tok = register(client, "ws@example.com").json()["token"]
     client.post("/api/sim/control", headers=auth(tok), json={"action": "step"})
     client.post("/api/sim/control", headers=auth(tok), json={"action": "step"})
     with client.websocket_connect(f"/ws/sim?token={tok}") as ws:
@@ -105,7 +118,7 @@ def test_limiter_lookups_do_not_grow_memory():
 
 
 def test_logout_revokes_every_token(client):
-    r = signup(client, "logout@example.com")
+    r = register(client, "logout@example.com")
     old = r.json()["token"]
     other_device = client.post(
         "/api/auth/login", json={"email": "logout@example.com", "password": "correct horse"}
@@ -154,3 +167,41 @@ def test_signup_limit_keys_on_edge_ip_not_forwarded_for(client):
     )
     assert r.status_code == 429
     auth.signup_per_client.fails.clear()
+
+
+def test_signup_needs_the_emailed_code(client):
+    email = "verify@example.com"
+    r = signup(client, email)
+    assert r.status_code == 202 and r.json() == {"verify": True, "email": email}
+    assert "token" not in r.text
+    pw = {"email": email, "password": "correct horse"}
+    r = client.post("/api/auth/login", json=pw)  # right password, not verified yet
+    assert r.status_code == 403 and r.json()["error"]["code"] == "email_unverified"
+    assert "under a minute ago" in r.json()["error"]["message"]  # no second email so soon
+    good = SENT[email]
+    wrong = f"{(int(good) + 1) % 10**6:06d}"
+    assert verify(client, email, wrong).status_code == 422
+    assert verify(client, email, good, password="wrong pass").status_code == 401
+    assert verify(client, email, "12ab56").status_code == 422  # not 6 digits
+    tok = verify(client, email, good).json()["token"]
+    assert client.get("/api/auth/me", headers=auth(tok)).json()["email"] == email
+    assert client.post("/api/auth/login", json=pw).status_code == 200
+
+
+def test_code_dies_after_too_many_wrong_guesses(client):
+    email = "guess@example.com"
+    signup(client, email)
+    good = SENT[email]
+    for i in range(5):
+        verify(client, email, f"{(int(good) + 1 + i) % 10**6:06d}")
+    assert verify(client, email, good).status_code == 422
+
+
+def test_unverified_address_cannot_be_squatted(client):
+    email = "owner@example.com"
+    signup(client, email, password="attacker pw 1")  # someone else gets there first
+    signup(client, email, password="owner pw 123")  # the real owner signs up too
+    code = SENT[email]  # both codes land in the owner's inbox
+    assert verify(client, email, code, password="attacker pw 1").status_code == 401
+    assert verify(client, email, code, password="owner pw 123").status_code == 200
+    assert signup(client, email).status_code == 409  # verified now: taken

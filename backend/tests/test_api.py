@@ -156,7 +156,7 @@ def test_session_cap_evicts_least_recent():
         playing = True
         subscribers: set = set()
 
-    s = Sessions(lambda: made.append(Fake()) or made[-1], cap=2)
+    s = Sessions(lambda _key: made.append(Fake()) or made[-1], cap=2)
     first = s.get("session-0001")
     s.get("session-0002")
     s.get("session-0003")
@@ -230,7 +230,7 @@ def test_guest_churn_cannot_evict_signed_in_or_watched_runs():
     from app.controller import Sessions
 
     class Fake:
-        def __init__(self):
+        def __init__(self, _key=None):
             self.subscribers = set()
             self.playing = True
 

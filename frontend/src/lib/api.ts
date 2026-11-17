@@ -5,6 +5,8 @@ import type {
   LoginRequest,
   ProfileUpdate,
   SignupRequest,
+  VerifyPending,
+  VerifyRequest,
   UserOut,
   ControlRequest,
   ControlResponse,
@@ -58,9 +60,11 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
 }
 
 export const api = {
-  health: (signal?: AbortSignal) => request<{ status: string; accounts?: string }>('/health', { signal }),
+  health: (signal?: AbortSignal) => request<{ status: string; accounts?: string; email_signup?: boolean }>('/health', { signal }),
   signup: (body: SignupRequest) =>
-    request<AuthResponse>('/auth/signup', { method: 'POST', body: JSON.stringify(body) }),
+    request<VerifyPending>('/auth/signup', { method: 'POST', body: JSON.stringify(body) }),
+  verify: (body: VerifyRequest) =>
+    request<AuthResponse>('/auth/verify', { method: 'POST', body: JSON.stringify(body) }),
   login: (body: LoginRequest) => request<AuthResponse>('/auth/login', { method: 'POST', body: JSON.stringify(body) }),
   /** Signs this user out on every device (server revokes all tokens issued so far). */
   logout: () => request<null>('/auth/logout', { method: 'POST' }),

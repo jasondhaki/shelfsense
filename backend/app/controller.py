@@ -4,8 +4,10 @@ run is reproducible from (seed, event timeline)."""
 
 import asyncio
 import contextlib
+import logging
 import re
 from collections import OrderedDict
+from collections.abc import Callable
 
 from app import views
 from app.agents.bus import AgentBus
@@ -21,6 +23,8 @@ from app.sim.state import SimState
 
 SPEEDS = {"play": 1, "fast_forward": 24}  # ticks per second
 QUEUE_MAX = 500  # per WebSocket client; oldest message dropped when a client lags
+SAVE_EVERY_S = 5  # signed-in runs: at most one DB write per this many seconds while playing
+log = logging.getLogger(__name__)
 
 
 class EventRejected(Exception):
@@ -38,6 +42,9 @@ class SimController:
         self.task: asyncio.Task | None = None
         self.speed = 1
         self.playing = False
+        self.persist: Callable[[dict], None] | None = None  # signed-in users: save to the DB
+        self._dirty = False
+        self._saver: asyncio.Task | None = None
         self._reset(seed, {})
 
     # --- state ---------------------------------------------------------------
@@ -90,6 +97,55 @@ class SimController:
     def response(self) -> ControlResponse:
         return ControlResponse(status=self.status, tick=self.state.tick, speed=self.speed)
 
+    # --- persistence (signed-in users) ----------------------------------------
+    # The engine is deterministic, so (seed, tick, event timeline) is the whole run: restoring
+    # replays it (a full week takes ~0.2 s) and logs, chart and POs come back identical.
+
+    def saved(self) -> dict:
+        s = self.state
+        timeline = list(s.event_log)  # applied so far, with the tick each was applied at
+        timeline += [  # scheduled (demo script) or queued but not applied yet
+            {"tick": t, "type": e.type, "payload": e.payload}
+            for t, evs in self.timeline.items()
+            if t >= s.tick
+            for e in evs
+        ]
+        timeline += [{"tick": s.tick, "type": e.type, "payload": e.payload} for e in self.queue]
+        return {"v": 1, "seed": self.seed, "tick": s.tick, "timeline": timeline}
+
+    def restore(self, data: dict) -> None:
+        timeline: dict[int, list[Event]] = {}
+        for e in data["timeline"]:
+            timeline.setdefault(int(e["tick"]), []).append(Event(e["type"], e["payload"]))
+        self._reset(int(data["seed"]), timeline)
+        while self.state.tick < int(data["tick"]) and not self.state.finished:
+            self.state, _ = self.orchestrator.step(
+                self.state, self.timeline.get(self.state.tick, [])
+            )
+
+    def _save_soon(self) -> None:
+        """Coalesce saves: one writer task, at most every SAVE_EVERY_S, never blocking ticks."""
+        if self.persist is None:
+            return
+        self._dirty = True
+        if self._saver is None or self._saver.done():
+            self._saver = asyncio.create_task(self._save_loop())
+
+    async def _save_loop(self) -> None:
+        while self._dirty:
+            self._dirty = False
+            await self.save_now()
+            await asyncio.sleep(SAVE_EVERY_S)
+
+    async def save_now(self) -> None:
+        if self.persist is None:
+            return
+        try:
+            await asyncio.to_thread(self.persist, self.saved())
+        except Exception as e:  # DB down: the run continues in memory; the next save retries
+            log.warning("saving simulation failed: %s: %s", type(e).__name__, e)
+            self._dirty = True
+
     # --- commands ------------------------------------------------------------
 
     async def control(
@@ -120,6 +176,7 @@ class SimController:
             self._reset(seed if seed is not None else self.seed, timeline)
             self._broadcast({"type": "hello", "snapshot": self.snapshot().model_dump(mode="json")})
         self._broadcast_status()
+        self._save_soon()
         return self.response()
 
     def queue_event(self, type_: str, payload: dict) -> int:
@@ -175,6 +232,7 @@ class SimController:
                     "logs": [x.model_dump(mode="json") for x in logs],
                 }
             )
+        self._save_soon()
 
     def _delta(self) -> TickDelta:
         s = self.state
@@ -239,7 +297,7 @@ class Sessions:
         key = session_id if session_id and SESSION_ID.match(session_id) else SHARED
         c = self.items.get(key)
         if c is None:
-            c = self.items[key] = self.factory()
+            c = self.items[key] = self.factory(key)
             self._evict(key)
         self.items.move_to_end(key)
         return c
@@ -253,5 +311,7 @@ class Sessions:
             self.items.pop(victim).playing = False  # its loop exits at the next tick boundary
 
     async def pause_all(self) -> None:
+        """Shutdown: stop every loop and write every signed-in run to the DB."""
         for c in self.items.values():
             await c.control("pause")
+        await asyncio.gather(*(c.save_now() for c in self.items.values()))

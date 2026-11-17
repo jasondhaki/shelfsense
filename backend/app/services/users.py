@@ -28,13 +28,27 @@ SCHEMA = """CREATE TABLE IF NOT EXISTS users (
     name TEXT NOT NULL,
     store TEXT NOT NULL,
     password_hash TEXT NOT NULL,
-    created_at DOUBLE PRECISION NOT NULL,
-    sessions_after DOUBLE PRECISION NOT NULL DEFAULT 0
+    created_at DOUBLE PRECISION NOT NULL
 )"""
-# tables made before sign-out existed; SQLite has no ADD COLUMN IF NOT EXISTS, so try and ignore
-MIGRATE = "ALTER TABLE users ADD COLUMN sessions_after DOUBLE PRECISION NOT NULL DEFAULT 0"
-FIELDS = "id, email, name, store, password_hash"
+SIMS = """CREATE TABLE IF NOT EXISTS sims (
+    user_id TEXT PRIMARY KEY,
+    data TEXT NOT NULL,
+    updated_at DOUBLE PRECISION NOT NULL
+)"""
+# columns added after launch. SQLite has no ADD COLUMN IF NOT EXISTS, so each is tried and a
+# "duplicate"/"already exists" error ignored. Accounts made before verification count as verified.
+MIGRATIONS = [
+    "ALTER TABLE users ADD COLUMN sessions_after DOUBLE PRECISION NOT NULL DEFAULT 0",
+    "ALTER TABLE users ADD COLUMN email_verified INTEGER NOT NULL DEFAULT 1",
+    "ALTER TABLE users ADD COLUMN code_hash TEXT NOT NULL DEFAULT ''",
+    "ALTER TABLE users ADD COLUMN code_sent_at DOUBLE PRECISION NOT NULL DEFAULT 0",
+    "ALTER TABLE users ADD COLUMN code_attempts INTEGER NOT NULL DEFAULT 0",
+]
+FIELDS = "id, email, name, store, password_hash, email_verified"
 REVOKE_CACHE_S = 600  # sign-out updates the cache directly, so this only bounds DB reads
+CODE_TTL_S = 15 * 60
+CODE_RESEND_S = 60  # minimum gap between two codes to the same address
+CODE_MAX_ATTEMPTS = 5  # wrong guesses before the code is void and a new one is needed
 
 
 @dataclass
@@ -44,6 +58,10 @@ class User:
     name: str
     store: str
     password_hash: str
+    verified: bool = True
+
+    def __post_init__(self) -> None:
+        self.verified = bool(self.verified)  # SQLite/Postgres INTEGER → bool
 
     @property
     def session_key(self) -> str:
@@ -70,6 +88,12 @@ def verify_password(password: str, stored: str) -> bool:
 
 # verified when the email is unknown, so a failed login takes the same time either way
 DUMMY_HASH = hash_password(secrets.token_urlsafe(16))
+
+
+def _code_hash(user_id: str, code: str) -> str:
+    # keyed by account so equal codes for two users differ; a 6-digit code is guessable offline,
+    # which is why it also expires and allows CODE_MAX_ATTEMPTS tries
+    return hashlib.sha256(f"{user_id}:{code}".encode()).hexdigest()
 
 
 def _b64(b: bytes) -> str:
@@ -164,11 +188,13 @@ class UserStore:
         if not self.pg:
             sqlite_path.parent.mkdir(parents=True, exist_ok=True)
         self._exec(SCHEMA)
-        try:
-            self._exec(MIGRATE)
-        except Exception as e:  # column already there (fresh table or migrated before)
-            if "duplicate" not in str(e).lower() and "already exists" not in str(e).lower():
-                raise
+        self._exec(SIMS)
+        for sql in MIGRATIONS:
+            try:
+                self._exec(sql)
+            except Exception as e:  # column already there (migrated on an earlier start)
+                if "duplicate" not in str(e).lower() and "already exists" not in str(e).lower():
+                    raise
         self._after: dict[str, tuple[float, float]] = {}  # uid -> (sessions_after, read at)
 
     @property
@@ -197,19 +223,80 @@ class UserStore:
         return self._one("id", user_id)
 
     def create(self, email: str, name: str, store: str, password: str) -> User:
-        if self.by_email(email):
+        """A new, unverified account. Signing up again before verifying replaces the details
+        (so nobody can squat an address they can't read); a verified address is taken."""
+        old = self.by_email(email)
+        if old and old.verified:
             raise EmailTaken(email)
-        u = User(uuid.uuid4().hex, email, name, store, hash_password(password))
+        h = hash_password(password)
+        if old:
+            self._exec(
+                "UPDATE users SET name = ?, store = ?, password_hash = ? WHERE id = ?",
+                (name, store, h, old.id),
+            )
+            return User(old.id, email, name, store, h, False)
+        u = User(uuid.uuid4().hex, email, name, store, h, False)
         try:
             self._exec(
-                f"INSERT INTO users ({FIELDS}, created_at) VALUES (?, ?, ?, ?, ?, ?)",
-                (u.id, u.email, u.name, u.store, u.password_hash, time.time()),
+                f"INSERT INTO users ({FIELDS}, created_at) VALUES (?, ?, ?, ?, ?, ?, ?)",
+                (u.id, u.email, u.name, u.store, u.password_hash, 0, time.time()),
             )
         except Exception as e:  # a racing signup with the same email hits the UNIQUE index
             if "unique" in str(e).lower():
                 raise EmailTaken(email) from None
             raise
         return u
+
+    # --- email verification codes ------------------------------------------------------
+
+    def new_code(self, user_id: str, now: float | None = None) -> str | None:
+        """A fresh 6-digit code (the old one stops working), or None if one went out less
+        than CODE_RESEND_S ago. Only a hash is stored."""
+        t = now or time.time()
+        rows = self._exec("SELECT code_sent_at FROM users WHERE id = ?", (user_id,), fetch=True)
+        if rows and t - float(rows[0][0]) < CODE_RESEND_S:
+            return None
+        code = f"{secrets.randbelow(10**6):06d}"
+        self._exec(
+            "UPDATE users SET code_hash = ?, code_sent_at = ?, code_attempts = 0 WHERE id = ?",
+            (_code_hash(user_id, code), t, user_id),
+        )
+        return code
+
+    def check_code(self, user_id: str, code: str, now: float | None = None) -> bool:
+        """True (and the account becomes verified) if `code` is the live code."""
+        rows = self._exec(
+            "SELECT code_hash, code_sent_at, code_attempts FROM users WHERE id = ?",
+            (user_id,),
+            fetch=True,
+        )
+        if not rows:
+            return False
+        stored, sent_at, attempts = rows[0]
+        live = (
+            stored and attempts < CODE_MAX_ATTEMPTS and (now or time.time()) - sent_at < CODE_TTL_S
+        )
+        if live and hmac.compare_digest(stored, _code_hash(user_id, code)):
+            self._exec(
+                "UPDATE users SET email_verified = 1, code_hash = '' WHERE id = ?", (user_id,)
+            )
+            return True
+        self._exec("UPDATE users SET code_attempts = code_attempts + 1 WHERE id = ?", (user_id,))
+        return False
+
+    # --- saved simulations ---------------------------------------------------------------
+
+    def save_sim(self, user_id: str, data: dict) -> None:
+        self._exec(
+            "INSERT INTO sims (user_id, data, updated_at) VALUES (?, ?, ?) "
+            "ON CONFLICT (user_id) DO UPDATE SET data = excluded.data, "
+            "updated_at = excluded.updated_at",
+            (user_id, json.dumps(data), time.time()),
+        )
+
+    def load_sim(self, user_id: str) -> dict | None:
+        rows = self._exec("SELECT data FROM sims WHERE user_id = ?", (user_id,), fetch=True)
+        return json.loads(rows[0][0]) if rows else None
 
     def update_profile(self, user_id: str, name: str, store: str) -> None:
         self._exec("UPDATE users SET name = ?, store = ? WHERE id = ?", (name, store, user_id))

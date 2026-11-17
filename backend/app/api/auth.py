@@ -4,9 +4,12 @@ simulation (Sessions key `u-<id>`); guests keep the per-tab X-Session-Id simulat
 import re
 
 from fastapi import APIRouter, HTTPException, Request, Response
+from fastapi.responses import JSONResponse
 from pydantic import BaseModel, Field, field_validator
 from starlette.requests import HTTPConnection
 
+from app.config import get_settings
+from app.services.mailer import MailUnavailable, send_code
 from app.services.users import (
     DUMMY_HASH,
     EmailTaken,
@@ -61,6 +64,17 @@ class LoginRequest(BaseModel):
     password: str = Field(min_length=1, max_length=128)
 
     _e = field_validator("email")(_email)
+
+
+class VerifyRequest(LoginRequest):
+    code: str = Field(pattern=r"^\d{6}$")
+
+
+class VerifyPending(BaseModel):
+    """Sign-up accepted: a 6-digit code went to `email`; POST /verify with it to get a token."""
+
+    verify: bool = True
+    email: str
 
 
 class ProfileUpdate(BaseModel):
@@ -123,8 +137,42 @@ def _me(request: Request) -> User:
     return u
 
 
-@router.post("/signup", response_model=AuthResponse, status_code=201)
-def signup(body: SignupRequest, request: Request) -> AuthResponse:
+NO_MAIL = "Couldn't send the verification email. Try again, or continue as a guest."
+
+
+def _send_code(request: Request, u: User) -> bool:
+    """Email a new code; False if one went out under a minute ago (the old one still works)."""
+    code = _store(request).new_code(u.id)
+    if code is None:
+        return False
+    try:
+        send_code(u.email, code, get_settings())
+    except MailUnavailable:
+        raise HTTPException(503, NO_MAIL) from None
+    return True
+
+
+def _token(request: Request, u: User) -> AuthResponse:
+    return AuthResponse(token=make_token(u.id, request.app.state.auth_secret), user=_out(u))
+
+
+def _check_password(request: Request, email: str, password: str) -> User:
+    if limiter.blocked(email):
+        raise HTTPException(429, "Too many failed attempts. Try again in 15 minutes.")
+    u = _store(request).by_email(email)
+    # same scrypt cost whether or not the email exists, so timing doesn't reveal accounts
+    if not verify_password(password, u.password_hash if u else DUMMY_HASH) or u is None:
+        limiter.fail(email)
+        raise HTTPException(401, "Email or password is incorrect.")
+    return u
+
+
+@router.post("/signup", response_model=VerifyPending, status_code=202)
+def signup(body: SignupRequest, request: Request) -> VerifyPending:
+    """Creates an unverified account and emails a code. No token until /verify."""
+    s = get_settings()
+    if not s.email_ready and s.app_env == "prod":
+        raise HTTPException(503, "Email sign-up is unavailable right now. Continue as a guest.")
     who = _client(request)
     if signup_per_client.blocked(who) or signup_global.blocked("all"):
         raise HTTPException(429, "Too many sign-ups right now. Try again later.")
@@ -135,20 +183,37 @@ def signup(body: SignupRequest, request: Request) -> AuthResponse:
     except EmailTaken:
         msg = "An account with this email already exists. Sign in instead."
         raise HTTPException(409, msg) from None
-    return AuthResponse(token=make_token(u.id, request.app.state.auth_secret), user=_out(u))
+    _send_code(request, u)
+    return VerifyPending(email=u.email)
+
+
+@router.post("/verify", response_model=AuthResponse)
+def verify(body: VerifyRequest, request: Request) -> AuthResponse:
+    """Code + password (so whoever signs up first with your address can't take it over)."""
+    u = _check_password(request, body.email, body.password)
+    if not u.verified and not _store(request).check_code(u.id, body.code):
+        limiter.fail(body.email)
+        raise HTTPException(422, "That code is wrong or has expired. Send a new one.")
+    limiter.clear(body.email)
+    u.verified = True
+    return _token(request, u)
 
 
 @router.post("/login", response_model=AuthResponse)
-def login(body: LoginRequest, request: Request) -> AuthResponse:
-    if limiter.blocked(body.email):
-        raise HTTPException(429, "Too many failed attempts. Try again in 15 minutes.")
-    u = _store(request).by_email(body.email)
-    # same scrypt cost whether or not the email exists, so timing doesn't reveal accounts
-    if not verify_password(body.password, u.password_hash if u else DUMMY_HASH) or u is None:
-        limiter.fail(body.email)
-        raise HTTPException(401, "Email or password is incorrect.")
+def login(body: LoginRequest, request: Request):
+    u = _check_password(request, body.email, body.password)
     limiter.clear(body.email)
-    return AuthResponse(token=make_token(u.id, request.app.state.auth_secret), user=_out(u))
+    if not u.verified:  # right password, address not confirmed yet: (re)send a code
+        sent = _send_code(request, u)
+        msg = (
+            f"Enter the 6-digit code we emailed to {u.email}."
+            if sent
+            else f"A code was emailed to {u.email} under a minute ago. Enter it below."
+        )
+        return JSONResponse(
+            {"error": {"code": "email_unverified", "message": msg}}, status_code=403
+        )
+    return _token(request, u)
 
 
 @router.get("/me", response_model=UserOut)
