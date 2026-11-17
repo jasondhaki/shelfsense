@@ -3,7 +3,7 @@ simulation (Sessions key `u-<id>`); guests keep the per-tab X-Session-Id simulat
 
 import re
 
-from fastapi import APIRouter, HTTPException, Request, Response
+from fastapi import APIRouter, BackgroundTasks, HTTPException, Request, Response
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel, Field, field_validator
 from starlette.requests import HTTPConnection
@@ -68,6 +68,17 @@ class LoginRequest(BaseModel):
 
 class VerifyRequest(LoginRequest):
     code: str = Field(pattern=r"^\d{6}$")
+
+
+class ForgotRequest(BaseModel):
+    email: str
+
+    _e = field_validator("email")(_email)
+
+
+class ResetRequest(ForgotRequest):
+    code: str = Field(pattern=r"^\d{6}$")
+    password: str = Field(min_length=8, max_length=128)  # the new one
 
 
 class VerifyPending(BaseModel):
@@ -213,6 +224,53 @@ def login(body: LoginRequest, request: Request):
         return JSONResponse(
             {"error": {"code": "email_unverified", "message": msg}}, status_code=403
         )
+    return _token(request, u)
+
+
+RESET_SENT = "If that email has an account, a 6-digit code is on its way."
+reset_per_client = LoginLimiter(limit=10, window_s=3600)
+
+
+def _mail_reset_code(store, u: User) -> None:
+    """Background task: the reply never waits on SMTP, so its timing can't reveal accounts."""
+    code = store.new_code(u.id)  # None = one went out under a minute ago; that one still works
+    if code is None:
+        return
+    try:
+        send_code(u.email, code, get_settings())
+    except MailUnavailable:
+        pass  # logged by the mailer; the user can ask again
+
+
+@router.post("/forgot", status_code=202)
+def forgot(body: ForgotRequest, request: Request, tasks: BackgroundTasks) -> dict:
+    """Email a reset code. Same answer whether or not the address has an account."""
+    who = _client(request)
+    if reset_per_client.blocked(who):
+        raise HTTPException(429, "Too many reset requests. Try again later.")
+    reset_per_client.fail(who)
+    store = _store(request)
+    u = store.by_email(body.email)
+    if u is not None:
+        tasks.add_task(_mail_reset_code, store, u)
+    return {"message": RESET_SENT}
+
+
+@router.post("/reset", response_model=AuthResponse)
+def reset(body: ResetRequest, request: Request) -> AuthResponse:
+    """Code from /forgot + a new password: sets it, confirms the email (the code proves the
+    inbox), signs out every other device, and signs this one in."""
+    if limiter.blocked(body.email):
+        raise HTTPException(429, "Too many failed attempts. Try again in 15 minutes.")
+    store = _store(request)
+    u = store.by_email(body.email)
+    if u is None or not store.check_code(u.id, body.code):
+        limiter.fail(body.email)
+        raise HTTPException(422, "That code is wrong or has expired. Send a new one.")
+    limiter.clear(body.email)
+    store.set_password(u.id, body.password)
+    store.sign_out_everywhere(u.id)
+    u.verified = True
     return _token(request, u)
 
 

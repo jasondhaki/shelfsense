@@ -205,3 +205,25 @@ def test_unverified_address_cannot_be_squatted(client):
     assert verify(client, email, code, password="attacker pw 1").status_code == 401
     assert verify(client, email, code, password="owner pw 123").status_code == 200
     assert signup(client, email).status_code == 409  # verified now: taken
+
+
+def test_password_reset(client):
+    email = "forgot@example.com"
+    old = register(client, email).json()["token"]
+    SENT.pop(email, None)
+    r = client.post("/api/auth/forgot", json={"email": email})
+    same = client.post("/api/auth/forgot", json={"email": "nobody-here@example.com"})
+    assert r.status_code == same.status_code == 202 and r.json() == same.json()  # no enumeration
+    assert "nobody-here@example.com" not in SENT
+    code = SENT[email]
+    body = {"email": email, "code": code, "password": "brand new pw"}
+    bad = {**body, "code": f"{(int(code) + 1) % 10**6:06d}"}
+    assert client.post("/api/auth/reset", json=bad).status_code == 422
+    tok = client.post("/api/auth/reset", json=body).json()["token"]
+    assert client.get("/api/auth/me", headers=auth(tok)).status_code == 200
+    assert client.get("/api/auth/me", headers=auth(old)).status_code == 401  # other devices out
+    login = {"email": email, "password": "correct horse"}
+    assert client.post("/api/auth/login", json=login).status_code == 401
+    login["password"] = "brand new pw"
+    assert client.post("/api/auth/login", json=login).status_code == 200
+    assert client.post("/api/auth/reset", json=body).status_code == 422  # code is single-use

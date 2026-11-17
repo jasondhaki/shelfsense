@@ -278,7 +278,10 @@ class UserStore:
         )
         if live and hmac.compare_digest(stored, _code_hash(user_id, code)):
             self._exec(
-                "UPDATE users SET email_verified = 1, code_hash = '' WHERE id = ?", (user_id,)
+                # used up: void it, and lift the resend cooldown so a new code can follow at once
+                "UPDATE users SET email_verified = 1, code_hash = '', code_sent_at = 0 "
+                "WHERE id = ?",
+                (user_id,),
             )
             return True
         self._exec("UPDATE users SET code_attempts = code_attempts + 1 WHERE id = ?", (user_id,))
@@ -297,6 +300,10 @@ class UserStore:
     def load_sim(self, user_id: str) -> dict | None:
         rows = self._exec("SELECT data FROM sims WHERE user_id = ?", (user_id,), fetch=True)
         return json.loads(rows[0][0]) if rows else None
+
+    def set_password(self, user_id: str, password: str) -> None:
+        h = hash_password(password)
+        self._exec("UPDATE users SET password_hash = ? WHERE id = ?", (h, user_id))
 
     def update_profile(self, user_id: str, name: str, store: str) -> None:
         self._exec("UPDATE users SET name = ?, store = ? WHERE id = ?", (name, store, user_id))

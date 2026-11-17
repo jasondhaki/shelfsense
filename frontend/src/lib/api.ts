@@ -7,6 +7,8 @@ import type {
   SignupRequest,
   VerifyPending,
   VerifyRequest,
+  ForgotRequest,
+  ResetRequest,
   UserOut,
   ControlRequest,
   ControlResponse,
@@ -63,6 +65,10 @@ export const api = {
   health: (signal?: AbortSignal) => request<{ status: string; accounts?: string; email_signup?: boolean }>('/health', { signal }),
   signup: (body: SignupRequest) =>
     request<VerifyPending>('/auth/signup', { method: 'POST', body: JSON.stringify(body) }),
+  forgot: (body: ForgotRequest) =>
+    request<{ message: string }>('/auth/forgot', { method: 'POST', body: JSON.stringify(body) }),
+  reset: (body: ResetRequest) =>
+    request<AuthResponse>('/auth/reset', { method: 'POST', body: JSON.stringify(body) }),
   verify: (body: VerifyRequest) =>
     request<AuthResponse>('/auth/verify', { method: 'POST', body: JSON.stringify(body) }),
   login: (body: LoginRequest) => request<AuthResponse>('/auth/login', { method: 'POST', body: JSON.stringify(body) }),

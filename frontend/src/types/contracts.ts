@@ -278,6 +278,17 @@ export interface VerifyRequest extends LoginRequest {
   code: string
 }
 
+export interface ForgotRequest {
+  email: string
+}
+
+/** Code from /auth/forgot plus the new password; answers like a login. */
+export interface ResetRequest {
+  email: string
+  code: string
+  password: string
+}
+
 export interface ProfileUpdate {
   name: string
   store: string

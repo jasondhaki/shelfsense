@@ -139,6 +139,9 @@ interface SimStore {
   signIn(email: string, password: string): Promise<AuthResult>
   signUp(body: SignupRequest): Promise<AuthResult>
   verifyEmail(email: string, password: string, code: string): Promise<string | null>
+  /** Emails a reset code; resolves to the confirmation or an error message. */
+  requestReset(email: string): Promise<AuthResult>
+  resetPassword(email: string, code: string, password: string): Promise<string | null>
   continueAsGuest(): void
   signOut(): Promise<void>
   exportReport(): Promise<void>
@@ -321,6 +324,26 @@ export const useSim = create<SimStore>()((set, get) => ({
       return { error: null, verify: `Enter the 6-digit code we emailed to ${r.email}.` }
     } catch (e) {
       return { error: failure(e) }
+    }
+  },
+
+  requestReset: async (email) => {
+    try {
+      const r = await api.forgot({ email })
+      return { error: null, verify: r.message }
+    } catch (e) {
+      return { error: failure(e) }
+    }
+  },
+
+  resetPassword: async (email, code, password) => {
+    try {
+      const r = await api.reset({ email, code, password })
+      setToken(r.token)
+      set({ auth: 'signed_in', user: r.user, profile: { name: r.user.name, store: r.user.store } })
+      return null
+    } catch (e) {
+      return failure(e)
     }
   },
 
