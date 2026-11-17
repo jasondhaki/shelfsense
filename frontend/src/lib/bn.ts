@@ -508,4 +508,10 @@ export const BN = {
   'Don’t have an account?': 'অ্যাকাউন্ট নেই?',
   'Already have an account?': 'আগে থেকেই অ্যাকাউন্ট আছে?',
   'Sign Up': 'সাইন আপ',
+  'Explaining…': 'ব্যাখ্যা করা হচ্ছে…',
+  'Explain in plain words': 'সহজ ভাষায় ব্যাখ্যা করুন',
+  'Couldn’t get an explanation.': 'ব্যাখ্যা পাওয়া যায়নি।',
+  'Written by {model}; every number is checked against the log and sources.': '{model} লিখেছে; প্রতিটি সংখ্যা লগ ও উৎসের সঙ্গে মিলিয়ে দেখা হয়েছে।',
+  'Template text: no language model is configured, or it did not answer.': 'টেমপ্লেট লেখা: কোনো ভাষা মডেল সেট করা নেই, অথবা সেটি উত্তর দেয়নি।',
+  'The model’s answer was rejected: it used a number that is not in the log or sources.': 'মডেলের উত্তর বাতিল করা হয়েছে: এতে এমন একটি সংখ্যা ছিল যা লগ বা উৎসে নেই।',
 }

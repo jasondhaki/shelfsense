@@ -1,0 +1,226 @@
+{
+ "_note": "Hand-labelled retrieval eval set: a query, the SKU filter (null = whole corpus; every filtered query is repeated unfiltered) the agents would use, and the documents (file stems) that answer it. Run: uv run python -m scripts.eval_rag",
+ "queries": [
+  {
+   "query": "strawberries storage shelf life refrigerator signs of spoilage",
+   "sku_id": "STRW-01",
+   "relevant": [
+    "foodkeeper_STRW-01"
+   ]
+  },
+  {
+   "query": "bananas storage shelf life refrigerator signs of spoilage",
+   "sku_id": "BANA-01",
+   "relevant": [
+    "foodkeeper_BANA-01"
+   ]
+  },
+  {
+   "query": "salmon fish temperature abuse shelf life reduction",
+   "sku_id": "SALM-01",
+   "relevant": [
+    "foodkeeper_SALM-01"
+   ]
+  },
+  {
+   "query": "milk storage shelf life refrigerator",
+   "sku_id": "MILK-01",
+   "relevant": [
+    "foodkeeper_MILK-01"
+   ]
+  },
+  {
+   "query": "bread storage shelf life",
+   "sku_id": "SOUR-01",
+   "relevant": [
+    "foodkeeper_SOUR-01"
+   ]
+  },
+  {
+   "query": "avocados storage ripening shelf life",
+   "sku_id": "AVOC-01",
+   "relevant": [
+    "foodkeeper_AVOC-01",
+    "ethylene_AVOC-01"
+   ]
+  },
+  {
+   "query": "spinach temperature abuse shelf life reduction",
+   "sku_id": "SPIN-01",
+   "relevant": [
+    "ucdavis_spinach",
+    "foodkeeper_SPIN-01"
+   ]
+  },
+  {
+   "query": "tomatoes storage shelf life",
+   "sku_id": "TOMA-01",
+   "relevant": [
+    "foodkeeper_TOMA-01"
+   ]
+  },
+  {
+   "query": "ethylene bananas spinach storage together",
+   "sku_id": null,
+   "relevant": [
+    "ucdavis_spinach",
+    "ethylene_SPIN-01",
+    "ethylene_BANA-01",
+    "ams_ethylene_climacteric"
+   ]
+  },
+  {
+   "query": "which fruits produce ethylene climacteric",
+   "sku_id": null,
+   "relevant": [
+    "ams_ethylene_climacteric"
+   ]
+  },
+  {
+   "query": "spinach high humidity storage effect",
+   "sku_id": "SPIN-01",
+   "relevant": [
+    "model_humidity",
+    "ucdavis_spinach"
+   ]
+  },
+  {
+   "query": "retail waste percentage berries",
+   "sku_id": "STRW-01",
+   "relevant": [
+    "fao_berries"
+   ]
+  },
+  {
+   "query": "CO2e emissions per kilogram seafood",
+   "sku_id": "SALM-01",
+   "relevant": [
+    "fao_seafood"
+   ]
+  },
+  {
+   "query": "Nutri-Score packaging milk product",
+   "sku_id": "MILK-01",
+   "relevant": [
+    "off_MILK-01"
+   ]
+  },
+  {
+   "query": "dairy retail waste supermarket",
+   "sku_id": "MILK-01",
+   "relevant": [
+    "fao_dairy"
+   ]
+  },
+  {
+   "query": "leafy greens yellowing ethylene",
+   "sku_id": "SPIN-01",
+   "relevant": [
+    "ucdavis_spinach",
+    "ethylene_SPIN-01"
+   ]
+  },
+  {
+   "query": "strawberries storage shelf life refrigerator signs of spoilage",
+   "sku_id": null,
+   "relevant": [
+    "foodkeeper_STRW-01"
+   ]
+  },
+  {
+   "query": "bananas storage shelf life refrigerator signs of spoilage",
+   "sku_id": null,
+   "relevant": [
+    "foodkeeper_BANA-01"
+   ]
+  },
+  {
+   "query": "salmon fish temperature abuse shelf life reduction",
+   "sku_id": null,
+   "relevant": [
+    "foodkeeper_SALM-01"
+   ]
+  },
+  {
+   "query": "milk storage shelf life refrigerator",
+   "sku_id": null,
+   "relevant": [
+    "foodkeeper_MILK-01"
+   ]
+  },
+  {
+   "query": "bread storage shelf life",
+   "sku_id": null,
+   "relevant": [
+    "foodkeeper_SOUR-01"
+   ]
+  },
+  {
+   "query": "avocados storage ripening shelf life",
+   "sku_id": null,
+   "relevant": [
+    "foodkeeper_AVOC-01",
+    "ethylene_AVOC-01"
+   ]
+  },
+  {
+   "query": "spinach temperature abuse shelf life reduction",
+   "sku_id": null,
+   "relevant": [
+    "ucdavis_spinach",
+    "foodkeeper_SPIN-01"
+   ]
+  },
+  {
+   "query": "tomatoes storage shelf life",
+   "sku_id": null,
+   "relevant": [
+    "foodkeeper_TOMA-01"
+   ]
+  },
+  {
+   "query": "spinach high humidity storage effect",
+   "sku_id": null,
+   "relevant": [
+    "model_humidity",
+    "ucdavis_spinach"
+   ]
+  },
+  {
+   "query": "retail waste percentage berries",
+   "sku_id": null,
+   "relevant": [
+    "fao_berries"
+   ]
+  },
+  {
+   "query": "CO2e emissions per kilogram seafood",
+   "sku_id": null,
+   "relevant": [
+    "fao_seafood"
+   ]
+  },
+  {
+   "query": "Nutri-Score packaging milk product",
+   "sku_id": null,
+   "relevant": [
+    "off_MILK-01"
+   ]
+  },
+  {
+   "query": "dairy retail waste supermarket",
+   "sku_id": null,
+   "relevant": [
+    "fao_dairy"
+   ]
+  },
+  {
+   "query": "leafy greens yellowing ethylene",
+   "sku_id": null,
+   "relevant": [
+    "ucdavis_spinach",
+    "ethylene_SPIN-01"
+   ]
+  }
+ ]
+}

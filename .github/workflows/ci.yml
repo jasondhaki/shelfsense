@@ -1,0 +1,52 @@
+# Tests and checks on every push / PR; a weekly scheduled run also records the 20-seed benchmark
+# and exports the analytics warehouse (Parquet) as a build artifact.
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  schedule:
+    - cron: "0 3 * * 1" # Mondays 03:00 UTC
+  workflow_dispatch:
+
+jobs:
+  backend:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+      - run: uv sync --frozen
+      - run: uv run ruff check . && uv run ruff format --check .
+      - run: uv run pytest -q
+      - run: uv run python -m scripts.eval_rag
+      - name: Benchmark + warehouse export (scheduled)
+        if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+        run: |
+          uv run python -m app.sim.cli --seeds 1-20 | tee benchmark.txt
+          uv run --group seed python -m scripts.export_warehouse
+      - uses: actions/upload-artifact@v4
+        if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+        with:
+          name: shelfsense-benchmark
+          path: |
+            backend/benchmark.txt
+            backend/data/warehouse/*.parquet
+
+  frontend:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - run: npm ci
+      - run: npm run typecheck && npm run lint && npm run build

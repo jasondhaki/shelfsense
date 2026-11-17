@@ -18,6 +18,12 @@ class Settings(BaseSettings):
     gemini_vision_model: str = ""
     gemini_embed_model: str = ""
     rag_mode: Literal["auto", "vector", "bm25"] = "auto"
+    # plain-language explanations (AI_PIPELINE §3): none = template text only
+    llm_provider: Literal["none", "gemini", "ollama"] = "none"
+    gemini_text_model: str = ""  # empty → GEMINI_VISION_MODEL
+    ollama_url: str = "http://localhost:11434"
+    ollama_model: str = ""  # a local open-weight model, e.g. qwen2.5:3b
+    llm_timeout_s: float = 30
     weather_provider: Literal["noaa", "open_meteo"] = "noaa"  # header widget source
     noaa_enabled: bool = True  # live weather on/off (either provider)
     open_meteo_lat: float = 23.8103  # Dhaka

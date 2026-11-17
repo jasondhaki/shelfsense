@@ -1,19 +1,33 @@
 """Build the RAG corpus + indexes (AI_PIPELINE §2).
 
-    uv run python -m scripts.build_rag_index            # corpus + chunks.json + bm25.json (offline)
+    uv run python -m scripts.build_rag_index            # corpus, chunks, bm25, graph (offline)
+    uv run python -m scripts.build_rag_index --contextual-llm   # LLM-written chunk context
     uv run python -m scripts.build_rag_index --vector   # also index.npz (1 batched Gemini call)
 
 Corpus = FoodKeeper chunks (from build_seed_foodkeeper) + hand-written cited notes + chunks
-generated here from the committed seed files (Open Food Facts, ethylene, FAO)."""
+generated here from the committed seed files (Open Food Facts, ethylene, FAO).
+
+Chunking is semantic and variable-size; every chunk gets a context sentence that is indexed with
+it (contextual retrieval, AI_PIPELINE §2.2); graph.json links SKUs, categories, ethylene classes,
+documents and sources (graph RAG)."""
 
 import argparse
 import asyncio
+import re
 
 from app.rag.retriever import tokenize
 from scripts._common import BACKEND, CORPUS, RAW, SEED, read_json, write_json
 
 RAG = BACKEND / "data" / "rag"
-CHUNK_CHARS = 500
+MIN_CHARS, MAX_CHARS = 150, 600  # variable chunk size bounds
+BREAK_OVERLAP = 0.2  # a sentence sharing < 20% of its words with the chunk starts a new topic
+SENTENCE = re.compile(r"(?<=[.!?])\s+(?=[A-Z(])")
+CONTEXT_PROMPT = (
+    "Here is a document:\n<document>\n{doc}\n</document>\nHere is a chunk from it:\n<chunk>\n"
+    "{chunk}\n</chunk>\nWrite one short sentence that situates this chunk within the document "
+    "(product, source, topic) to improve search retrieval of the chunk. Answer with only the "
+    "sentence."
+)
 
 
 def _md(path, source: str, title: str, url: str, sku_ids: list[str], body: str) -> None:
@@ -89,24 +103,105 @@ def parse(path) -> tuple[dict, str]:
 
 
 def chunk(body: str) -> list[str]:
-    """~500 characters on paragraph boundaries."""
-    out, cur = [], ""
+    """Semantic, variable-size chunks: sentences join the running chunk while they keep its
+    topic (word overlap); a topic shift closes a chunk of MIN_CHARS+, MAX_CHARS always does."""
+    out, cur, words = [], "", set()
     for para in [p.strip() for p in body.split("\n\n") if p.strip()]:
-        if cur and len(cur) + len(para) > CHUNK_CHARS:
-            out.append(cur)
-            cur = para
-        else:
-            cur = f"{cur}\n\n{para}" if cur else para
+        for sent in SENTENCE.split(para):
+            toks = set(tokenize(sent))
+            overlap = len(toks & words) / len(toks) if toks and words else 1.0
+            too_long = len(cur) + len(sent) > MAX_CHARS
+            if cur and (too_long or (overlap < BREAK_OVERLAP and len(cur) >= MIN_CHARS)):
+                out.append(cur)
+                cur, words = sent, toks
+            else:
+                cur = f"{cur} {sent}" if cur else sent
+                words |= toks
     return out + ([cur] if cur else [])
 
 
-def build_chunks() -> list[dict]:
+def context_line(meta: dict, names: dict[str, str]) -> str:
+    """Offline context: where the chunk comes from and what it is about."""
+    about = ", ".join(names[i] for i in meta["sku_ids"] if i in names)
+    tail = f", about {about}." if about else ", general guidance for all products."
+    return f"From {meta['source']}, '{meta['title']}'{tail}"
+
+
+def build_chunks(llm_context: bool = False) -> list[dict]:
+    names = {s["sku_id"]: s["name"] for s in read_json(SEED / "skus.json")["skus"]}
+    old = RAG / "chunks.json"  # reuse LLM contexts for unchanged chunks: no repeat calls
+    reuse = {
+        c["text"]: c["context"]
+        for c in (read_json(old) if old.exists() else [])
+        if c.get("context_by") == "llm"
+    }
     chunks = []
     for f in sorted(CORPUS.glob("*.md")):
         meta, body = parse(f)
         for i, text in enumerate(chunk(body)):
-            chunks.append({"id": f"{f.stem}#{i}", **meta, "text": text})
+            c = {"id": f"{f.stem}#{i}", **meta, "text": text}
+            c["context"], c["context_by"] = context_line(meta, names), "metadata"
+            if text in reuse:
+                c["context"], c["context_by"] = reuse[text], "llm"
+            elif llm_context:
+                ctx = asyncio.run(_llm_context(body, text))
+                if ctx:
+                    c["context"], c["context_by"] = ctx, "llm"
+            chunks.append(c)
     return chunks
+
+
+async def _llm_context(doc: str, text: str) -> str | None:
+    from app.config import get_settings
+    from app.services import llm
+
+    out = await llm.generate(
+        "You write retrieval context for document chunks.",
+        CONTEXT_PROMPT.format(doc=doc, chunk=text),
+        get_settings(),
+        max_tokens=80,
+    )
+    await asyncio.sleep(4)  # free-tier requests-per-minute
+    return " ".join(out.split()) if out else None
+
+
+def build_graph(chunks: list[dict]) -> dict:
+    """Knowledge graph for graph RAG (and the optional Neo4j mirror)."""
+    skus = read_json(SEED / "skus.json")["skus"]
+    eth = read_json(SEED / "ethylene.json")["skus"]
+    nodes: dict[str, dict] = {}
+    edges: list[dict] = []
+
+    def edge(a: str, b: str, kind: str) -> None:
+        edges.append({"source": a, "target": b, "type": kind})
+
+    for s in skus:
+        sid, cls = s["sku_id"], eth[s["sku_id"]]["class"]
+        nodes[f"sku:{sid}"] = {
+            "type": "Sku",
+            "name": s["name"],
+            "category": s["category"],
+            "shelf_life_hours": s["sl_nominal_hours"],
+            "ethylene": cls,
+        }
+        nodes[f"category:{s['category']}"] = {"type": "Category", "name": s["category"]}
+        nodes[f"ethylene:{cls}"] = {"type": "EthyleneClass", "name": cls}
+        edge(f"sku:{sid}", f"category:{s['category']}", "IN_CATEGORY")
+        edge(f"sku:{sid}", f"ethylene:{cls}", "HAS_ETHYLENE_CLASS")
+    for a in skus:
+        for b in skus:
+            if eth[a["sku_id"]]["class"] == "producer" and eth[b["sku_id"]]["class"] == "sensitive":
+                edge(f"sku:{a['sku_id']}", f"sku:{b['sku_id']}", "CLASHES_WITH")
+    for c in chunks:
+        doc = f"doc:{c['id'].split('#')[0]}"
+        if doc in nodes:
+            continue
+        nodes[doc] = {"type": "Document", "name": c["title"], "url": c.get("url", "")}
+        nodes[f"source:{c['source']}"] = {"type": "Source", "name": c["source"]}
+        edge(doc, f"source:{c['source']}", "PUBLISHED_BY")
+        for i in c["sku_ids"]:
+            edge(doc, f"sku:{i}", "DESCRIBES")
+    return {"nodes": [{"id": k, **v} for k, v in nodes.items()], "edges": edges}
 
 
 async def embed_all(chunks: list[dict]) -> None:
@@ -115,7 +210,7 @@ async def embed_all(chunks: list[dict]) -> None:
     from app.config import get_settings
     from app.services import gemini
 
-    vecs = await gemini.embed([f"{c['title']}\n{c['text']}" for c in chunks], get_settings())
+    vecs = await gemini.embed([f"{c['context']}\n{c['text']}" for c in chunks], get_settings())
     if vecs is None:
         raise SystemExit("Embedding failed — check GEMINI_API_KEY / GEMINI_EMBED_MODEL.")
     np.savez(
@@ -129,12 +224,27 @@ async def embed_all(chunks: list[dict]) -> None:
 def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--vector", action="store_true", help="also embed with Gemini (1 API call)")
+    ap.add_argument(
+        "--contextual-llm",
+        action="store_true",
+        help="write chunk context with the configured LLM (1 call per new chunk)",
+    )
     a = ap.parse_args()
     generate_from_seed()
-    chunks = build_chunks()
+    chunks = build_chunks(a.contextual_llm)
     write_json(RAG / "chunks.json", chunks)
-    write_json(RAG / "bm25.json", {c["id"]: tokenize(f"{c['title']} {c['text']}") for c in chunks})
-    print(f"  {len(chunks)} chunks from {len(list(CORPUS.glob('*.md')))} files")
+    write_json(
+        RAG / "bm25.json",
+        {c["id"]: tokenize(f"{c['title']} {c['context']} {c['text']}") for c in chunks},
+    )
+    graph = build_graph(chunks)
+    write_json(RAG / "graph.json", graph)
+    n_llm = sum(c["context_by"] == "llm" for c in chunks)
+    print(
+        f"  {len(chunks)} chunks from {len(list(CORPUS.glob('*.md')))} files "
+        f"({n_llm} with LLM context); graph {len(graph['nodes'])} nodes, "
+        f"{len(graph['edges'])} edges"
+    )
     if a.vector:
         asyncio.run(embed_all(chunks))
 

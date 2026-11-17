@@ -29,6 +29,8 @@ services:
         sync: false
       - key: RAG_MODE
         value: auto
+      - key: LLM_PROVIDER # none = template explanations; gemini keeps the public demo on the free tier
+        value: none
       - key: NOAA_ENABLED
         value: "true"
       - key: NOAA_USER_AGENT # api.weather.gov asks for an app name + contact

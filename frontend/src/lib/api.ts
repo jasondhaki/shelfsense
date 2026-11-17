@@ -14,6 +14,8 @@ import type {
   ControlResponse,
   EventRequest,
   EventResponse,
+  Explanation,
+  ExplainRequest,
   FormulaBreakdown,
   SimSnapshot,
   VisionScanResult,
@@ -96,6 +98,8 @@ export const api = {
     // revoking in the same task can cancel the download (Firefox, Safari)
     setTimeout(() => URL.revokeObjectURL(a.href), 1000)
   },
+  explain: (body: ExplainRequest) =>
+    request<Explanation>('/explain', { method: 'POST', body: JSON.stringify(body) }),
   architecture: () => request<Architecture>('/meta/architecture'),
   formula: (skuId: string) =>
     request<FormulaBreakdown>(`/sim/skus/${encodeURIComponent(skuId)}/formula`),

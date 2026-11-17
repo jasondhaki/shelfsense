@@ -68,7 +68,7 @@ downloads the current run. Product photos are Unsplash (credits in `frontend/pub
 Headless run: `cd backend && uv run python -m app.sim.cli --hours 168 --seed 42 --scenario demo`
 (`--seeds 1-20` for the benchmark, `--seeds 1-20 --calibrate` for Store A vs FAO waste rates).
 
-Tests and checks: `uv run pytest -q` (57 tests) · `npm run typecheck && npm run lint && npm run build`.
+Tests and checks: `uv run pytest -q` (90 tests) · `npm run typecheck && npm run lint && npm run build`.
 
 ### Optional: live AI
 
@@ -76,6 +76,42 @@ Copy `.env.example` to `.env`. With `VISION_MODE=live`, `GEMINI_API_KEY` and `GE
 set, camera scans and uploads go to Gemini; with `GEMINI_EMBED_MODEL` set and
 `uv run python -m scripts.build_rag_index --vector`, retrieval uses embeddings. Without them the
 app uses cached scan results and BM25 keyword search, and says so in the UI.
+
+### Optional: plain-language explanations (Gemini or a local model)
+
+Expand any agent log line and press **Explain in plain words**. The answer is grounded on the
+line's numbers, knowledge-graph facts and cited sources, and is rejected (template text shown
+instead) if it contains a number that isn't in them. `LLM_PROVIDER=gemini` uses your Gemini key;
+for a fully local model install [Ollama](https://ollama.com), `ollama pull qwen2.5:3b`, then set
+`LLM_PROVIDER=ollama` and `OLLAMA_MODEL=qwen2.5:3b`. Without either it shows template text.
+
+### MCP servers, automation, analytics
+
+- **MCP:** `shelfsense-sim` (run a week, benchmark seeds, price formula, list products) and
+  `shelfsense-knowledge` (cited search, product graph, explain a decision; resources for the
+  credits and the graph). Claude Code picks them up from [`.mcp.json`](.mcp.json); elsewhere run
+  `uv run python -m app.mcp.sim_server` (stdio) or add `--http` for streamable HTTP on
+  `http://127.0.0.1:8765/mcp` (knowledge: 8766).
+- **Report API:** `GET /api/report?seed=42&scenario=demo` returns a whole simulated week as JSON
+  (deterministic, cached).
+- **n8n:** import [`automation/n8n/shelfsense_daily_report.json`](automation/n8n/shelfsense_daily_report.json):
+  every morning (or via its webhook) it runs the week, summarises it and posts to a Slack/Discord
+  webhook if you set one.
+- **CI:** GitHub Actions runs tests, lint, the retrieval eval and the frontend build on every push,
+  and weekly records the 20-seed benchmark and the warehouse export as an artifact.
+- **Warehouse:** `uv run --group seed python -m scripts.export_warehouse` writes Parquet tables
+  and a DuckDB file of 21 simulated weeks to `backend/data/warehouse/`.
+- **RAG eval:** `uv run python -m scripts.eval_rag` (hit@3 and MRR on 30 labelled queries).
+- **Optional database mirrors:** `scripts.sync_pgvector` (chunks + embeddings into pgvector on the
+  same Postgres as `DATABASE_URL`) and `scripts.sync_neo4j` (the knowledge graph into Neo4j AuraDB
+  Free or a local Neo4j). The app itself reads the committed files, so neither is required.
+
+### Share your local copy
+
+Run backend and frontend as above, then expose the Vite port with a free tunnel:
+`cloudflared tunnel --url http://localhost:5173` (or `ngrok http 5173`). The Vite proxy forwards
+`/api` and `/ws`, so one tunnel serves the whole app; Vite already allows `*.trycloudflare.com`
+and `*.ngrok-free.app` hosts.
 
 ## How to demo it (about 3 minutes)
 
@@ -100,7 +136,11 @@ app uses cached scan results and BM25 keyword search, and says so in the UI.
 - Every external dependency has an offline fallback (NOAA → snapshot, Gemini → cached fixtures,
   embeddings → BM25).
 
-Full design: [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) (with a decisions log).
+- Retrieval: semantic chunks with LLM-written context sentences (contextual retrieval), BM25 or
+  Gemini embeddings, plus a small knowledge graph for ethylene clashes (graph RAG).
+
+Full design: [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) (with a decisions log). AI details:
+[`docs/AI_PIPELINE.md`](docs/AI_PIPELINE.md). Prompts: [`docs/PROMPT_LIBRARY.md`](docs/PROMPT_LIBRARY.md).
 
 ## Data and credits
 

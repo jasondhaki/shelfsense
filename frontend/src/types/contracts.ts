@@ -229,6 +229,22 @@ export interface Citation {
   mode: 'bm25' | 'vector' | null
 }
 
+export interface ExplainRequest {
+  agent: AgentName
+  message: string
+  data: Record<string, unknown> | null
+}
+
+export interface Explanation {
+  text: string
+  mode: 'llm' | 'template'
+  provider: 'gemini' | 'ollama' | null
+  model: string | null
+  guardrail: string | null
+  facts: string[]
+  citations: Citation[]
+}
+
 export interface VisionScanResult {
   frame_id: FrameId | 'custom'
   mode: 'cached' | 'live'

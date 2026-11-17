@@ -1,5 +1,6 @@
 import { ArrowDown } from 'lucide-react'
 import { useEffect, useLayoutEffect, useRef, useState } from 'react'
+import ExplainBox from '../components/ExplainBox'
 import { useT } from '../lib/i18n'
 import { AGENTS, useSim } from '../store/simStore'
 import type { AgentName, LogEntry } from '../types/contracts'
@@ -32,6 +33,7 @@ function Line({ e }: { e: LogEntry }) {
       <pre className="mt-1 max-h-48 overflow-auto rounded bg-bg p-2 text-[11px] text-muted">
         {JSON.stringify(e.data, null, 2)}
       </pre>
+      <ExplainBox e={e} />
     </details>
   )
 }

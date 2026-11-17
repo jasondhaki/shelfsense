@@ -26,3 +26,6 @@ backend/data/local/
 Thumbs.db
 .vscode/
 .idea/
+
+# Local analytics warehouse (scripts/export_warehouse.py)
+backend/data/warehouse/

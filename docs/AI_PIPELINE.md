@@ -106,9 +106,13 @@ sku_ids: [STRW-01]
 Contents: FoodKeeper records for our SKUs (tips + storage times), Open Food Facts metadata summaries, ethylene compatibility table rows, humidity/temperature handling notes from extension publications, FAO retail-waste figures. Expect 50–200 chunks total. Chunk at ~500 characters on paragraph boundaries, keep the header metadata on every chunk.
 
 ### 2.2 Index (`scripts/build_rag_index.py`)
-- **Vector:** embed each chunk with `GEMINI_EMBED_MODEL` → `data/rag/index.npz` (`embeddings` float32 matrix + `ids`) and `data/rag/chunks.json` (id → text + metadata). Normalise vectors.
-- **BM25:** always also build `data/rag/bm25.json` (tokenised corpus) using `rank-bm25`, so retrieval works without a key.
-- Commit both (they're small).
+- **Chunking:** semantic, variable size. Sentences join the running chunk while they share ≥ 20% of their words with it; a topic shift closes a chunk of ≥ 150 characters, 600 characters always does. Header metadata is kept on every chunk.
+- **Contextual retrieval** (Anthropic-style): each chunk gets a `context` sentence situating it in its document, indexed together with the chunk text (BM25 tokens and embeddings). `--contextual-llm` writes it with the configured LLM (prompt in the script); contexts are reused while the chunk text is unchanged, so rebuilds make no repeat calls. Without a model the context is a metadata sentence (source, title, products). `context_by` records which.
+- **Vector:** embed `context + text` with `GEMINI_EMBED_MODEL` → `data/rag/index.npz` (`embeddings` float32 matrix + `ids`) and `data/rag/chunks.json`. Normalised.
+- **BM25:** always built (`data/rag/bm25.json`), so retrieval works without a key.
+- **Knowledge graph:** `data/rag/graph.json` — nodes `Sku`, `Category`, `EthyleneClass`, `Document`, `Source`; edges `IN_CATEGORY`, `HAS_ETHYLENE_CLASS`, `CLASHES_WITH` (producer → sensitive), `DESCRIBES`, `PUBLISHED_BY`. Optional mirrors: Neo4j (`scripts/sync_neo4j.py`) and pgvector (`scripts/sync_pgvector.py`); the app reads the committed files.
+- **Eval:** `data/rag/eval.json` (30 labelled queries, 15 with the SKU filter and the same 15 without) → `uv run python -m scripts.eval_rag [--vector]` prints hit@3 and MRR, with a no-context ablation. 2026-11-18: BM25 contextual hit@3 0.967 / MRR 0.916, BM25 plain 1.0 / 0.839, vector (contextual) 1.0 / 0.983. A test keeps BM25 at hit@3 ≥ 0.9, MRR ≥ 0.8.
+- Commit all of these (they're small).
 
 ### 2.3 Retrieval (`app/rag/retriever.py`)
 ```python
@@ -134,3 +138,17 @@ The RAG agent logs: `Retrieved "Strawberries — refrigerator storage" (USDA Foo
 - Retrieved text **informs the log and citations only**; it never changes numbers in the engine at runtime. Numeric parameters (SL hours, ε, CO₂e factors) are fixed at seed-build time from the same sources.
 - Show the source name on everything the RAG agent says.
 - Quote short snippets; don't paste whole documents into the UI.
+
+---
+
+## 3. Plain-language explanations (`POST /api/explain`, `app/agents/explain.py`)
+
+"Explain in plain words" under an expanded agent log line. Also an MCP tool (`explain_decision`).
+
+1. **Context (RAG generation):** the log line and its `data` (trimmed to 1,200 characters), knowledge-graph facts for its SKU, and up to 4 knowledge chunks from `graph_retrieve` (top 3 for the SKU + the best ethylene chunk of each product it clashes with).
+2. **Prompt:** `app/agents/prompts/explain.txt` (system) + the context (user). Temperature 0, output capped. Snippets are declared reference text, not instructions.
+3. **Model:** `LLM_PROVIDER=gemini` (`GEMINI_TEXT_MODEL`, default the vision model) or `ollama` (`OLLAMA_MODEL`, a local open-weight model such as `qwen2.5:3b` at `OLLAMA_URL`). `none` (default, and on the public demo) → template text.
+4. **Guardrail:** every number in the answer must appear in the context (also accepted as a fraction ↔ percent). Otherwise the template is shown and `guardrail` says why. The UI labels which it is.
+5. **Cost:** answers are cached in-process by (request, model); failed calls aren't cached.
+
+The LLM explains; it never sets a price, RSL or order (CLAUDE.md rule 2).

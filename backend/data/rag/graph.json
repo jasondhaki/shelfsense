@@ -1,0 +1,793 @@
+{
+  "nodes": [
+    {
+      "id": "sku:STRW-01",
+      "type": "Sku",
+      "name": "Organic Strawberries 1 lb",
+      "category": "berries",
+      "shelf_life_hours": 48.0,
+      "ethylene": "neutral"
+    },
+    {
+      "id": "category:berries",
+      "type": "Category",
+      "name": "berries"
+    },
+    {
+      "id": "ethylene:neutral",
+      "type": "EthyleneClass",
+      "name": "neutral"
+    },
+    {
+      "id": "sku:BANA-01",
+      "type": "Sku",
+      "name": "Cavendish Bananas (bunch)",
+      "category": "bananas",
+      "shelf_life_hours": 72.0,
+      "ethylene": "producer"
+    },
+    {
+      "id": "category:bananas",
+      "type": "Category",
+      "name": "bananas"
+    },
+    {
+      "id": "ethylene:producer",
+      "type": "EthyleneClass",
+      "name": "producer"
+    },
+    {
+      "id": "sku:SALM-01",
+      "type": "Sku",
+      "name": "Atlantic Salmon Fillet",
+      "category": "seafood",
+      "shelf_life_hours": 24.0,
+      "ethylene": "neutral"
+    },
+    {
+      "id": "category:seafood",
+      "type": "Category",
+      "name": "seafood"
+    },
+    {
+      "id": "sku:MILK-01",
+      "type": "Sku",
+      "name": "Whole Milk 1 gal",
+      "category": "dairy",
+      "shelf_life_hours": 144,
+      "ethylene": "neutral"
+    },
+    {
+      "id": "category:dairy",
+      "type": "Category",
+      "name": "dairy"
+    },
+    {
+      "id": "sku:SOUR-01",
+      "type": "Sku",
+      "name": "Artisanal Sourdough",
+      "category": "bakery",
+      "shelf_life_hours": 72.0,
+      "ethylene": "neutral"
+    },
+    {
+      "id": "category:bakery",
+      "type": "Category",
+      "name": "bakery"
+    },
+    {
+      "id": "sku:AVOC-01",
+      "type": "Sku",
+      "name": "Hass Avocado",
+      "category": "avocados",
+      "shelf_life_hours": 72.0,
+      "ethylene": "producer"
+    },
+    {
+      "id": "category:avocados",
+      "type": "Category",
+      "name": "avocados"
+    },
+    {
+      "id": "sku:SPIN-01",
+      "type": "Sku",
+      "name": "Baby Spinach 5 oz",
+      "category": "leafy_greens",
+      "shelf_life_hours": 72.0,
+      "ethylene": "sensitive"
+    },
+    {
+      "id": "category:leafy_greens",
+      "type": "Category",
+      "name": "leafy_greens"
+    },
+    {
+      "id": "ethylene:sensitive",
+      "type": "EthyleneClass",
+      "name": "sensitive"
+    },
+    {
+      "id": "sku:TOMA-01",
+      "type": "Sku",
+      "name": "Cherry Tomatoes 1 pt",
+      "category": "vegetables",
+      "shelf_life_hours": 240.0,
+      "ethylene": "producer"
+    },
+    {
+      "id": "category:vegetables",
+      "type": "Category",
+      "name": "vegetables"
+    },
+    {
+      "id": "doc:ams_ethylene_climacteric",
+      "type": "Document",
+      "name": "Climacteric and non-climacteric produce — ethylene behaviour",
+      "url": "https://www.ams.usda.gov/sites/default/files/media/2023Technical_Report_Ethylene_Handling.pdf"
+    },
+    {
+      "id": "source:USDA AMS",
+      "type": "Source",
+      "name": "USDA AMS"
+    },
+    {
+      "id": "doc:ethylene_AVOC-01",
+      "type": "Document",
+      "name": "Hass Avocado — ethylene class",
+      "url": "backend/data/seed/ethylene.json"
+    },
+    {
+      "id": "source:ShelfSense ethylene table",
+      "type": "Source",
+      "name": "ShelfSense ethylene table"
+    },
+    {
+      "id": "doc:ethylene_BANA-01",
+      "type": "Document",
+      "name": "Cavendish Bananas (bunch) — ethylene class",
+      "url": "backend/data/seed/ethylene.json"
+    },
+    {
+      "id": "doc:ethylene_MILK-01",
+      "type": "Document",
+      "name": "Whole Milk 1 gal — ethylene class",
+      "url": "backend/data/seed/ethylene.json"
+    },
+    {
+      "id": "doc:ethylene_SALM-01",
+      "type": "Document",
+      "name": "Atlantic Salmon Fillet — ethylene class",
+      "url": "backend/data/seed/ethylene.json"
+    },
+    {
+      "id": "doc:ethylene_SOUR-01",
+      "type": "Document",
+      "name": "Artisanal Sourdough — ethylene class",
+      "url": "backend/data/seed/ethylene.json"
+    },
+    {
+      "id": "doc:ethylene_SPIN-01",
+      "type": "Document",
+      "name": "Baby Spinach 5 oz — ethylene class",
+      "url": "backend/data/seed/ethylene.json"
+    },
+    {
+      "id": "doc:ethylene_STRW-01",
+      "type": "Document",
+      "name": "Organic Strawberries 1 lb — ethylene class",
+      "url": "backend/data/seed/ethylene.json"
+    },
+    {
+      "id": "doc:ethylene_TOMA-01",
+      "type": "Document",
+      "name": "Cherry Tomatoes 1 pt — ethylene class",
+      "url": "backend/data/seed/ethylene.json"
+    },
+    {
+      "id": "doc:fao_avocados",
+      "type": "Document",
+      "name": "Retail waste and CO2e — avocados",
+      "url": "https://www.fao.org/4/mb060e/mb060e.pdf"
+    },
+    {
+      "id": "source:FAO",
+      "type": "Source",
+      "name": "FAO"
+    },
+    {
+      "id": "doc:fao_bakery",
+      "type": "Document",
+      "name": "Retail waste and CO2e — bakery",
+      "url": "https://www.fao.org/4/mb060e/mb060e.pdf"
+    },
+    {
+      "id": "doc:fao_bananas",
+      "type": "Document",
+      "name": "Retail waste and CO2e — bananas",
+      "url": "https://www.fao.org/4/mb060e/mb060e.pdf"
+    },
+    {
+      "id": "doc:fao_berries",
+      "type": "Document",
+      "name": "Retail waste and CO2e — berries",
+      "url": "https://www.fao.org/4/mb060e/mb060e.pdf"
+    },
+    {
+      "id": "doc:fao_dairy",
+      "type": "Document",
+      "name": "Retail waste and CO2e — dairy",
+      "url": "https://www.fao.org/4/mb060e/mb060e.pdf"
+    },
+    {
+      "id": "doc:fao_leafy_greens",
+      "type": "Document",
+      "name": "Retail waste and CO2e — leafy_greens",
+      "url": "https://www.fao.org/4/mb060e/mb060e.pdf"
+    },
+    {
+      "id": "doc:fao_seafood",
+      "type": "Document",
+      "name": "Retail waste and CO2e — seafood",
+      "url": "https://www.fao.org/4/mb060e/mb060e.pdf"
+    },
+    {
+      "id": "doc:fao_vegetables",
+      "type": "Document",
+      "name": "Retail waste and CO2e — vegetables",
+      "url": "https://www.fao.org/4/mb060e/mb060e.pdf"
+    },
+    {
+      "id": "doc:foodkeeper_AVOC-01",
+      "type": "Document",
+      "name": "Avocados — storage",
+      "url": "https://catalog.data.gov/dataset/fsis-foodkeeper-data"
+    },
+    {
+      "id": "source:USDA FoodKeeper",
+      "type": "Source",
+      "name": "USDA FoodKeeper"
+    },
+    {
+      "id": "doc:foodkeeper_BANA-01",
+      "type": "Document",
+      "name": "Bananas — storage",
+      "url": "https://catalog.data.gov/dataset/fsis-foodkeeper-data"
+    },
+    {
+      "id": "doc:foodkeeper_MILK-01",
+      "type": "Document",
+      "name": "Milk — plain or flavored — storage",
+      "url": "https://catalog.data.gov/dataset/fsis-foodkeeper-data"
+    },
+    {
+      "id": "doc:foodkeeper_SALM-01",
+      "type": "Document",
+      "name": "Fatty fish — bluefish, catfish, mackerel, mullet, salmon, tuna, etc. — storage",
+      "url": "https://catalog.data.gov/dataset/fsis-foodkeeper-data"
+    },
+    {
+      "id": "doc:foodkeeper_SOUR-01",
+      "type": "Document",
+      "name": "Bread — homemade — storage",
+      "url": "https://catalog.data.gov/dataset/fsis-foodkeeper-data"
+    },
+    {
+      "id": "doc:foodkeeper_SPIN-01",
+      "type": "Document",
+      "name": "Bagged greens — leaf, spinach, lettuce, etc. — storage",
+      "url": "https://catalog.data.gov/dataset/fsis-foodkeeper-data"
+    },
+    {
+      "id": "doc:foodkeeper_STRW-01",
+      "type": "Document",
+      "name": "Strawberries — storage",
+      "url": "https://catalog.data.gov/dataset/fsis-foodkeeper-data"
+    },
+    {
+      "id": "doc:foodkeeper_TOMA-01",
+      "type": "Document",
+      "name": "Cherry tomatoes — storage",
+      "url": "https://catalog.data.gov/dataset/fsis-foodkeeper-data"
+    },
+    {
+      "id": "doc:model_humidity",
+      "type": "Document",
+      "name": "How humidity speeds spoilage in the simulation",
+      "url": "docs/SIMULATION_ENGINE.md"
+    },
+    {
+      "id": "source:ShelfSense model (assumed)",
+      "type": "Source",
+      "name": "ShelfSense model (assumed)"
+    },
+    {
+      "id": "doc:off_BANA-01",
+      "type": "Document",
+      "name": "Cavendish Bananas (bunch) — product metadata",
+      "url": "https://world.openfoodfacts.org/product/0717524611109"
+    },
+    {
+      "id": "source:Open Food Facts",
+      "type": "Source",
+      "name": "Open Food Facts"
+    },
+    {
+      "id": "doc:off_MILK-01",
+      "type": "Document",
+      "name": "Whole Milk 1 gal — product metadata",
+      "url": "https://world.openfoodfacts.org/product/0071210788071"
+    },
+    {
+      "id": "doc:off_SALM-01",
+      "type": "Document",
+      "name": "Atlantic Salmon Fillet — product metadata",
+      "url": "https://world.openfoodfacts.org/product/0099482477929"
+    },
+    {
+      "id": "doc:off_SOUR-01",
+      "type": "Document",
+      "name": "Artisanal Sourdough — product metadata",
+      "url": "https://world.openfoodfacts.org/product/0073132031112"
+    },
+    {
+      "id": "doc:off_SPIN-01",
+      "type": "Document",
+      "name": "Baby Spinach 5 oz — product metadata",
+      "url": "https://world.openfoodfacts.org/product/0032601901509"
+    },
+    {
+      "id": "doc:off_STRW-01",
+      "type": "Document",
+      "name": "Organic Strawberries 1 lb — product metadata",
+      "url": "https://world.openfoodfacts.org/product/0715756200023"
+    },
+    {
+      "id": "doc:ucdavis_spinach",
+      "type": "Document",
+      "name": "Spinach — postharvest handling and ethylene",
+      "url": "https://postharvest.ucdavis.edu/node/8161"
+    },
+    {
+      "id": "source:UC Davis Postharvest Center",
+      "type": "Source",
+      "name": "UC Davis Postharvest Center"
+    }
+  ],
+  "edges": [
+    {
+      "source": "sku:STRW-01",
+      "target": "category:berries",
+      "type": "IN_CATEGORY"
+    },
+    {
+      "source": "sku:STRW-01",
+      "target": "ethylene:neutral",
+      "type": "HAS_ETHYLENE_CLASS"
+    },
+    {
+      "source": "sku:BANA-01",
+      "target": "category:bananas",
+      "type": "IN_CATEGORY"
+    },
+    {
+      "source": "sku:BANA-01",
+      "target": "ethylene:producer",
+      "type": "HAS_ETHYLENE_CLASS"
+    },
+    {
+      "source": "sku:SALM-01",
+      "target": "category:seafood",
+      "type": "IN_CATEGORY"
+    },
+    {
+      "source": "sku:SALM-01",
+      "target": "ethylene:neutral",
+      "type": "HAS_ETHYLENE_CLASS"
+    },
+    {
+      "source": "sku:MILK-01",
+      "target": "category:dairy",
+      "type": "IN_CATEGORY"
+    },
+    {
+      "source": "sku:MILK-01",
+      "target": "ethylene:neutral",
+      "type": "HAS_ETHYLENE_CLASS"
+    },
+    {
+      "source": "sku:SOUR-01",
+      "target": "category:bakery",
+      "type": "IN_CATEGORY"
+    },
+    {
+      "source": "sku:SOUR-01",
+      "target": "ethylene:neutral",
+      "type": "HAS_ETHYLENE_CLASS"
+    },
+    {
+      "source": "sku:AVOC-01",
+      "target": "category:avocados",
+      "type": "IN_CATEGORY"
+    },
+    {
+      "source": "sku:AVOC-01",
+      "target": "ethylene:producer",
+      "type": "HAS_ETHYLENE_CLASS"
+    },
+    {
+      "source": "sku:SPIN-01",
+      "target": "category:leafy_greens",
+      "type": "IN_CATEGORY"
+    },
+    {
+      "source": "sku:SPIN-01",
+      "target": "ethylene:sensitive",
+      "type": "HAS_ETHYLENE_CLASS"
+    },
+    {
+      "source": "sku:TOMA-01",
+      "target": "category:vegetables",
+      "type": "IN_CATEGORY"
+    },
+    {
+      "source": "sku:TOMA-01",
+      "target": "ethylene:producer",
+      "type": "HAS_ETHYLENE_CLASS"
+    },
+    {
+      "source": "sku:BANA-01",
+      "target": "sku:SPIN-01",
+      "type": "CLASHES_WITH"
+    },
+    {
+      "source": "sku:AVOC-01",
+      "target": "sku:SPIN-01",
+      "type": "CLASHES_WITH"
+    },
+    {
+      "source": "sku:TOMA-01",
+      "target": "sku:SPIN-01",
+      "type": "CLASHES_WITH"
+    },
+    {
+      "source": "doc:ams_ethylene_climacteric",
+      "target": "source:USDA AMS",
+      "type": "PUBLISHED_BY"
+    },
+    {
+      "source": "doc:ams_ethylene_climacteric",
+      "target": "sku:BANA-01",
+      "type": "DESCRIBES"
+    },
+    {
+      "source": "doc:ams_ethylene_climacteric",
+      "target": "sku:AVOC-01",
+      "type": "DESCRIBES"
+    },
+    {
+      "source": "doc:ams_ethylene_climacteric",
+      "target": "sku:TOMA-01",
+      "type": "DESCRIBES"
+    },
+    {
+      "source": "doc:ams_ethylene_climacteric",
+      "target": "sku:STRW-01",
+      "type": "DESCRIBES"
+    },
+    {
+      "source": "doc:ethylene_AVOC-01",
+      "target": "source:ShelfSense ethylene table",
+      "type": "PUBLISHED_BY"
+    },
+    {
+      "source": "doc:ethylene_AVOC-01",
+      "target": "sku:AVOC-01",
+      "type": "DESCRIBES"
+    },
+    {
+      "source": "doc:ethylene_BANA-01",
+      "target": "source:ShelfSense ethylene table",
+      "type": "PUBLISHED_BY"
+    },
+    {
+      "source": "doc:ethylene_BANA-01",
+      "target": "sku:BANA-01",
+      "type": "DESCRIBES"
+    },
+    {
+      "source": "doc:ethylene_MILK-01",
+      "target": "source:ShelfSense ethylene table",
+      "type": "PUBLISHED_BY"
+    },
+    {
+      "source": "doc:ethylene_MILK-01",
+      "target": "sku:MILK-01",
+      "type": "DESCRIBES"
+    },
+    {
+      "source": "doc:ethylene_SALM-01",
+      "target": "source:ShelfSense ethylene table",
+      "type": "PUBLISHED_BY"
+    },
+    {
+      "source": "doc:ethylene_SALM-01",
+      "target": "sku:SALM-01",
+      "type": "DESCRIBES"
+    },
+    {
+      "source": "doc:ethylene_SOUR-01",
+      "target": "source:ShelfSense ethylene table",
+      "type": "PUBLISHED_BY"
+    },
+    {
+      "source": "doc:ethylene_SOUR-01",
+      "target": "sku:SOUR-01",
+      "type": "DESCRIBES"
+    },
+    {
+      "source": "doc:ethylene_SPIN-01",
+      "target": "source:ShelfSense ethylene table",
+      "type": "PUBLISHED_BY"
+    },
+    {
+      "source": "doc:ethylene_SPIN-01",
+      "target": "sku:SPIN-01",
+      "type": "DESCRIBES"
+    },
+    {
+      "source": "doc:ethylene_STRW-01",
+      "target": "source:ShelfSense ethylene table",
+      "type": "PUBLISHED_BY"
+    },
+    {
+      "source": "doc:ethylene_STRW-01",
+      "target": "sku:STRW-01",
+      "type": "DESCRIBES"
+    },
+    {
+      "source": "doc:ethylene_TOMA-01",
+      "target": "source:ShelfSense ethylene table",
+      "type": "PUBLISHED_BY"
+    },
+    {
+      "source": "doc:ethylene_TOMA-01",
+      "target": "sku:TOMA-01",
+      "type": "DESCRIBES"
+    },
+    {
+      "source": "doc:fao_avocados",
+      "target": "source:FAO",
+      "type": "PUBLISHED_BY"
+    },
+    {
+      "source": "doc:fao_avocados",
+      "target": "sku:AVOC-01",
+      "type": "DESCRIBES"
+    },
+    {
+      "source": "doc:fao_bakery",
+      "target": "source:FAO",
+      "type": "PUBLISHED_BY"
+    },
+    {
+      "source": "doc:fao_bakery",
+      "target": "sku:SOUR-01",
+      "type": "DESCRIBES"
+    },
+    {
+      "source": "doc:fao_bananas",
+      "target": "source:FAO",
+      "type": "PUBLISHED_BY"
+    },
+    {
+      "source": "doc:fao_bananas",
+      "target": "sku:BANA-01",
+      "type": "DESCRIBES"
+    },
+    {
+      "source": "doc:fao_berries",
+      "target": "source:FAO",
+      "type": "PUBLISHED_BY"
+    },
+    {
+      "source": "doc:fao_berries",
+      "target": "sku:STRW-01",
+      "type": "DESCRIBES"
+    },
+    {
+      "source": "doc:fao_dairy",
+      "target": "source:FAO",
+      "type": "PUBLISHED_BY"
+    },
+    {
+      "source": "doc:fao_dairy",
+      "target": "sku:MILK-01",
+      "type": "DESCRIBES"
+    },
+    {
+      "source": "doc:fao_leafy_greens",
+      "target": "source:FAO",
+      "type": "PUBLISHED_BY"
+    },
+    {
+      "source": "doc:fao_leafy_greens",
+      "target": "sku:SPIN-01",
+      "type": "DESCRIBES"
+    },
+    {
+      "source": "doc:fao_seafood",
+      "target": "source:FAO",
+      "type": "PUBLISHED_BY"
+    },
+    {
+      "source": "doc:fao_seafood",
+      "target": "sku:SALM-01",
+      "type": "DESCRIBES"
+    },
+    {
+      "source": "doc:fao_vegetables",
+      "target": "source:FAO",
+      "type": "PUBLISHED_BY"
+    },
+    {
+      "source": "doc:fao_vegetables",
+      "target": "sku:TOMA-01",
+      "type": "DESCRIBES"
+    },
+    {
+      "source": "doc:foodkeeper_AVOC-01",
+      "target": "source:USDA FoodKeeper",
+      "type": "PUBLISHED_BY"
+    },
+    {
+      "source": "doc:foodkeeper_AVOC-01",
+      "target": "sku:AVOC-01",
+      "type": "DESCRIBES"
+    },
+    {
+      "source": "doc:foodkeeper_BANA-01",
+      "target": "source:USDA FoodKeeper",
+      "type": "PUBLISHED_BY"
+    },
+    {
+      "source": "doc:foodkeeper_BANA-01",
+      "target": "sku:BANA-01",
+      "type": "DESCRIBES"
+    },
+    {
+      "source": "doc:foodkeeper_MILK-01",
+      "target": "source:USDA FoodKeeper",
+      "type": "PUBLISHED_BY"
+    },
+    {
+      "source": "doc:foodkeeper_MILK-01",
+      "target": "sku:MILK-01",
+      "type": "DESCRIBES"
+    },
+    {
+      "source": "doc:foodkeeper_SALM-01",
+      "target": "source:USDA FoodKeeper",
+      "type": "PUBLISHED_BY"
+    },
+    {
+      "source": "doc:foodkeeper_SALM-01",
+      "target": "sku:SALM-01",
+      "type": "DESCRIBES"
+    },
+    {
+      "source": "doc:foodkeeper_SOUR-01",
+      "target": "source:USDA FoodKeeper",
+      "type": "PUBLISHED_BY"
+    },
+    {
+      "source": "doc:foodkeeper_SOUR-01",
+      "target": "sku:SOUR-01",
+      "type": "DESCRIBES"
+    },
+    {
+      "source": "doc:foodkeeper_SPIN-01",
+      "target": "source:USDA FoodKeeper",
+      "type": "PUBLISHED_BY"
+    },
+    {
+      "source": "doc:foodkeeper_SPIN-01",
+      "target": "sku:SPIN-01",
+      "type": "DESCRIBES"
+    },
+    {
+      "source": "doc:foodkeeper_STRW-01",
+      "target": "source:USDA FoodKeeper",
+      "type": "PUBLISHED_BY"
+    },
+    {
+      "source": "doc:foodkeeper_STRW-01",
+      "target": "sku:STRW-01",
+      "type": "DESCRIBES"
+    },
+    {
+      "source": "doc:foodkeeper_TOMA-01",
+      "target": "source:USDA FoodKeeper",
+      "type": "PUBLISHED_BY"
+    },
+    {
+      "source": "doc:foodkeeper_TOMA-01",
+      "target": "sku:TOMA-01",
+      "type": "DESCRIBES"
+    },
+    {
+      "source": "doc:model_humidity",
+      "target": "source:ShelfSense model (assumed)",
+      "type": "PUBLISHED_BY"
+    },
+    {
+      "source": "doc:off_BANA-01",
+      "target": "source:Open Food Facts",
+      "type": "PUBLISHED_BY"
+    },
+    {
+      "source": "doc:off_BANA-01",
+      "target": "sku:BANA-01",
+      "type": "DESCRIBES"
+    },
+    {
+      "source": "doc:off_MILK-01",
+      "target": "source:Open Food Facts",
+      "type": "PUBLISHED_BY"
+    },
+    {
+      "source": "doc:off_MILK-01",
+      "target": "sku:MILK-01",
+      "type": "DESCRIBES"
+    },
+    {
+      "source": "doc:off_SALM-01",
+      "target": "source:Open Food Facts",
+      "type": "PUBLISHED_BY"
+    },
+    {
+      "source": "doc:off_SALM-01",
+      "target": "sku:SALM-01",
+      "type": "DESCRIBES"
+    },
+    {
+      "source": "doc:off_SOUR-01",
+      "target": "source:Open Food Facts",
+      "type": "PUBLISHED_BY"
+    },
+    {
+      "source": "doc:off_SOUR-01",
+      "target": "sku:SOUR-01",
+      "type": "DESCRIBES"
+    },
+    {
+      "source": "doc:off_SPIN-01",
+      "target": "source:Open Food Facts",
+      "type": "PUBLISHED_BY"
+    },
+    {
+      "source": "doc:off_SPIN-01",
+      "target": "sku:SPIN-01",
+      "type": "DESCRIBES"
+    },
+    {
+      "source": "doc:off_STRW-01",
+      "target": "source:Open Food Facts",
+      "type": "PUBLISHED_BY"
+    },
+    {
+      "source": "doc:off_STRW-01",
+      "target": "sku:STRW-01",
+      "type": "DESCRIBES"
+    },
+    {
+      "source": "doc:ucdavis_spinach",
+      "target": "source:UC Davis Postharvest Center",
+      "type": "PUBLISHED_BY"
+    },
+    {
+      "source": "doc:ucdavis_spinach",
+      "target": "sku:SPIN-01",
+      "type": "DESCRIBES"
+    }
+  ]
+}

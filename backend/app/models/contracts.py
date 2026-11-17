@@ -295,3 +295,19 @@ class ArchEdge(BaseModel):
 class Architecture(BaseModel):
     nodes: list[ArchNode]
     edges: list[ArchEdge]
+
+
+class ExplainRequest(BaseModel):
+    agent: AgentName
+    message: str = Field(max_length=2000)
+    data: dict | None = None
+
+
+class Explanation(BaseModel):
+    text: str
+    mode: Literal["llm", "template"]
+    provider: Literal["gemini", "ollama"] | None = None
+    model: str | None = None
+    guardrail: str | None = None  # why an LLM answer was replaced by the template
+    facts: list[str]  # knowledge-graph facts given to the model
+    citations: list[Citation]

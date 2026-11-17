@@ -107,6 +107,51 @@ class Retriever:
                 self.query_vecs = dict(zip(c["queries"].tolist(), c["vecs"], strict=True))
         want_vector = rag_mode == "vector" or (rag_mode == "auto" and vector_ready)
         self.mode = "vector" if want_vector and self.vectors is not None else "bm25"
+        g = rag_dir / "graph.json"
+        graph = json.loads(g.read_text("utf-8")) if g.exists() else {"nodes": [], "edges": []}
+        self.nodes: dict[str, dict] = {n["id"]: n for n in graph["nodes"]}
+        self.edges: list[dict] = graph["edges"]
+
+    def neighbours(self, node: str, kind: str) -> list[str]:
+        """Graph neighbours over `kind` edges, either direction."""
+        return [
+            e["target"] if e["source"] == node else e["source"]
+            for e in self.edges
+            if e["type"] == kind and node in (e["source"], e["target"])
+        ]
+
+    def graph_facts(self, sku_id: str) -> list[str]:
+        """Short facts about a SKU read off the knowledge graph (graph RAG context)."""
+        n = self.nodes.get(f"sku:{sku_id}")
+        if n is None:
+            return []
+        name = lambda i: self.nodes[i]["name"]  # noqa: E731
+        facts = [
+            f"{n['name']} ({sku_id}) is in category {n['category']}; nominal shelf life "
+            f"{n['shelf_life_hours']:g} h."
+        ]
+        clash = self.neighbours(f"sku:{sku_id}", "CLASHES_WITH")
+        if n["ethylene"] != "neutral":
+            tail = f"; keep apart from {', '.join(map(name, clash))}" if clash else ""
+            facts.append(f"{n['name']} is ethylene-{n['ethylene']}{tail}.")
+        docs = self.neighbours(f"sku:{sku_id}", "DESCRIBES")
+        srcs = sorted({name(s) for d in docs for s in self.neighbours(d, "PUBLISHED_BY")})
+        if srcs:
+            facts.append(f"{len(docs)} documents describe it, from: {', '.join(srcs)}.")
+        return facts
+
+    def graph_retrieve(self, query: str, sku_id: str | None, k: int = 3) -> list[Hit]:
+        """Retrieve for the SKU, then follow CLASHES_WITH edges and add the best ethylene
+        chunk of each clashing product (multi-hop context plain retrieval misses)."""
+        hits = self.retrieve(query, sku_id, k)
+        if sku_id:
+            seen = {h.chunk_id for h in hits}
+            for nb in self.neighbours(f"sku:{sku_id}", "CLASHES_WITH"):
+                for h in self.retrieve(f"ethylene {query}", nb.removeprefix("sku:"), 1):
+                    if h.chunk_id not in seen:
+                        hits.append(h)
+                        seen.add(h.chunk_id)
+        return hits
 
     async def warm(self, queries: list[str], embed) -> None:
         """Embed the templated queries once (one batched call). `embed` is gemini.embed-like."""

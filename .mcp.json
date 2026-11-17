@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "shelfsense-sim": {
+      "command": "uv",
+      "args": ["run", "--directory", "backend", "python", "-m", "app.mcp.sim_server"]
+    },
+    "shelfsense-knowledge": {
+      "command": "uv",
+      "args": ["run", "--directory", "backend", "python", "-m", "app.mcp.knowledge_server"]
+    }
+  }
+}

@@ -2,12 +2,13 @@
 
 import csv
 import io
+from typing import Literal
 
-from fastapi import APIRouter, File, Form, HTTPException, Request, Response, UploadFile
+from fastapi import APIRouter, File, Form, HTTPException, Query, Request, Response, UploadFile
 from starlette.requests import HTTPConnection
 
-from app import views
-from app.agents import vision_agent
+from app import reports, views
+from app.agents import explain, vision_agent
 from app.api.auth import user_id
 from app.config import get_settings
 from app.controller import EventRejected, SimController
@@ -19,11 +20,14 @@ from app.models.contracts import (
     ControlResponse,
     EventRequest,
     EventResponse,
+    ExplainRequest,
+    Explanation,
     FormulaBreakdown,
     SimSnapshot,
     VisionScanResult,
     WeatherNow,
 )
+from app.sim.state import CYCLE_TICKS
 
 router = APIRouter(prefix="/api")
 
@@ -295,3 +299,19 @@ def sim_report(request: Request) -> Response:
             "Content-Disposition": f'attachment; filename="shelfsense-seed{c.seed}-t{s.tick}.csv"'
         },
     )
+
+
+@router.post("/explain", response_model=Explanation)
+async def explain_log(body: ExplainRequest, request: Request) -> Explanation:
+    """Plain-language, source-cited explanation of one agent log line (AI_PIPELINE §3)."""
+    return await explain.explain(body, request.app.state.retriever, get_settings())
+
+
+@router.get("/report")
+def week_report(
+    seed: int = Query(42, ge=1, le=100_000),
+    scenario: Literal["none", "demo"] = "demo",
+    hours: int = Query(CYCLE_TICKS, ge=1, le=CYCLE_TICKS),
+) -> dict:
+    """Headless deterministic week (both stores) as JSON, for automation (n8n, MCP, CI)."""
+    return reports.week_report(seed, scenario, hours)
