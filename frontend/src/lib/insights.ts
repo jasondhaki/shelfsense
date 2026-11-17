@@ -1,4 +1,5 @@
 import type { AgentName, ChartPoint, EslView, LogEntry, SimSnapshot } from '../types/contracts'
+import type { Key, T } from './i18n'
 
 export const NUTRI: Record<string, string> = {
   a: 'bg-[#038141] text-white',
@@ -51,7 +52,7 @@ export function dayChange(chart: ChartPoint[], k: KpiKey): number | null {
 
 // --- agents ---
 
-export const AGENT_CHIPS: { agent: AgentName; label: string; tone: string }[] = [
+export const AGENT_CHIPS: { agent: AgentName; label: Key; tone: string }[] = [
   { agent: 'DEMAND_AGENT', label: 'Forecast', tone: 'text-agent-demand' },
   { agent: 'PRICING_AGENT', label: 'Pricing', tone: 'text-agent-pricing' },
   { agent: 'VISION_AGENT', label: 'Vision', tone: 'text-agent-vision' },
@@ -74,7 +75,7 @@ export interface Alert {
   goTo?: 'orders' | 'pricing' | 'forecast'
 }
 
-export function deriveAlerts(s: SimSnapshot): Alert[] {
+export function deriveAlerts(s: SimSnapshot, t: T): Alert[] {
   const out: Alert[] = []
   for (const e of s.esl) {
     if (e.on_hand === 0 || e.rsl_hours >= 24) continue
@@ -83,9 +84,9 @@ export function deriveAlerts(s: SimSnapshot): Alert[] {
       id: `rsl-${e.sku_id}`,
       tone: e.rsl_hours < 8 ? 'crit' : 'warn',
       title: shortName(e.name),
-      detail: `${e.on_hand} left, expires in ${e.rsl_hours.toFixed(1)} h${
-        marked ? ` · auto-marked down ${Math.round(e.markdown_pct * 100)}%` : ''
-      }`,
+      detail:
+        t('{n} left, expires in {h} h', { n: e.on_hand, h: e.rsl_hours.toFixed(1) }) +
+        (marked ? ` · ${t('auto-marked down {pct}%', { pct: Math.round(e.markdown_pct * 100) })}` : ''),
       skuId: e.sku_id,
     })
   }
@@ -94,8 +95,8 @@ export function deriveAlerts(s: SimSnapshot): Alert[] {
     out.push({
       id: 'storm',
       tone: 'info',
-      title: 'Rainstorm in progress',
-      detail: `Foot traffic ×${s.weather.traffic_mult.toFixed(2)} — orders and prices adjusted`,
+      title: t('Rainstorm in progress'),
+      detail: t('Foot traffic ×{x} — orders and prices adjusted', { x: s.weather.traffic_mult.toFixed(2) }),
       goTo: 'forecast',
     })
   }
@@ -107,8 +108,8 @@ export function deriveAlerts(s: SimSnapshot): Alert[] {
     out.push({
       id: `po-${po.sku_id}`,
       tone: 'info',
-      title: po.ai_order < po.baseline_order ? 'Order throttled' : 'Restock suggestion',
-      detail: `${name}: order ${po.ai_order} (baseline ${po.baseline_order})${po.reason ? ` — ${po.reason}` : ''}`,
+      title: t(po.ai_order < po.baseline_order ? 'Order throttled' : 'Restock suggestion'),
+      detail: `${name}: ${t('order {n} (baseline {b})', { n: po.ai_order, b: po.baseline_order })}${po.reason ? ` — ${po.reason}` : ''}`,
       goTo: 'orders',
     })
   }
@@ -117,8 +118,8 @@ export function deriveAlerts(s: SimSnapshot): Alert[] {
     out.push({
       id: 'boxes',
       tone: 'info',
-      title: `${boxes} surplus box${boxes > 1 ? 'es' : ''} listed`,
-      detail: 'Short-dated items bundled at a discount',
+      title: t(boxes > 1 ? '{n} surplus boxes listed' : '{n} surplus box listed', { n: boxes }),
+      detail: t('Short-dated items bundled at a discount'),
       goTo: 'pricing',
     })
   }
@@ -126,7 +127,7 @@ export function deriveAlerts(s: SimSnapshot): Alert[] {
   return out.sort((a, b) => rank[a.tone] - rank[b.tone])
 }
 
-export function greeting(d = new Date()): string {
+export function greeting(t: T, d = new Date()): string {
   const h = d.getHours()
-  return h < 12 ? 'Good morning' : h < 18 ? 'Good afternoon' : 'Good evening'
+  return t(h < 12 ? 'Good morning' : h < 18 ? 'Good afternoon' : 'Good evening')
 }

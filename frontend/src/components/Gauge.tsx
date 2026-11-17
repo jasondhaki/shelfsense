@@ -1,5 +1,8 @@
+import { useT } from '../lib/i18n'
+
 /** 270° progress arc for waste reduction, with the 30% target marked on the track. */
 export default function Gauge({ value, target }: { value: number | null; target: number }) {
+  const t = useT()
   const R = 52
   const C = 2 * Math.PI * R
   const ARC = 0.75 // 270° of the circle
@@ -10,7 +13,7 @@ export default function Gauge({ value, target }: { value: number | null; target:
   const tx = 60 + Math.cos(a) * R
   const ty = 60 + Math.sin(a) * R
   return (
-    <div className="relative mx-auto w-40" role="meter" aria-label="Waste reduction" aria-valuemin={0} aria-valuemax={100} aria-valuenow={value ?? 0}>
+    <div className="relative mx-auto w-40" role="meter" aria-label={t('Waste reduction')} aria-valuemin={0} aria-valuemax={100} aria-valuenow={value ?? 0}>
       <svg viewBox="0 0 120 120" className="w-full -rotate-0" aria-hidden>
         <circle
           cx="60"
@@ -40,7 +43,7 @@ export default function Gauge({ value, target }: { value: number | null; target:
       <div className="absolute inset-0 flex flex-col items-center justify-center pt-1">
         <span className="text-3xl font-extrabold tracking-tight">{value === null ? '—' : `${value.toFixed(1)}%`}</span>
         <span className={`text-xs font-semibold ${met ? 'text-accent' : 'text-muted'}`}>
-          {met ? `target ${target}% met` : `target ≥ ${target}%`}
+          {met ? t('target {n}% met', { n: target }) : t('target ≥ {n}%', { n: target })}
         </span>
       </div>
     </div>

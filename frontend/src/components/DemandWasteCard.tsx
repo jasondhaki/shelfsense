@@ -12,6 +12,7 @@ import {
   YAxis,
 } from 'recharts'
 import { simClock } from '../lib/format'
+import { useT } from '../lib/i18n'
 import { shortName } from '../lib/insights'
 import type { ChartPoint, EslView } from '../types/contracts'
 
@@ -49,6 +50,7 @@ function useNarrow(q = '(max-width: 639px)') {
 export default function DemandWasteCard({ esl, chart }: { esl: EslView[]; chart: ChartPoint[] }) {
   const [tab, setTab] = useState<Tab>('demand')
   const narrow = useNarrow()
+  const t = useT()
   const demand = esl.map((e) => ({
     name: shortName(e.name).split(' ').slice(-1)[0],
     full: e.name,
@@ -62,9 +64,9 @@ export default function DemandWasteCard({ esl, chart }: { esl: EslView[]; chart:
   return (
     <section aria-labelledby="dw-title" className="zone flex flex-col p-4">
       <h2 id="dw-title" className="h-card">
-        Demand &amp; waste analytics
+        {t('Demand & waste analytics')}
       </h2>
-      <div role="tablist" aria-label="Chart" className="mt-2 flex gap-4 border-b border-line text-sm">
+      <div role="tablist" aria-label={t('Chart')} className="mt-2 flex gap-4 border-b border-line text-sm">
         {(
           [
             ['demand', 'Demand forecast'],
@@ -79,7 +81,7 @@ export default function DemandWasteCard({ esl, chart }: { esl: EslView[]; chart:
             onClick={() => setTab(id)}
             className={`-mb-px border-b-2 pb-1.5 font-semibold ${tab === id ? 'border-accent text-accent' : 'border-transparent text-muted hover:text-text'}`}
           >
-            {label}
+            {t(label)}
           </button>
         ))}
       </div>
@@ -105,12 +107,12 @@ export default function DemandWasteCard({ esl, chart }: { esl: EslView[]; chart:
                 labelFormatter={(_, p) => (p?.[0]?.payload as { full?: string } | undefined)?.full ?? ''}
               />
               <Legend iconType="circle" iconSize={8} wrapperStyle={{ fontSize: 12 }} />
-              <Bar dataKey="On shelf" fill={GREEN} radius={[4, 4, 0, 0]} maxBarSize={18} />
-              <Bar dataKey="Next 24 h demand" fill={VIOLET} radius={[4, 4, 0, 0]} maxBarSize={18} />
+              <Bar dataKey="On shelf" name={t('On shelf')} fill={GREEN} radius={[4, 4, 0, 0]} maxBarSize={18} />
+              <Bar dataKey="Next 24 h demand" name={t('Next 24 h demand')} fill={VIOLET} radius={[4, 4, 0, 0]} maxBarSize={18} />
             </BarChart>
           </ResponsiveContainer>
         ) : waste.length < 2 ? (
-          <p className="grid h-full place-items-center text-sm text-muted">Press play — the trend fills in as the week runs.</p>
+          <p className="grid h-full place-items-center text-sm text-muted">{t('Press play — the trend fills in as the week runs.')}</p>
         ) : (
           <ResponsiveContainer width="100%" height="100%">
             <AreaChart data={waste} margin={{ top: 4, right: 4, left: -18, bottom: 0 }}>
@@ -126,7 +128,7 @@ export default function DemandWasteCard({ esl, chart }: { esl: EslView[]; chart:
                 type="number"
                 domain={[0, 167]}
                 ticks={[0, 24, 48, 72, 96, 120, 144]}
-                tickFormatter={(t: number) => `Day ${Math.floor(t / 24) + 1}`}
+                tickFormatter={(x: number) => t('Day {n}', { n: Math.floor(x / 24) + 1 })}
                 tick={AXIS}
                 tickLine={false}
                 axisLine={false}
@@ -134,16 +136,16 @@ export default function DemandWasteCard({ esl, chart }: { esl: EslView[]; chart:
               <YAxis tick={AXIS} tickLine={false} axisLine={false} unit=" kg" width={58} />
               <Tooltip contentStyle={tipStyle} labelFormatter={(t) => simClock(Number(t))} formatter={(v) => `${String(v)} kg`} />
               <Legend iconType="plainline" wrapperStyle={{ fontSize: 12 }} />
-              <Area type="monotone" dataKey="Baseline" stroke={GREY} strokeWidth={2} strokeDasharray="5 4" fill="none" isAnimationActive={false} />
-              <Area type="monotone" dataKey="ShelfSense" stroke={GREEN} strokeWidth={2} fill="url(#dw-b)" isAnimationActive={false} />
+              <Area type="monotone" dataKey="Baseline" name={t('Baseline')} stroke={GREY} strokeWidth={2} strokeDasharray="5 4" fill="none" isAnimationActive={false} />
+              <Area type="monotone" dataKey="ShelfSense" name="ShelfSense" stroke={GREEN} strokeWidth={2} fill="url(#dw-b)" isAnimationActive={false} />
             </AreaChart>
           </ResponsiveContainer>
         )}
       </div>
       <p className="mt-1 text-[11px] text-muted">
         {tab === 'demand'
-          ? 'Expected sales over the next 24 simulated hours: day-of-week and hourly pattern (Favorita), foot traffic and the current price.'
-          : 'Cumulative food wasted this week, same shoppers in both stores.'}
+          ? t('Expected sales over the next 24 simulated hours: day-of-week and hourly pattern (Favorita), foot traffic and the current price.')
+          : t('Cumulative food wasted this week, same shoppers in both stores.')}
       </p>
     </section>
   )

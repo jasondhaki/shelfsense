@@ -1,6 +1,7 @@
 import { ArrowRight, ScanLine } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 import { SEVERITY } from '../lib/severity'
+import { useT } from '../lib/i18n'
 import { useSim } from '../store/simStore'
 
 /** Where an image drawn with object-fit: cover lands inside its box, so 0–1000 detection
@@ -32,6 +33,7 @@ export default function FreshnessHero() {
   const scan = useSim((s) => s.scan)
   const setPage = useSim((s) => s.setPage)
   const { box, rect, onLoad } = useCoverRect()
+  const t = useT()
 
   const r = v.result
   const det = r?.extraction.detections ?? []
@@ -40,11 +42,11 @@ export default function FreshnessHero() {
   const worst = det.find((d) => d.severity === 'clearance_required') ?? det.find((d) => d.severity === 'accelerated_ripening') ?? det[0]
 
   return (
-    <section aria-label="Freshness scanner" className="zone relative min-h-[300px] overflow-hidden sm:min-h-[260px]">
+    <section aria-label={t('Freshness scanner')} className="zone relative min-h-[300px] overflow-hidden sm:min-h-[260px]">
       <div ref={box} className="absolute inset-0">
         <img
           src={v.imageUrl}
-          alt="Shelf camera view of the fresh produce aisle"
+          alt={t('Shelf camera view of the fresh produce aisle')}
           onLoad={(e) => onLoad(e.currentTarget)}
           className="h-full w-full object-cover"
         />
@@ -75,40 +77,39 @@ export default function FreshnessHero() {
 
       <div className="absolute inset-x-3 bottom-3 rounded-xl sm:inset-x-auto sm:bottom-auto sm:right-4 sm:top-4 sm:max-w-[300px] border border-white/60 bg-white/85 p-3 dark:border-white/10 dark:bg-panel/85 shadow-card backdrop-blur-md">
         <div className="flex items-center gap-1.5 text-sm font-bold">
-          Freshness scanner
+          {t('Freshness scanner')}
           <span className="font-semibold text-muted">|</span>
-          <span className={r ? 'text-accent' : 'text-muted'}>{v.scanning ? 'Scanning…' : r ? 'Active' : 'Ready'}</span>
+          <span className={r ? 'text-accent' : 'text-muted'}>{t(v.scanning ? 'Scanning…' : r ? 'Active' : 'Ready')}</span>
           <span className={`h-2 w-2 rounded-full ${r || v.scanning ? 'bg-ok' : 'bg-baseline'}`} aria-hidden />
         </div>
         {r ? (
           <div className="mt-1 text-sm">
             <div>
               <span className="font-bold">{target?.name ?? r.extraction.primary_sku_label}</span>
-              {q !== null && <> · Quality {q.toFixed(1)}/10</>}
+              {q !== null && <> · {t('Quality')} {q.toFixed(1)}/10</>}
             </div>
             <div className="text-muted">
               {r.rsl_after_hours !== null
-                ? `Shelf life: ${r.rsl_after_hours.toFixed(0)} h${
-                    r.rsl_before_hours !== null && r.rsl_after_hours < r.rsl_before_hours - 0.05
-                      ? ` (was ${r.rsl_before_hours.toFixed(0)} h)`
-                      : ''
-                  }`
+                ? t('Shelf life: {h} h', { h: r.rsl_after_hours.toFixed(0) }) +
+                  (r.rsl_before_hours !== null && r.rsl_after_hours < r.rsl_before_hours - 0.05
+                    ? ` ${t('(was {h} h)', { h: r.rsl_before_hours.toFixed(0) })}`
+                    : '')
                 : target
-                  ? 'Not on the shelf right now'
-                  : 'No matching shelf item'}
-              {worst && worst.severity !== 'optimal' && <> · {SEVERITY[worst.severity].label.toLowerCase()}</>}
+                  ? t('Not on the shelf right now')
+                  : t('No matching shelf item')}
+              {worst && worst.severity !== 'optimal' && <> · {t(SEVERITY[worst.severity].label).toLowerCase()}</>}
             </div>
           </div>
         ) : (
-          <p className="mt-1 text-sm text-muted">Grade this shelf with the vision agent. Damage shortens shelf life and reprices the label.</p>
+          <p className="mt-1 text-sm text-muted">{t('Grade this shelf with the vision agent. Damage shortens shelf life and reprices the label.')}</p>
         )}
         <div className="mt-2 flex items-center gap-3">
           <button type="button" className="btn-primary" disabled={v.scanning} onClick={() => scan()}>
             <ScanLine size={14} aria-hidden />
-            {r ? 'Scan again' : 'Scan shelf'}
+            {t(r ? 'Scan again' : 'Scan shelf')}
           </button>
           <button type="button" className="link" onClick={() => setPage('agents')}>
-            Open scanner <ArrowRight size={13} aria-hidden />
+            {t('Open scanner')} <ArrowRight size={13} aria-hidden />
           </button>
         </div>
         {v.error && (

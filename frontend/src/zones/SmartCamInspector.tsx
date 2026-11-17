@@ -3,6 +3,7 @@ import { useRef, useState } from 'react'
 import BoundingBoxCanvas from '../components/BoundingBoxCanvas'
 import VisionResult from '../components/VisionResult'
 import { simClock } from '../lib/format'
+import { useT } from '../lib/i18n'
 import { FRAMES, useSim } from '../store/simStore'
 
 export default function SmartCamInspector() {
@@ -13,14 +14,16 @@ export default function SmartCamInspector() {
   const scan = useSim((s) => s.scan)
   const input = useRef<HTMLInputElement>(null)
   const [dragging, setDragging] = useState(false)
+  const t = useT()
 
   const pick = (files: FileList | null) => files?.[0] && selectUpload(files[0])
-  const frameLabel = FRAMES.find((f) => f.id === v.frameId)?.label ?? 'Your image'
+  const frame = FRAMES.find((f) => f.id === v.frameId)
+  const frameLabel = frame ? t(frame.label) : t('Your image')
 
   return (
-    <section aria-label="Smart-cam inspector" className="zone flex flex-col gap-3 overflow-y-auto p-3">
+    <section aria-label={t('Smart-cam inspector')} className="zone flex flex-col gap-3 overflow-y-auto p-3">
       <div className="flex items-center justify-between gap-2">
-        <h2 className="text-[11px] font-medium leading-tight">CAM-04: Fresh produce aisle — Bay 2</h2>
+        <h2 className="text-[11px] font-medium leading-tight">CAM-04: {t('Fresh produce aisle — Bay 2')}</h2>
         <span className="flex shrink-0 items-center gap-1.5 font-mono text-[11px] tabular-nums text-muted">
           <span className="h-2 w-2 rounded-full bg-crit motion-safe:animate-pulse" aria-hidden />
           REC {simClock(tick)}
@@ -29,28 +32,28 @@ export default function SmartCamInspector() {
 
       <BoundingBoxCanvas
         src={v.imageUrl}
-        alt={`Camera frame: ${frameLabel}`}
+        alt={`${t('Camera frame:')} ${frameLabel}`}
         detections={v.result?.extraction.detections ?? []}
         scanning={v.scanning}
       />
 
-      <div className="grid grid-cols-4 gap-1.5" role="group" aria-label="Camera frames">
+      <div className="grid grid-cols-4 gap-1.5" role="group" aria-label={t('Camera frames')}>
         {FRAMES.map((f) => (
           <button
             key={f.id}
             type="button"
             aria-pressed={v.frameId === f.id}
-            aria-label={`Frame ${f.id.slice(-1)}: ${f.label}`}
+            aria-label={`${t('Frame')} ${f.id.slice(-1)}: ${t(f.label)}`}
             onClick={() => selectFrame(f.id)}
             className={`overflow-hidden rounded-md border text-left ${v.frameId === f.id ? 'border-accent' : 'border-line hover:border-accent/60'}`}
           >
             <img src={f.src} alt="" className="aspect-[4/3] w-full object-cover" />
-            <span className="block truncate px-1 py-0.5 text-[10px] text-muted">{f.label}</span>
+            <span className="block truncate px-1 py-0.5 text-[10px] text-muted">{t(f.label)}</span>
           </button>
         ))}
         <button
           type="button"
-          aria-label="Upload your own image (JPG or PNG, up to 5 MB)"
+          aria-label={t('Upload your own image (JPG or PNG, up to 5 MB)')}
           onClick={() => input.current?.click()}
           onDragOver={(e) => {
             e.preventDefault()
@@ -67,7 +70,7 @@ export default function SmartCamInspector() {
           }`}
         >
           <Upload size={14} aria-hidden />
-          Upload
+          {t('Upload')}
         </button>
         <input
           ref={input}
@@ -84,7 +87,7 @@ export default function SmartCamInspector() {
 
       <button type="button" className="btn justify-center py-2" disabled={v.scanning} onClick={() => scan()}>
         <ScanLine size={14} aria-hidden />
-        {v.scanning ? 'Scanning…' : 'Run vision scan'}
+        {t(v.scanning ? 'Scanning…' : 'Run vision scan')}
       </button>
 
       {v.error && (
@@ -98,8 +101,7 @@ export default function SmartCamInspector() {
         !v.scanning &&
         !v.error && (
           <p className="text-xs text-muted">
-            Scan a frame to grade freshness. A damaged batch gets a shorter shelf life, and the
-            shelf label reprices on the next hour.
+            {t('Scan a frame to grade freshness. A damaged batch gets a shorter shelf life, and the shelf label reprices on the next hour.')}
           </p>
         )
       )}

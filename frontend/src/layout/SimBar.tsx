@@ -2,6 +2,7 @@ import { CloudRain, FastForward, Pause, Play, RotateCcw, StepForward } from 'luc
 import { useState } from 'react'
 import ColdChainPopover from '../components/ColdChainPopover'
 import { CYCLE_TICKS, simClock } from '../lib/format'
+import { useT } from '../lib/i18n'
 import { useSim } from '../store/simStore'
 
 const DEBUG = new URLSearchParams(location.search).has('debug')
@@ -12,6 +13,7 @@ export default function SimBar() {
   const control = useSim((s) => s.control)
   const triggerEvent = useSim((s) => s.triggerEvent)
   const [confirmReset, setConfirmReset] = useState(false)
+  const t = useT()
 
   if (!snap) return <div className="zone h-[58px]" aria-busy />
 
@@ -22,12 +24,12 @@ export default function SimBar() {
   const coldPending = snap.active_events.some((e) => e.type === 'cold_chain_delay')
 
   return (
-    <section aria-label="Simulation controls" className="zone flex flex-wrap items-center gap-x-4 gap-y-2 px-4 py-2.5">
-      <div className="flex items-center gap-1.5" role="group" aria-label="Playback">
+    <section aria-label={t('Simulation controls')} className="zone flex flex-wrap items-center gap-x-4 gap-y-2 px-4 py-2.5">
+      <div className="flex items-center gap-1.5" role="group" aria-label={t('Playback')}>
         <button
           type="button"
           className={`btn-icon ${playing && snap.speed === 1 ? 'btn-on' : ''}`}
-          aria-label="Play at 1 simulated hour per second"
+          aria-label={t('Play at 1 simulated hour per second')}
           disabled={finished}
           onClick={() => control('play')}
         >
@@ -36,23 +38,23 @@ export default function SimBar() {
         <button
           type="button"
           className={`btn-icon ${playing && snap.speed > 1 ? 'btn-on' : ''}`}
-          aria-label="Fast-forward"
+          aria-label={t('Fast-forward')}
           disabled={finished}
           onClick={() => control('fast_forward')}
         >
           <FastForward size={15} aria-hidden />
         </button>
-        <button type="button" className="btn-icon" aria-label="Pause" disabled={!playing} onClick={() => control('pause')}>
+        <button type="button" className="btn-icon" aria-label={t('Pause')} disabled={!playing} onClick={() => control('pause')}>
           <Pause size={15} aria-hidden />
         </button>
         {DEBUG && (
-          <button type="button" className="btn-icon" aria-label="Step one hour" disabled={finished} onClick={() => control('step')}>
+          <button type="button" className="btn-icon" aria-label={t('Step one hour')} disabled={finished} onClick={() => control('step')}>
             <StepForward size={15} aria-hidden />
           </button>
         )}
         {confirmReset ? (
-          <span className="ml-1 flex flex-wrap items-center gap-1.5 text-xs font-semibold" role="alertdialog" aria-label="Confirm reset">
-            Restart the week?
+          <span className="ml-1 flex flex-wrap items-center gap-1.5 text-xs font-semibold" role="alertdialog" aria-label={t('Confirm reset')}>
+            {t('Restart the week?')}
             <button
               type="button"
               className="btn"
@@ -62,25 +64,25 @@ export default function SimBar() {
                 void control('reset')
               }}
             >
-              Restart
+              {t('Restart')}
             </button>
             <button
               type="button"
               className="btn"
-              title="Rain on Day 2 10:00, cold-chain delay on Day 3, a Frame 3 scan on Day 4 14:00"
+              title={t('Rain on Day 2 10:00, cold-chain delay on Day 3, a Frame 3 scan on Day 4 14:00')}
               onClick={() => {
                 setConfirmReset(false)
                 void control('reset', { scenario: 'demo' })
               }}
             >
-              Demo script
+              {t('Demo script')}
             </button>
             <button type="button" className="btn" onClick={() => setConfirmReset(false)}>
-              Keep run
+              {t('Keep run')}
             </button>
           </span>
         ) : (
-          <button type="button" className="btn-icon" aria-label="Restart the week" onClick={() => setConfirmReset(true)}>
+          <button type="button" className="btn-icon" aria-label={t('Restart the week')} onClick={() => setConfirmReset(true)}>
             <RotateCcw size={15} aria-hidden />
           </button>
         )}
@@ -89,16 +91,16 @@ export default function SimBar() {
       <div className="min-w-[230px] flex-1 sm:max-w-xs">
         <div className="flex items-baseline justify-between gap-2 whitespace-nowrap text-xs font-semibold">
           <span>
-            Simulated week · <span className="text-accent">{simClock(snap.tick)}</span>
+            {t('Simulated week')} · <span className="text-accent">{simClock(snap.tick)}</span>
           </span>
           <span className="text-muted">
-            hour {snap.tick}/{CYCLE_TICKS}
+            {t('hour')} {snap.tick}/{CYCLE_TICKS}
           </span>
         </div>
         <div
           className="mt-1 h-1.5 overflow-hidden rounded-full bg-line"
           role="progressbar"
-          aria-label="Week progress"
+          aria-label={t('Week progress')}
           aria-valuemin={0}
           aria-valuemax={CYCLE_TICKS}
           aria-valuenow={snap.tick}
@@ -107,11 +109,11 @@ export default function SimBar() {
         </div>
       </div>
 
-      <div className="flex flex-wrap items-center gap-2 sm:ml-auto" role="group" aria-label="Disruptions">
-        <span className="hidden text-xs font-semibold text-muted sm:inline">Test a disruption:</span>
+      <div className="flex flex-wrap items-center gap-2 sm:ml-auto" role="group" aria-label={t('Disruptions')}>
+        <span className="hidden text-xs font-semibold text-muted sm:inline">{t('Test a disruption:')}</span>
         <button type="button" className="btn" disabled={finished || !!storm} onClick={() => triggerEvent('rainstorm')}>
           <CloudRain size={14} aria-hidden />
-          {storm ? `Storm: ${stormLeft} h left` : 'Rainstorm'}
+          {storm ? t('Storm: {h} h left', { h: stormLeft }) : t('Rainstorm')}
         </button>
         <ColdChainPopover
           skus={snap.esl}

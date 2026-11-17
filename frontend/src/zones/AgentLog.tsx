@@ -1,5 +1,6 @@
 import { ArrowDown } from 'lucide-react'
 import { useEffect, useLayoutEffect, useRef, useState } from 'react'
+import { useT } from '../lib/i18n'
 import { AGENTS, useSim } from '../store/simStore'
 import type { AgentName, LogEntry } from '../types/contracts'
 
@@ -41,6 +42,7 @@ export default function AgentLog() {
   const toggle = useSim((s) => s.toggleAgent)
   const box = useRef<HTMLDivElement>(null)
   const [pinned, setPinned] = useState(true)
+  const t = useT()
 
   const shown = logs.filter((l) => filter.has(l.agent))
 
@@ -57,10 +59,10 @@ export default function AgentLog() {
   }, [])
 
   return (
-    <section aria-label="Agent reasoning log" className="zone relative flex h-full min-h-0 flex-col overflow-hidden">
+    <section aria-label={t('Agent reasoning log')} className="zone relative flex h-full min-h-0 flex-col overflow-hidden">
       <div className="border-b border-line p-3">
-        <h2 className="mb-2 text-sm font-medium">Agent reasoning log</h2>
-        <div className="flex flex-wrap gap-1" role="group" aria-label="Show agents">
+        <h2 className="mb-2 text-sm font-medium">{t('Agent reasoning log')}</h2>
+        <div className="flex flex-wrap gap-1" role="group" aria-label={t('Show agents')}>
           {AGENTS.map((a) => (
             <button
               key={a}
@@ -82,7 +84,7 @@ export default function AgentLog() {
         aria-live="off"
       >
         {shown.length === 0 ? (
-          <p className="px-3 text-muted">Press play to start the week. Agent decisions appear here.</p>
+          <p className="px-3 text-muted">{t('Press play to start the week. Agent decisions appear here.')}</p>
         ) : (
           shown.map((e, i) => <Line key={`${e.tick}-${i}`} e={e} />)
         )}
@@ -93,7 +95,7 @@ export default function AgentLog() {
           onClick={() => setPinned(true)}
           className="btn absolute bottom-3 left-1/2 -translate-x-1/2 shadow-lg"
         >
-          <ArrowDown size={14} aria-hidden /> Jump to latest
+          <ArrowDown size={14} aria-hidden /> {t('Jump to latest')}
         </button>
       )}
     </section>

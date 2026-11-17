@@ -7,6 +7,7 @@ import InventoryTable from '../components/InventoryTable'
 import StatCard from '../components/StatCard'
 import { usd } from '../lib/format'
 import { activeAgents, AGENT_CHIPS, dayChange, deriveAlerts, series, type KpiKey } from '../lib/insights'
+import { useT } from '../lib/i18n'
 import { useSim } from '../store/simStore'
 
 const DemandWasteCard = lazy(() => import('../components/DemandWasteCard'))
@@ -17,6 +18,7 @@ function AgentsCard() {
   const logs = useSim((s) => s.logs)
   const tick = useSim((s) => s.snapshot?.tick ?? 0)
   const setPage = useSim((s) => s.setPage)
+  const t = useT()
   const active = activeAgents(logs, tick)
   const last = [...logs].reverse().find((l) => l.agent !== 'SYSTEM')
   const chip = AGENT_CHIPS.find((c) => c.agent === last?.agent)
@@ -24,28 +26,28 @@ function AgentsCard() {
     <section aria-labelledby="ag-title" className="zone p-4">
       <div className="flex items-center justify-between gap-2">
         <h2 id="ag-title" className="h-card">
-          Insight &amp; agents
+          {t('Insight & agents')}
         </h2>
         <button type="button" className="link" onClick={() => setPage('agents')}>
-          Reasoning log <ArrowRight size={14} aria-hidden />
+          {t('Reasoning log')} <ArrowRight size={14} aria-hidden />
         </button>
       </div>
-      <p className="mt-1 text-sm text-muted">Workforce: {active.size ? `${[...active].filter((a) => a !== 'SYSTEM').length} agents active in the last 6 h` : 'agents idle until the week runs'}</p>
+      <p className="mt-1 text-sm text-muted">{active.size ? t('Workforce: {n} agents active in the last 6 h', { n: [...active].filter((a) => a !== 'SYSTEM').length }) : t('Workforce: agents idle until the week runs')}</p>
       <ul className="mt-3 flex flex-wrap gap-2">
         {AGENT_CHIPS.slice(0, 4).map((c) => {
           const on = active.has(c.agent)
           return (
             <li key={c.agent} className="chip border-line bg-panel-2">
-              <span className={c.tone}>{c.label}</span>
+              <span className={c.tone}>{t(c.label)}</span>
               <span className={`h-2 w-2 rounded-full ${on ? 'bg-ok' : 'bg-baseline/50'}`} aria-hidden />
-              <span className="sr-only">{on ? 'active' : 'idle'}</span>
+              <span className="sr-only">{t(on ? 'active' : 'idle')}</span>
             </li>
           )
         })}
       </ul>
       {last && (
         <p className="mt-3 line-clamp-2 rounded-xl bg-panel-2 px-3 py-2 text-xs">
-          <span className={`font-bold ${chip?.tone ?? 'text-muted'}`}>{chip?.label ?? last.agent}</span>{' '}
+          <span className={`font-bold ${chip?.tone ?? 'text-muted'}`}>{chip ? t(chip.label) : last.agent}</span>{' '}
           <span className="text-muted">[{last.sim_time}]</span> {last.message}
         </p>
       )}
@@ -55,14 +57,15 @@ function AgentsCard() {
 
 function AlertsCard() {
   const snap = useSim((s) => s.snapshot)
-  const alerts = snap ? deriveAlerts(snap) : []
+  const t = useT()
+  const alerts = snap ? deriveAlerts(snap, t) : []
   return (
     <section aria-labelledby="al-title" className="zone p-4">
       <h2 id="al-title" className="h-card">
-        Real-time alerts
+        {t('Real-time alerts')}
       </h2>
       {alerts.length === 0 ? (
-        <p className="mt-2 text-sm text-muted">All clear. Alerts appear when stock nears expiry or orders change.</p>
+        <p className="mt-2 text-sm text-muted">{t('All clear. Alerts appear when stock nears expiry or orders change.')}</p>
       ) : (
         <ul className="mt-3 space-y-2">
           {alerts.slice(0, 3).map((a) => (
@@ -77,6 +80,7 @@ function AlertsCard() {
 export default function Dashboard() {
   const snap = useSim((s) => s.snapshot)
   const which = useSim((s) => s.eslStore)
+  const t = useT()
   if (!snap) return <div className="zone h-96 animate-pulse" aria-busy />
 
   const k = snap.kpis
@@ -92,18 +96,18 @@ export default function Dashboard() {
       <div className="grid grid-cols-1 gap-5 xl:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)]">
         <div className="grid grid-cols-2 gap-3 sm:gap-4">
           <StatCard
-            label="Waste reduction"
+            label={t('Waste reduction')}
             value={k.waste_reduction_pct}
             format={(n) => `${n.toFixed(1)}%`}
-            change={change('reduction', (n) => `${n.toFixed(1)} pp`)}
+            change={change('reduction', (n) => `${n.toFixed(1)} ${t('pp')}`)}
             history={series(ch, 'reduction')}
             Icon={Sprout}
             tile="bg-mint text-accent"
             color="rgb(var(--c-accent))"
-            hint="Food wasted by this store vs its baseline twin, same shoppers"
+            hint={t('Food wasted by this store vs its baseline twin, same shoppers')}
           />
           <StatCard
-            label="Food diverted"
+            label={t('Food diverted')}
             value={k.food_diverted_kg}
             format={(n) => `${n.toFixed(1)} kg`}
             change={change('diverted', (n) => `${n.toFixed(1)} kg`)}
@@ -111,10 +115,10 @@ export default function Dashboard() {
             Icon={ShoppingBasket}
             tile="bg-[#DDF4F1] text-[#0F766E] dark:bg-teal-400/15 dark:text-teal-300"
             color="#14B8A6"
-            hint="Kilograms the baseline store threw away that this store sold instead"
+            hint={t('Kilograms the baseline store threw away that this store sold instead')}
           />
           <StatCard
-            label="CO₂e avoided"
+            label={t('CO₂e avoided')}
             value={k.co2e_avoided_kg}
             format={(n) => `${n.toFixed(1)} kg`}
             change={change('co2e', (n) => `${n.toFixed(1)} kg`)}
@@ -122,10 +126,10 @@ export default function Dashboard() {
             Icon={Cloud}
             tile="bg-[#EFE9FE] text-[#7C3AED] dark:bg-violet-400/15 dark:text-violet-300"
             color="#A78BFA"
-            hint="Diverted food × category emission factors (Poore & Nemecek 2018)"
+            hint={t('Diverted food × category emission factors (Poore & Nemecek 2018)')}
           />
           <StatCard
-            label="Net margin recovered"
+            label={t('Net margin recovered')}
             value={k.net_margin_recovered_usd}
             format={usd}
             change={change('margin', (n) => usd(n))}
@@ -133,7 +137,7 @@ export default function Dashboard() {
             Icon={CircleDollarSign}
             tile="bg-[#FEF3C7] text-[#B45309] dark:bg-amber-400/15 dark:text-amber-300"
             color="#F59E0B"
-            hint="Gross margin of this store minus the baseline store's"
+            hint={t('Gross margin of this store minus the baseline store’s')}
           />
         </div>
         <FreshnessHero />
@@ -150,13 +154,13 @@ export default function Dashboard() {
             <AlertsCard />
             <section aria-labelledby="wr-title" className="zone flex flex-col items-center p-4">
               <h2 id="wr-title" className="h-card self-start">
-                Waste reduction progress
+                {t('Waste reduction progress')}
               </h2>
               <div className="mt-2 w-full">
                 <Gauge value={k.waste_reduction_pct} target={TARGET} />
               </div>
               <p className="mt-1 text-center text-xs text-muted">
-                {k.waste_kg_b.toFixed(1)} kg wasted vs {k.waste_kg_a.toFixed(1)} kg at the baseline
+                {t('{b} kg wasted vs {a} kg at the baseline', { b: k.waste_kg_b.toFixed(1), a: k.waste_kg_a.toFixed(1) })}
               </p>
             </section>
           </div>

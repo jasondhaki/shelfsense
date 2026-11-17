@@ -18,6 +18,7 @@ import type {
   TickMessage,
   UserOut,
 } from '../types/contracts'
+import type { Key } from '../lib/i18n'
 
 const LOG_LIMIT = 500
 
@@ -88,7 +89,7 @@ function guestProfile(): Profile {
 const initialMode = (): AuthMode =>
   getToken() ? 'checking' : store('session')?.getItem(GUEST_KEY) ? 'guest' : 'signed_out'
 
-export const FRAMES: { id: FrameId; label: string; src: string }[] = [
+export const FRAMES: { id: FrameId; label: Key; src: string }[] = [
   { id: 'frame1', label: 'Day 1 morning', src: '/frames/frame1.jpg' },
   { id: 'frame2', label: 'Day 3 afternoon', src: '/frames/frame2.jpg' },
   { id: 'frame3', label: 'Thermal anomaly', src: '/frames/frame3.jpg' },

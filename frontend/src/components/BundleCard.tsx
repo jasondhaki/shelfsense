@@ -1,5 +1,6 @@
 import { CheckCircle2, Clock, Gift, XCircle } from 'lucide-react'
 import { simClock, usd } from '../lib/format'
+import { useT } from '../lib/i18n'
 import type { Bundle } from '../types/contracts'
 
 const STATUS = {
@@ -10,17 +11,18 @@ const STATUS = {
 
 export default function BundleCard({ b }: { b: Bundle }) {
   const s = STATUS[b.status]
+  const t = useT()
   const off = Math.round((1 - b.price / b.base_total) * 100)
   return (
     <article
-      aria-label={`Surplus box ${b.bundle_id}, ${s.label}`}
+      aria-label={`${t('Surplus box')} ${b.bundle_id}, ${t(s.label)}`}
       className={`rounded-md border border-line bg-panel-2 p-2.5 ${b.status === 'listed' ? '' : 'opacity-70'}`}
     >
       <div className="flex items-center justify-between text-[11px]">
         <span className="font-mono text-muted">{b.bundle_id}</span>
         <span className={`flex items-center gap-1 ${s.cls}`}>
           <s.Icon size={12} aria-hidden />
-          {s.label}
+          {t(s.label)}
         </span>
       </div>
       <ul className="my-1.5 text-xs">
@@ -40,10 +42,10 @@ export default function BundleCard({ b }: { b: Bundle }) {
           {b.status === 'listed' ? (
             <span className={`flex items-center gap-1 ${b.expires_in_hours < 3 ? 'text-crit' : ''}`}>
               <Clock size={11} aria-hidden />
-              {b.expires_in_hours.toFixed(1)} h left
+              {t('{h} h left', { h: b.expires_in_hours.toFixed(1) })}
             </span>
           ) : (
-            <span>made {simClock(b.created_tick)}</span>
+            <span>{t('made {at}', { at: simClock(b.created_tick) })}</span>
           )}
         </div>
       </div>

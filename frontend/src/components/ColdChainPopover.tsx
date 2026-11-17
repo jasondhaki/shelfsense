@@ -1,5 +1,6 @@
 import { Snowflake } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
+import { useT } from '../lib/i18n'
 import type { EslView } from '../types/contracts'
 
 const DEFAULT_SKUS = ['STRW-01', 'SPIN-01', 'SALM-01']
@@ -16,6 +17,7 @@ export default function ColdChainPopover({ skus, pending, disabled, onTrigger }:
   const [picked, setPicked] = useState<string[]>(DEFAULT_SKUS)
   const [immediate, setImmediate] = useState(false)
   const root = useRef<HTMLDivElement>(null)
+  const t = useT()
 
   useEffect(() => {
     if (!open) return
@@ -45,19 +47,19 @@ export default function ColdChainPopover({ skus, pending, disabled, onTrigger }:
         className="btn"
       >
         <Snowflake size={14} aria-hidden />
-        {pending ? 'Cold-chain: next delivery' : 'Cold-chain delay'}
+        {t(pending ? 'Cold-chain: next delivery' : 'Cold-chain delay')}
       </button>
       {open && (
         <div
           role="dialog"
-          aria-label="Cold-chain delay"
+          aria-label={t('Cold-chain delay')}
           className="absolute right-0 top-full z-30 mt-1 w-64 rounded-md border border-line bg-panel-2 p-3 shadow-xl"
         >
           <p className="mb-2 text-xs text-muted">
-            Affected deliveries arrive with 30% less shelf life, in both stores.
+            {t('Affected deliveries arrive with 30% less shelf life, in both stores.')}
           </p>
           <fieldset className="mb-2 grid grid-cols-2 gap-x-2 gap-y-1">
-            <legend className="sr-only">Products</legend>
+            <legend className="sr-only">{t('Products')}</legend>
             {skus.map((s) => (
               <label key={s.sku_id} className="flex items-center gap-1.5 text-xs">
                 <input
@@ -73,7 +75,7 @@ export default function ColdChainPopover({ skus, pending, disabled, onTrigger }:
             ))}
           </fieldset>
           <fieldset className="mb-3 flex gap-3 text-xs">
-            <legend className="sr-only">When</legend>
+            <legend className="sr-only">{t('When')}</legend>
             <label className="flex items-center gap-1.5">
               <input
                 type="radio"
@@ -82,7 +84,7 @@ export default function ColdChainPopover({ skus, pending, disabled, onTrigger }:
                 onChange={() => setImmediate(false)}
                 className="accent-accent"
               />
-              Next delivery
+              {t('Next delivery')}
             </label>
             <label className="flex items-center gap-1.5">
               <input
@@ -92,7 +94,7 @@ export default function ColdChainPopover({ skus, pending, disabled, onTrigger }:
                 onChange={() => setImmediate(true)}
                 className="accent-accent"
               />
-              Deliver now
+              {t('Deliver now')}
             </label>
           </fieldset>
           <button
@@ -104,7 +106,7 @@ export default function ColdChainPopover({ skus, pending, disabled, onTrigger }:
             }}
             className="btn w-full justify-center"
           >
-            Apply delay to {picked.length} product{picked.length === 1 ? '' : 's'}
+            {t(picked.length === 1 ? 'Apply delay to {n} product' : 'Apply delay to {n} products', { n: picked.length })}
           </button>
         </div>
       )}

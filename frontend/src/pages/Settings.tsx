@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import PageHead from '../components/PageHead'
+import { useT } from '../lib/i18n'
 import { useSim } from '../store/simStore'
 
 export default function Settings() {
@@ -13,6 +14,7 @@ export default function Settings() {
   const [name, setName] = useState(profile.name)
   const [store, setStore] = useState(profile.store)
   const [saved, setSaved] = useState(false)
+  const t = useT()
 
   const dirty = name.trim() !== profile.name || store.trim() !== profile.store
   const valid = name.trim().length > 0 && store.trim().length > 0
@@ -20,11 +22,11 @@ export default function Settings() {
   return (
     <>
       <PageHead
-        title="Settings"
+        title={t('Settings')}
         lead={
           auth === 'signed_in'
-            ? 'Your profile is saved to your account and follows you to any device.'
-            : 'You’re a guest: this profile is kept in this browser only.'
+            ? t('Your profile is saved to your account and follows you to any device.')
+            : t('You’re a guest: this profile is kept in this browser only.')
         }
       />
       <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
@@ -38,14 +40,14 @@ export default function Settings() {
             setSaving(false)
           }}
         >
-          <h3 className="h-card">Profile</h3>
+          <h3 className="h-card">{t('Profile')}</h3>
           {user && (
             <p className="text-sm">
-              Signed in as <strong>{user.email}</strong>
+              {t('Signed in as')} <strong>{user.email}</strong>
             </p>
           )}
           <label className="block">
-            <span className="text-sm font-semibold">Your name</span>
+            <span className="text-sm font-semibold">{t('Your name')}</span>
             <input
               value={name}
               maxLength={40}
@@ -58,7 +60,7 @@ export default function Settings() {
             />
           </label>
           <label className="block">
-            <span className="text-sm font-semibold">Store name</span>
+            <span className="text-sm font-semibold">{t('Store name')}</span>
             <input
               value={store}
               maxLength={40}
@@ -69,14 +71,14 @@ export default function Settings() {
               className="mt-1 w-full rounded-xl border border-line bg-panel px-3 py-2 text-sm focus:border-accent focus:outline-none"
             />
           </label>
-          {!valid && <p className="text-xs text-crit">Name and store can’t be empty.</p>}
+          {!valid && <p className="text-xs text-crit">{t('Name and store can’t be empty.')}</p>}
           <div className="flex items-center gap-3">
             <button type="submit" className="btn-primary" disabled={!dirty || !valid || saving}>
-              {saving ? 'Saving…' : 'Save profile'}
+              {t(saving ? 'Saving…' : 'Save profile')}
             </button>
             {saved && (
               <span role="status" className="text-xs font-semibold text-accent">
-                Profile saved
+                {t('Profile saved')}
               </span>
             )}
           </div>
@@ -84,31 +86,29 @@ export default function Settings() {
 
         <section aria-labelledby="sim-title" className="zone space-y-3 p-4">
           <h3 id="sim-title" className="h-card">
-            Simulation
+            {t('Simulation')}
           </h3>
           <p className="text-sm text-muted">
-            Each browser tab runs its own week. Restarting replays the same shoppers (same random seed), so
-            results are reproducible.
+            {t('Each browser tab runs its own week. Restarting replays the same shoppers (same random seed), so results are reproducible.')}
           </p>
           <div className="flex flex-wrap gap-2">
             <button type="button" className="btn" onClick={() => control('reset')}>
-              Restart the week
+              {t('Restart the week')}
             </button>
             <button type="button" className="btn" onClick={() => control('reset', { scenario: 'demo' })}>
-              Restart with the demo script
+              {t('Restart with the demo script')}
             </button>
           </div>
           <p className="text-xs text-muted">
             {auth === 'signed_in'
-              ? 'Your week runs on the server under your account, so you can pick it up in another tab or device. A server restart starts a new week.'
-              : 'Create an account to keep your store name and pick your week up on another device.'}
+              ? t('Your week runs on the server under your account, so you can pick it up in another tab or device. A server restart starts a new week.')
+              : t('Create an account to keep your store name and pick your week up on another device.')}
           </p>
           <button type="button" className="btn" onClick={signOut}>
-            {auth === 'signed_in' ? 'Sign out' : 'Sign in or create an account'}
+            {t(auth === 'signed_in' ? 'Sign out' : 'Sign in or create an account')}
           </button>
           <p className="text-xs text-muted">
-            Demo script: rain on Day 2 at 10:00, a cold-chain delay on Day 3, and a damaged-strawberry scan on Day 4
-            at 14:00.
+            {t('Demo script: rain on Day 2 at 10:00, a cold-chain delay on Day 3, and a damaged-strawberry scan on Day 4 at 14:00.')}
           </p>
         </section>
       </div>

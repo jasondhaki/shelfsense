@@ -7,6 +7,7 @@ import Sidebar from './layout/Sidebar'
 import SimBar from './layout/SimBar'
 import TopBar from './layout/TopBar'
 import { api } from './lib/api'
+import { useT } from './lib/i18n'
 import { connectSim } from './lib/ws'
 import Agents from './pages/Agents'
 import Analytics from './pages/Analytics'
@@ -80,7 +81,8 @@ function Notice() {
   const notice = useSim((s) => s.notice)
   const dismiss = useSim((s) => s.dismissNotice)
   const connection = useSim((s) => s.connection)
-  const text = connection === 'closed' ? 'Connection lost — reconnecting…' : notice
+  const t = useT()
+  const text = connection === 'closed' ? t('Connection lost — reconnecting…') : notice
   if (!text) return null
   return (
     <div
@@ -89,7 +91,7 @@ function Notice() {
     >
       <span className="text-warn">{text}</span>
       {connection !== 'closed' && (
-        <button type="button" className="btn-icon" aria-label="Dismiss" onClick={dismiss}>
+        <button type="button" className="btn-icon" aria-label={t('Dismiss')} onClick={dismiss}>
           <X size={14} aria-hidden />
         </button>
       )}
@@ -132,6 +134,7 @@ function Shell() {
 export default function App() {
   const auth = useSim((s) => s.auth)
   const restoreSession = useSim((s) => s.restoreSession)
+  const t = useT()
 
   useEffect(() => {
     void restoreSession()
@@ -139,10 +142,10 @@ export default function App() {
 
   if (auth === 'checking') {
     return (
-      <div className="grid min-h-full place-items-center" role="status" aria-label="Signing you in">
+      <div className="grid min-h-full place-items-center" role="status" aria-label={t('Signing you in')}>
         <div className="flex flex-col items-center gap-3 text-sm text-muted">
           <div className="h-10 w-10 rounded-full border-4 border-mint border-t-accent motion-safe:animate-spin" />
-          Signing you in… a sleeping free server can take up to a minute.
+          {t('Signing you in… a sleeping free server can take up to a minute.')}
         </div>
       </div>
     )

@@ -11,9 +11,10 @@ import {
   Tag,
   type LucideIcon,
 } from 'lucide-react'
+import type { Key } from '../lib/i18n'
 import type { Page } from '../store/simStore'
 
-export const NAV: { id: Page; label: string; Icon: LucideIcon }[] = [
+export const NAV: { id: Page; label: Key; Icon: LucideIcon }[] = [
   { id: 'dashboard', label: 'Dashboard', Icon: Home },
   { id: 'inventory', label: 'Inventory', Icon: Boxes },
   { id: 'forecast', label: 'Forecast', Icon: BarChart3 },

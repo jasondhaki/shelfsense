@@ -1,5 +1,6 @@
 import { Download } from 'lucide-react'
 import EslCard from '../components/EslCard'
+import { useT } from '../lib/i18n'
 import { useSim } from '../store/simStore'
 
 const STORES = [
@@ -13,13 +14,14 @@ export default function EslMatrix() {
   const esl = useSim((s) => (which === 'A' ? s.snapshot?.esl_a : s.snapshot?.esl))
   const openFormula = useSim((s) => s.openFormula)
   const exportReport = useSim((s) => s.exportReport)
+  const t = useT()
 
   return (
-    <section aria-label="Electronic shelf labels" className="zone p-3">
+    <section aria-label={t('Electronic shelf labels')} className="zone p-3">
       <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
         <div className="flex items-center gap-3">
-          <h2 className="text-sm font-medium">Shelf labels</h2>
-          <div role="radiogroup" aria-label="Which store" className="flex rounded-md border border-line p-0.5">
+          <h2 className="text-sm font-medium">{t('Shelf labels')}</h2>
+          <div role="radiogroup" aria-label={t('Which store')} className="flex rounded-md border border-line p-0.5">
             {STORES.map((s) => (
               <button
                 key={s.id}
@@ -29,7 +31,7 @@ export default function EslMatrix() {
                 onClick={() => setWhich(s.id)}
                 className={`rounded px-2 py-0.5 text-[11px] font-medium ${which === s.id ? 'bg-panel-2 text-text' : 'text-muted hover:text-text'}`}
               >
-                {s.label}
+                {t(s.label)}
               </button>
             ))}
           </div>
@@ -37,12 +39,12 @@ export default function EslMatrix() {
         <div className="flex items-center gap-3">
           <span className="text-[11px] text-muted">
             {which === 'B'
-              ? 'Select a label to see how its price was set'
-              : 'Printed-date pricing: 50% off on the last labelled day'}
+              ? t('Select a label to see how its price was set')
+              : t('Printed-date pricing: 50% off on the last labelled day')}
           </span>
           <button type="button" className="btn" onClick={() => exportReport()}>
             <Download size={13} aria-hidden />
-            Export CSV
+            {t('Export CSV')}
           </button>
         </div>
       </div>

@@ -1,6 +1,7 @@
 import { ArrowDownRight, ArrowUpRight, type LucideIcon } from 'lucide-react'
 import { useEffect, useId, useRef, useState } from 'react'
 import { prefersReducedMotion } from '../lib/format'
+import { useT } from '../lib/i18n'
 
 const COUNT_MS = 300
 
@@ -76,6 +77,7 @@ interface Props {
 
 export default function StatCard({ label, value, format, change, history, Icon, tile, color, hint }: Props) {
   const shown = useCountUp(value ?? 0)
+  const t = useT()
   const up = change && change.value >= 0
   const moved = change && Math.abs(change.value) >= 0.05
   return (
@@ -91,11 +93,11 @@ export default function StatCard({ label, value, format, change, history, Icon, 
             {moved && change && (
               <span
                 className={`inline-flex items-center gap-0.5 rounded-full px-1.5 py-0.5 text-[11px] font-bold ${up ? 'bg-mint text-accent' : 'bg-crit/10 text-crit'}`}
-                title="Change over the last 24 simulated hours"
+                title={t('Change over the last 24 simulated hours')}
               >
                 {up ? <ArrowUpRight size={12} aria-hidden /> : <ArrowDownRight size={12} aria-hidden />}
                 {change.text}
-                <span className="font-semibold opacity-70">/ 24 h</span>
+                <span className="font-semibold opacity-70">/ {t('24 h')}</span>
               </span>
             )}
           </div>

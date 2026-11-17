@@ -15,7 +15,8 @@ Sign in, create an account (confirmed with a 6-digit code by email), or continue
 
 The app is split into tabs: Dashboard, Inventory, Forecast, Pricing & Discounts, AI Agents, Orders,
 Analytics, Data Ingestion, Settings (profile name and store, saved in the browser) and Help. A sun/moon button switches
-between the light and dark themes (it follows the OS setting until you pick one).
+between the light and dark themes (it follows the OS setting until you pick one). A language button switches the interface
+between English and Bengali (বাংলা).
 
 <details><summary>Demo week in motion (GIF, 1.1 MB)</summary>
 

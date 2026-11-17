@@ -1,10 +1,11 @@
 import { ChevronRight, Circle, CircleDot, Minus, X } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 import { api } from '../lib/api'
+import { useT, type Key, type T } from '../lib/i18n'
 import { useSim } from '../store/simStore'
 import type { ArchNode, Architecture } from '../types/contracts'
 
-const LAYERS: { id: ArchNode['layer']; label: string }[] = [
+const LAYERS: { id: ArchNode['layer']; label: Key }[] = [
   { id: 'source', label: 'Data sources' },
   { id: 'knowledge', label: 'Seed data & RAG' },
   { id: 'agent', label: 'Agents' },
@@ -18,18 +19,18 @@ const STATUS = {
   static: { label: 'Built from source data', cls: 'text-baseline', Icon: Minus },
 } as const
 
-function Node({ n, active, feeds }: { n: ArchNode; active: boolean; feeds: string[] }) {
+function Node({ n, active, feeds, t }: { n: ArchNode; active: boolean; feeds: string[]; t: T }) {
   const s = STATUS[n.status]
   return (
     <li
       className={`rounded-md border bg-panel-2 p-2 transition-colors ${active ? 'border-accent motion-safe:animate-pulse' : 'border-line'}`}
-      aria-label={`${n.label}: ${s.label}. ${n.detail}${active ? '. Active this hour' : ''}`}
+      aria-label={`${n.label}: ${t(s.label)}. ${n.detail}${active ? `. ${t('Active this hour')}` : ''}`}
     >
       <div className="flex items-center justify-between gap-2">
         <span className="text-xs font-medium">{n.label}</span>
         <span className={`flex items-center gap-1 text-[10px] ${s.cls}`}>
           <s.Icon size={10} aria-hidden />
-          {s.label}
+          {t(s.label)}
         </span>
       </div>
       <div className="mt-0.5 text-[11px] text-muted">{n.detail}</div>
@@ -46,6 +47,7 @@ export default function ArchitectureModal({ open, onClose }: { open: boolean; on
   const [error, setError] = useState<string | null>(null)
   const logs = useSim((s) => s.logs)
   const tick = useSim((s) => s.snapshot?.tick ?? 0)
+  const t = useT()
 
   useEffect(() => {
     const d = ref.current
@@ -76,22 +78,22 @@ export default function ArchitectureModal({ open, onClose }: { open: boolean; on
       <div className="flex items-start justify-between border-b border-line p-4">
         <div>
           <h2 id="arch-title" className="text-base font-semibold">
-            System architecture
+            {t('System architecture')}
           </h2>
           <p className="text-xs text-muted">
-            Live status of every part. Agents light up when they act on the current hour.
+            {t('Live status of every part. Agents light up when they act on the current hour.')}
           </p>
         </div>
-        <button type="button" className="btn-icon" aria-label="Close system architecture" onClick={onClose}>
+        <button type="button" className="btn-icon" aria-label={t('Close system architecture')} onClick={onClose}>
           <X size={16} aria-hidden />
         </button>
       </div>
       <div className="p-4">
-        {error && <p className="mb-3 text-xs text-warn">{error}</p>}
+        {error && <p className="mb-3 text-xs text-warn">{t('Couldn’t load the live status. The diagram below may be out of date.')}</p>}
         <div className="grid grid-cols-1 gap-2 md:grid-cols-[repeat(5,minmax(0,1fr))]">
           {LAYERS.map((layer, i) => (
-            <section key={layer.id} aria-label={layer.label} className="relative">
-              <h3 className="mb-1.5 text-[11px] text-muted">{layer.label}</h3>
+            <section key={layer.id} aria-label={t(layer.label)} className="relative">
+              <h3 className="mb-1.5 text-[11px] text-muted">{t(layer.label)}</h3>
               <ul className="space-y-1.5">
                 {arch?.nodes
                   .filter((n) => n.layer === layer.id)
@@ -99,6 +101,7 @@ export default function ArchitectureModal({ open, onClose }: { open: boolean; on
                     <Node
                       key={n.id}
                       n={n}
+                      t={t}
                       active={n.agent !== null && active.has(n.agent)}
                       feeds={arch.edges.filter((e) => e.source === n.id).map((e) => label(e.target))}
                     />
@@ -115,9 +118,7 @@ export default function ArchitectureModal({ open, onClose }: { open: boolean; on
           ))}
         </div>
         <p className="mt-4 text-[11px] text-muted">
-          Prices, shelf life and orders are computed by a deterministic engine from these inputs. The
-          vision model only extracts what it sees, and retrieved text only explains decisions; neither
-          sets a number. Elasticities are assumptions.
+          {t('Prices, shelf life and orders are computed by a deterministic engine from these inputs. The vision model only extracts what it sees, and retrieved text only explains decisions; neither sets a number. Elasticities are assumptions.')}
         </p>
       </div>
     </dialog>

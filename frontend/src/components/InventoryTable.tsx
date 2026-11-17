@@ -2,29 +2,32 @@ import { AlertTriangle, ArrowRight, Clock, Tag } from 'lucide-react'
 import { useState } from 'react'
 import { usd } from '../lib/format'
 import { atRisk, freshness, NUTRI, productImg } from '../lib/insights'
+import { useT } from '../lib/i18n'
 import { useSim } from '../store/simStore'
 import type { EslView } from '../types/contracts'
 
 type Filter = 'all' | 'risk' | 'discounted'
 
 function Countdown({ e }: { e: EslView }) {
-  if (!e.on_hand) return <span className="text-xs font-semibold text-muted">Sold out</span>
+  const t = useT()
+  if (!e.on_hand) return <span className="text-xs font-semibold text-muted">{t('Sold out')}</span>
   const h = e.rsl_hours
   const tone = h < 8 ? 'bg-crit/10 text-crit' : h < 24 ? 'bg-warn/10 text-warn' : 'bg-mint text-accent'
   return (
     <span className={`inline-flex items-center gap-1 whitespace-nowrap rounded-full px-2.5 py-1 text-xs font-bold ${tone}`}>
       <Clock size={13} aria-hidden />
-      {h < 8 && <span className="sr-only">Critical: </span>}
-      Expires: {h < 48 ? `${h.toFixed(h < 10 ? 1 : 0)} h` : `${(h / 24).toFixed(1)} d`}
+      {h < 8 && <span className="sr-only">{t('Critical:')} </span>}
+      {t('Expires:')} {h < 48 ? `${h.toFixed(h < 10 ? 1 : 0)} ${t('h')}` : `${(h / 24).toFixed(1)} ${t('d')}`}
     </span>
   )
 }
 
 function Fresh({ e }: { e: EslView }) {
+  const t = useT()
   const f = freshness(e)
   const bar = f < 0.15 ? 'bg-crit' : f < 0.3 ? 'bg-warn' : 'bg-accent'
   return (
-    <div className="flex items-center gap-2" title={`${e.rsl_hours.toFixed(1)} h left of ${e.shelf_life_hours} h nominal shelf life`}>
+    <div className="flex items-center gap-2" title={t('{h} h left of {n} h nominal shelf life', { h: e.rsl_hours.toFixed(1), n: e.shelf_life_hours })}>
       <div className="h-2 w-12 overflow-hidden rounded-full bg-line 2xl:w-20" aria-hidden>
         <div className={`h-full rounded-full ${bar}`} style={{ width: `${f * 100}%` }} />
       </div>
@@ -45,6 +48,7 @@ export default function InventoryTable({ rows, limit, detailed = false }: Props)
   const which = useSim((s) => s.eslStore)
   const openFormula = useSim((s) => s.openFormula)
   const setPage = useSim((s) => s.setPage)
+  const t = useT()
 
   const riskCount = rows.filter(atRisk).length
   const discCount = rows.filter((e) => e.markdown_pct > 0.005).length
@@ -54,9 +58,9 @@ export default function InventoryTable({ rows, limit, detailed = false }: Props)
     .slice(0, limit)
 
   const FILTERS: { id: Filter; label: string; Icon?: typeof Tag; iconCls?: string }[] = [
-    { id: 'all', label: 'All items' },
-    { id: 'risk', label: `At risk (${riskCount})`, Icon: AlertTriangle, iconCls: 'text-warn' },
-    { id: 'discounted', label: `Discounted (${discCount})`, Icon: Tag, iconCls: 'text-warn' },
+    { id: 'all', label: t('All items') },
+    { id: 'risk', label: t('At risk ({n})', { n: riskCount }), Icon: AlertTriangle, iconCls: 'text-warn' },
+    { id: 'discounted', label: t('Discounted ({n})', { n: discCount }), Icon: Tag, iconCls: 'text-warn' },
   ]
 
   return (
@@ -64,20 +68,20 @@ export default function InventoryTable({ rows, limit, detailed = false }: Props)
       <div className="flex items-start justify-between gap-3">
         <div>
           <h2 id="inv-title" className="h-card">
-            Shelf inventory &amp; quick actions
+            {t('Shelf inventory & quick actions')}
           </h2>
           <p className="text-sm text-muted">
-            Live stock, freshness and spoilage risk{which === 'A' ? ' — baseline store (printed dates only)' : ''}.
+            {t(which === 'A' ? 'Live stock, freshness and spoilage risk — baseline store (printed dates only).' : 'Live stock, freshness and spoilage risk.')}
           </p>
         </div>
         {limit && (
           <button type="button" className="link shrink-0" onClick={() => setPage('inventory')}>
-            View all <ArrowRight size={14} aria-hidden />
+            {t('View all')} <ArrowRight size={14} aria-hidden />
           </button>
         )}
       </div>
 
-      <div className="mt-3 flex flex-wrap gap-2" role="group" aria-label="Filter items">
+      <div className="mt-3 flex flex-wrap gap-2" role="group" aria-label={t('Filter items')}>
         {FILTERS.map((f) => (
           <button
             key={f.id}
@@ -106,7 +110,7 @@ export default function InventoryTable({ rows, limit, detailed = false }: Props)
                 <div className="min-w-0 flex-1">
                   <div className="truncate text-sm font-semibold">{e.name}</div>
                   <div className="text-xs text-muted">
-                    {e.sku_id} · {e.on_hand} on shelf
+                    {e.sku_id} · {t('{n} on shelf', { n: e.on_hand })}
                   </div>
                 </div>
                 <div className="shrink-0 text-right">
@@ -123,7 +127,7 @@ export default function InventoryTable({ rows, limit, detailed = false }: Props)
                 <Countdown e={e} />
                 <Fresh e={e} />
                 <span
-                  title={nutri ? `Nutri-Score ${nutri.toUpperCase()}` : 'Nutri-Score not available'}
+                  title={nutri ? `Nutri-Score ${nutri.toUpperCase()}` : t('Nutri-Score not available')}
                   className={`grid h-6 w-6 shrink-0 place-items-center rounded-md text-[11px] font-bold ${nutri && NUTRI[nutri] ? NUTRI[nutri] : 'bg-line text-muted'}`}
                 >
                   {nutri ? nutri.toUpperCase() : '–'}
@@ -137,7 +141,7 @@ export default function InventoryTable({ rows, limit, detailed = false }: Props)
                 <button
                   type="button"
                   onClick={() => openFormula(e.sku_id)}
-                  aria-label={`${e.name}, ${usd(e.current_price)}: see how its price is set`}
+                  aria-label={`${e.name}, ${usd(e.current_price)}: ${t('see how its price is set')}`}
                   className="block w-full rounded-xl border border-line/70 bg-panel p-3 text-left active:bg-panel-2"
                 >
                   {body}
@@ -152,15 +156,15 @@ export default function InventoryTable({ rows, limit, detailed = false }: Props)
 
       <div className={`mt-3 hidden overflow-x-auto ${detailed ? 'md:block' : 'min-[1700px]:block'}`}>
         <table className="w-full min-w-[580px] border-separate border-spacing-y-1.5 text-sm">
-          <caption className="sr-only">Shelf items sorted by shelf life left</caption>
+          <caption className="sr-only">{t('Shelf items sorted by shelf life left')}</caption>
           <thead>
             <tr className="text-left text-xs font-semibold text-muted">
-              <th scope="col" className="rounded-l-lg bg-panel-2 px-3 py-2">Product</th>
-              <th scope="col" className="whitespace-nowrap bg-panel-2 px-2 py-2 text-center">On shelf</th>
-              {detailed && <th scope="col" className="bg-panel-2 px-2 py-2 text-center">Next 24 h demand</th>}
-              <th scope="col" className="bg-panel-2 px-2 py-2">Countdown</th>
-              <th scope="col" className="bg-panel-2 px-2 py-2">Freshness</th>
-              <th scope="col" className="rounded-r-lg bg-panel-2 px-3 py-2 text-right">Price</th>
+              <th scope="col" className="rounded-l-lg bg-panel-2 px-3 py-2">{t('Product')}</th>
+              <th scope="col" className="whitespace-nowrap bg-panel-2 px-2 py-2 text-center">{t('On shelf')}</th>
+              {detailed && <th scope="col" className="bg-panel-2 px-2 py-2 text-center">{t('Next 24 h demand')}</th>}
+              <th scope="col" className="bg-panel-2 px-2 py-2">{t('Countdown')}</th>
+              <th scope="col" className="bg-panel-2 px-2 py-2">{t('Freshness')}</th>
+              <th scope="col" className="rounded-r-lg bg-panel-2 px-3 py-2 text-right">{t('Price')}</th>
             </tr>
           </thead>
           <tbody>
@@ -186,7 +190,7 @@ export default function InventoryTable({ rows, limit, detailed = false }: Props)
                               ev.stopPropagation()
                               void openFormula(e.sku_id)
                             }}
-                            aria-label={`${e.name}: see how its price is set`}
+                            aria-label={`${e.name}: ${t('see how its price is set')}`}
                           >
                             {e.name}
                           </button>
@@ -196,7 +200,7 @@ export default function InventoryTable({ rows, limit, detailed = false }: Props)
                         <div className="text-xs text-muted">{e.sku_id}</div>
                       </div>
                       <span
-                        title={nutri ? `Nutri-Score ${nutri.toUpperCase()}` : 'Nutri-Score not available'}
+                        title={nutri ? `Nutri-Score ${nutri.toUpperCase()}` : t('Nutri-Score not available')}
                         className={`ml-auto grid h-6 w-6 shrink-0 place-items-center rounded-md text-[11px] font-bold ${nutri && NUTRI[nutri] ? NUTRI[nutri] : 'bg-line text-muted'}`}
                       >
                         {nutri ? nutri.toUpperCase() : '–'}
@@ -210,7 +214,7 @@ export default function InventoryTable({ rows, limit, detailed = false }: Props)
                     <td className="border-y border-line/70 bg-panel px-2 py-2 text-center group-hover:bg-panel-2">
                       {e.forecast_24h.toFixed(0)}
                       {e.surplus_risk_units > 0 && (
-                        <div className="text-[11px] font-semibold text-warn">{e.surplus_risk_units} surplus</div>
+                        <div className="text-[11px] font-semibold text-warn">{t('{n} surplus', { n: e.surplus_risk_units })}</div>
                       )}
                     </td>
                   )}
@@ -237,7 +241,7 @@ export default function InventoryTable({ rows, limit, detailed = false }: Props)
       </div>
       {shown.length === 0 && (
         <p className="py-6 text-center text-sm text-muted">
-          {filter === 'risk' ? 'Nothing at risk right now.' : 'No items are discounted right now.'}
+          {t(filter === 'risk' ? 'Nothing at risk right now.' : 'No items are discounted right now.')}
         </p>
       )}
     </section>

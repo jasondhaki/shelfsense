@@ -1,3 +1,4 @@
+import { useT } from '../lib/i18n'
 import { SEVERITY } from '../lib/severity'
 import type { Detection } from '../types/contracts'
 
@@ -13,6 +14,7 @@ interface Props {
 /** The camera frame with detection boxes. Boxes arrive as [ymin, xmin, ymax, xmax] on a 0–1000
  *  grid, so they map straight to percentages of the rendered image — no pixel maths needed. */
 export default function BoundingBoxCanvas({ src, alt, detections, scanning }: Props) {
+  const t = useT()
   return (
     <div className="relative overflow-hidden rounded-md border border-line bg-bg">
       <img src={src} alt={alt} className="block h-auto w-full" />
@@ -35,7 +37,7 @@ export default function BoundingBoxCanvas({ src, alt, detections, scanning }: Pr
               className={`absolute left-0 flex max-w-full items-center gap-1 truncate rounded-sm px-1 py-px text-[10px] font-medium ${s.chip} ${top ? 'top-0' : '-top-[18px]'}`}
             >
               <s.Icon size={10} aria-hidden />
-              {d.defects.length ? words(d.defects[0]) : s.label} · {Math.round(d.confidence * 100)}%
+              {d.defects.length ? words(d.defects[0]) : t(s.label)} · {Math.round(d.confidence * 100)}%
             </span>
           </div>
         )

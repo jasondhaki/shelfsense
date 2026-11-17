@@ -13,7 +13,9 @@ import {
 import { useEffect, useId, useState, type FormEvent, type ReactNode } from 'react'
 import type { LucideIcon } from 'lucide-react'
 import { api } from '../lib/api'
+import LangToggle from '../components/LangToggle'
 import ThemeToggle from '../components/ThemeToggle'
+import { useT, type Key } from '../lib/i18n'
 import { useSim } from '../store/simStore'
 
 /** Login from the owner's mock (login.jpg, light and dark rows): form left, produce photo behind a green wave
@@ -43,12 +45,13 @@ function LeafMark({ size = 40 }: { size?: number }) {
 }
 
 function Brand() {
+  const t = useT()
   return (
     <div className="flex items-center justify-center gap-2.5 lg:justify-start">
       <LeafMark />
       <div className="text-left leading-tight">
         <div className="text-[22px] font-extrabold tracking-tight text-text">ShelfSense</div>
-        <div className="text-[13px] font-medium text-muted">Food Waste Zero</div>
+        <div className="text-[13px] font-medium text-muted">{t('Food Waste Zero')}</div>
       </div>
     </div>
   )
@@ -84,6 +87,7 @@ function Pill({
 
 function PasswordPill(props: { label: string } & React.InputHTMLAttributes<HTMLInputElement>) {
   const [shown, setShown] = useState(false)
+  const t = useT()
   return (
     <Pill
       {...props}
@@ -93,7 +97,7 @@ function PasswordPill(props: { label: string } & React.InputHTMLAttributes<HTMLI
         <button
           type="button"
           onClick={() => setShown(!shown)}
-          aria-label={shown ? 'Hide password' : 'Show password'}
+          aria-label={t(shown ? 'Hide password' : 'Show password')}
           aria-pressed={shown}
           className="grid h-9 w-9 place-items-center rounded-full text-text/70 hover:bg-mint hover:text-text"
         >
@@ -194,6 +198,7 @@ export default function AuthScreen() {
   const [accounts, setAccounts] = useState(true)
   const [emailSignup, setEmailSignup] = useState(true)
   const [f, setF] = useState({ email: '', password: '', name: '', store: '', code: '' })
+  const t = useT()
 
   useEffect(() => {
     api
@@ -263,17 +268,17 @@ export default function AuthScreen() {
     if (r.verify) setInfo(r.verify)
   }
 
-  const head: Record<Mode, [string, string, string]> = {
+  const head: Record<Mode, [Key, Key, Key]> = {
     signin: ['Log', 'In', 'Access your ShelfSense dashboard'],
     signup: ['Sign', 'Up', 'Your own store, and a simulated week that’s saved for you'],
     verify: ['Check your', 'email', 'Enter the 6-digit code to finish creating your account'],
     forgot: ['Reset', 'password', 'We’ll email you a 6-digit code'],
     reset: ['New', 'password', 'Enter the code from your email and choose a new password'],
   }
-  const [lead, accent, sub] = head[mode]
+  const [lead, accent, sub] = head[mode].map((k) => t(k))
   const signupPaused = mode === 'signup' && accounts && !emailSignup
   const codeStep = mode === 'verify' || mode === 'reset'
-  const label: Record<Mode, string> = busy
+  const label: Record<Mode, Key> = busy
     ? { signin: 'Logging in…', signup: 'Creating account…', verify: 'Checking…', forgot: 'Sending…', reset: 'Saving…' }
     : {
         signin: 'Log In',
@@ -308,17 +313,17 @@ export default function AuthScreen() {
             <form className="mt-6 space-y-3.5" onSubmit={submit}>
               {mode === 'signup' && (
                 <div className="grid grid-cols-1 gap-3.5 sm:grid-cols-2">
-                  <Pill icon={UserRound} label="Your name" value={f.name} onChange={set('name')} required maxLength={40} autoComplete="name" />
-                  <Pill icon={Store} label="Store name" value={f.store} onChange={set('store')} required maxLength={40} autoComplete="organization" />
+                  <Pill icon={UserRound} label={t('Your name')} value={f.name} onChange={set('name')} required maxLength={40} autoComplete="name" />
+                  <Pill icon={Store} label={t('Store name')} value={f.store} onChange={set('store')} required maxLength={40} autoComplete="organization" />
                 </div>
               )}
               {(mode === 'signin' || mode === 'signup' || mode === 'forgot') && (
-                <Pill icon={Mail} label="Email address" type="email" value={f.email} onChange={set('email')} required autoComplete="email" />
+                <Pill icon={Mail} label={t('Email address')} type="email" value={f.email} onChange={set('email')} required autoComplete="email" />
               )}
               {codeStep && (
                 <Pill
                   icon={KeyRound}
-                  label="6-digit code"
+                  label={t('6-digit code')}
                   value={f.code}
                   onChange={set('code')}
                   required
@@ -331,7 +336,7 @@ export default function AuthScreen() {
               )}
               {(mode === 'signin' || mode === 'signup' || mode === 'reset') && (
                 <PasswordPill
-                  label={mode === 'reset' ? 'New password (8+ characters)' : mode === 'signup' ? 'Password (8+ characters)' : 'Password'}
+                  label={t(mode === 'reset' ? 'New password (8+ characters)' : mode === 'signup' ? 'Password (8+ characters)' : 'Password')}
                   value={f.password}
                   onChange={set('password')}
                   required
@@ -340,17 +345,17 @@ export default function AuthScreen() {
                 />
               )}
 
-              {!accounts && <Note tone="warn">Accounts are offline right now. You can still try ShelfSense as a guest.</Note>}
-              {signupPaused && <Note tone="warn">New accounts are paused (email is offline). Sign in or continue as a guest.</Note>}
+              {!accounts && <Note tone="warn">{t('Accounts are offline right now. You can still try ShelfSense as a guest.')}</Note>}
+              {signupPaused && <Note tone="warn">{t('New accounts are paused (email is offline). Sign in or continue as a guest.')}</Note>}
               {info && <Note tone="info">{info}</Note>}
               {error && <Note tone="error">{error}</Note>}
 
               <Primary busy={busy} disabled={!accounts || signupPaused || (codeStep && f.code.length !== 6)}>
-                {label[mode]}
+                {t(label[mode])}
               </Primary>
               {slow && (
                 <p role="status" className="text-xs text-muted">
-                  The free server is waking up — the first request can take up to a minute.
+                  {t('The free server is waking up — the first request can take up to a minute.')}
                 </p>
               )}
             </form>
@@ -362,37 +367,37 @@ export default function AuthScreen() {
                   className="inline-flex items-center gap-1 font-semibold text-muted hover:text-text"
                   onClick={() => go(mode === 'verify' ? 'signup' : 'signin')}
                 >
-                  <ArrowLeft size={15} aria-hidden /> Back
+                  <ArrowLeft size={15} aria-hidden /> {t('Back')}
                 </button>
                 {codeStep && (
                   <button type="button" className={`font-bold ${LINK} hover:underline disabled:opacity-50`} disabled={busy} onClick={() => void resend()}>
-                    Send a new code
+                    {t('Send a new code')}
                   </button>
                 )}
               </div>
             ) : (
               <div className="text-center">
                 <div className="my-5 flex items-center gap-3 text-sm text-text/70" aria-hidden>
-                  <span className="h-px flex-1 bg-[#D7E7DC] dark:bg-white/15" /> or <span className="h-px flex-1 bg-[#D7E7DC] dark:bg-white/15" />
+                  <span className="h-px flex-1 bg-[#D7E7DC] dark:bg-white/15" /> {t('or')} <span className="h-px flex-1 bg-[#D7E7DC] dark:bg-white/15" />
                 </div>
                 <button
                   type="button"
                   onClick={continueAsGuest}
                   className="flex h-12 w-full items-center justify-center gap-2 rounded-full border-2 border-[#3DBE4F]/45 bg-white text-[15px] dark:bg-transparent font-bold text-text transition hover:border-[#3DBE4F] hover:bg-mint/60 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[#3DBE4F]/25"
                 >
-                  <UserRound size={18} aria-hidden /> Continue as guest <ArrowRight size={16} aria-hidden />
+                  <UserRound size={18} aria-hidden /> {t('Continue as guest')} <ArrowRight size={16} aria-hidden />
                 </button>
-                <p className="mt-2 text-xs text-muted">Guests get a fresh week in this tab; nothing is saved.</p>
+                <p className="mt-2 text-xs text-muted">{t('Guests get a fresh week in this tab; nothing is saved.')}</p>
 
                 {mode === 'signin' && (
                   <button type="button" className={`mt-4 text-sm font-bold ${LINK} hover:underline`} onClick={() => go('forgot')}>
-                    Forgot your password?
+                    {t('Forgot your password?')}
                   </button>
                 )}
                 <p className="mt-3 text-[15px] text-text/85">
-                  {mode === 'signin' ? 'Don’t have an account?' : 'Already have an account?'}{' '}
+                  {t(mode === 'signin' ? 'Don’t have an account?' : 'Already have an account?')}{' '}
                   <button type="button" className={`font-extrabold ${LINK} hover:underline`} onClick={() => go(mode === 'signin' ? 'signup' : 'signin')}>
-                    {mode === 'signin' ? 'Sign Up' : 'Log In'}
+                    {t(mode === 'signin' ? 'Sign Up' : 'Log In')}
                   </button>
                 </p>
               </div>
@@ -401,7 +406,10 @@ export default function AuthScreen() {
         </section>
 
         <PhotoPanel />
-        <ThemeToggle className="absolute left-3 top-3 z-20 grid h-10 w-10 place-items-center rounded-full bg-panel/80 text-text shadow-sm backdrop-blur hover:bg-panel" />
+        <div className="absolute left-3 top-3 z-20 flex gap-1.5">
+          <ThemeToggle className="grid h-10 w-10 place-items-center rounded-full bg-panel/80 text-text shadow-sm backdrop-blur hover:bg-panel" />
+          <LangToggle className="flex h-10 items-center gap-1.5 rounded-full bg-panel/80 px-3 text-sm font-bold text-text shadow-sm backdrop-blur hover:bg-panel" />
+        </div>
       </main>
     </div>
   )
