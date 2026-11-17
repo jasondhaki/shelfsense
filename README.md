@@ -18,9 +18,9 @@ Analytics, Data Ingestion, Settings (profile name and store, saved in the browse
 between the light and dark themes (it follows the OS setting until you pick one). A language button switches the interface
 between English and Bengali (বাংলা).
 
-<details><summary>Demo week in motion (GIF, 1.1 MB)</summary>
+<details><summary>Demo week in motion (GIF, 1.2 MB)</summary>
 
-![In the dark theme, from the login screen to a guest dashboard; the demo-script week fast-forwards through a rainstorm and a cold-chain delay, a strawberry price formula opens, and the week ends on Analytics at 50% less waste](docs/demo.gif)
+![In the dark theme, from the login screen to a guest dashboard; the demo-script week fast-forwards through a rainstorm and a cold-chain delay and a strawberry price formula opens, then the interface switches to Bengali for the rest of the week and Analytics at 50% less waste](docs/demo.gif)
 
 </details>
 
