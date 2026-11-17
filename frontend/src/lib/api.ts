@@ -81,7 +81,8 @@ export const api = {
     a.href = URL.createObjectURL(await res.blob())
     a.download = name ?? 'shelfsense-report.csv'
     a.click()
-    URL.revokeObjectURL(a.href)
+    // revoking in the same task can cancel the download (Firefox, Safari)
+    setTimeout(() => URL.revokeObjectURL(a.href), 1000)
   },
   architecture: () => request<Architecture>('/meta/architecture'),
   formula: (skuId: string) =>

@@ -170,9 +170,14 @@ export interface ControlResponse {
   speed: number
 }
 
+export interface EventPayload {
+  skus?: string[] | null
+  immediate?: boolean
+}
+
 export interface EventRequest {
   type: EventType
-  payload?: Record<string, unknown>
+  payload?: EventPayload
 }
 
 export interface EventResponse {

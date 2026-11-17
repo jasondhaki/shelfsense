@@ -1,4 +1,5 @@
 import logging
+import re
 import secrets
 from contextlib import asynccontextmanager
 
@@ -25,6 +26,53 @@ VERSION = "0.3.0"
 
 def _error(status: int, code: str, message: str) -> JSONResponse:
     return JSONResponse({"error": {"code": code, "message": message}}, status_code=status)
+
+
+MAX_BODY_BYTES = 6 * 1024 * 1024  # 5 MB image + multipart overhead; JSON bodies are tiny
+
+
+class BodyLimit:
+    """Reject request bodies over MAX_BODY_BYTES while streaming (Content-Length can be absent
+    or lie). Starlette spools uploads to disk with no size cap, and JSON is read into memory."""
+
+    def __init__(self, app) -> None:
+        self.app = app
+
+    async def __call__(self, scope, receive, send) -> None:
+        if scope["type"] != "http":
+            return await self.app(scope, receive, send)
+        seen = 0
+
+        async def limited():
+            nonlocal seen
+            msg = await receive()
+            seen += len(msg.get("body", b""))
+            if seen > MAX_BODY_BYTES:
+                raise HTTPException(413, "Request body is too large.")
+            return msg
+
+        declared = dict(scope["headers"]).get(b"content-length", b"0")
+        if declared.isdigit() and int(declared) > MAX_BODY_BYTES:
+            return await _error(413, "too_large", "Request body is too large.")(
+                scope, receive, send
+            )
+        await self.app(scope, limited, send)
+
+
+class _RedactTokens(logging.Filter):
+    """uvicorn logs WebSocket/request paths with their query string: keep ?token= out of logs."""
+
+    def filter(self, record: logging.LogRecord) -> bool:
+        if isinstance(record.args, tuple):
+            record.args = tuple(
+                TOKEN_RE.sub(r"\1***", a) if isinstance(a, str) else a for a in record.args
+            )
+        return True
+
+
+TOKEN_RE = re.compile(r"([?&]token=)[^&\s\"]+")
+for _name in ("uvicorn.access", "uvicorn.error"):
+    logging.getLogger(_name).addFilter(_RedactTokens())
 
 
 def create_app() -> FastAPI:
@@ -64,6 +112,7 @@ def create_app() -> FastAPI:
         await sessions.pause_all()
 
     app = FastAPI(title="ShelfSense", version=VERSION, lifespan=lifespan)
+    app.add_middleware(BodyLimit)  # added first = inside CORS, so a 413 still carries CORS headers
     app.add_middleware(
         CORSMiddleware,
         allow_origins=settings.cors_list,

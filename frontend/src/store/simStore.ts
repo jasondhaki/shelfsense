@@ -6,6 +6,7 @@ import type {
   AgentName,
   PoRow,
   ControlAction,
+  EventPayload,
   EventType,
   FormulaBreakdown,
   FrameId,
@@ -121,7 +122,7 @@ interface SimStore {
   applyTick(m: TickMessage): void
   toggleAgent(a: AgentName): void
   control(action: ControlAction, extra?: { scenario?: 'none' | 'demo' }): Promise<void>
-  triggerEvent(type: EventType, payload?: Record<string, unknown>): Promise<void>
+  triggerEvent(type: EventType, payload?: EventPayload): Promise<void>
   openFormula(skuId: string): Promise<void>
   closeFormula(): void
   setTab(t: 'procurement' | 'bundles'): void

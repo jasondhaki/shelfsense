@@ -86,15 +86,17 @@ def read_token(token: str | None, secret: str, now: float | None = None) -> str 
         return None
     payload, sig = token.split(".")
     want = _b64(hmac.new(secret.encode(), payload.encode(), hashlib.sha256).digest())
-    if not hmac.compare_digest(sig, want):
+    # bytes: compare_digest raises TypeError on non-ASCII str (a crafted token → 500)
+    if not hmac.compare_digest(sig.encode(), want.encode()):
         return None
     try:
         data = json.loads(_unb64(payload))
     except ValueError:
         return None
-    if data.get("exp", 0) < (now or time.time()):
+    if not isinstance(data, dict) or data.get("exp", 0) < (now or time.time()):
         return None
-    return data.get("uid")
+    uid = data.get("uid")
+    return uid if isinstance(uid, str) else None
 
 
 class LoginLimiter:
@@ -102,20 +104,29 @@ class LoginLimiter:
     on a demo without any extra service. ponytail: in-memory, per instance; move to the DB if
     the API ever runs on more than one instance."""
 
+    MAX_KEYS = 10_000  # bounds memory when someone sprays random emails
+
     def __init__(self, limit: int = 10, window_s: float = 900) -> None:
         self.limit = limit
         self.window_s = window_s
         self.fails: dict[str, deque[float]] = defaultdict(deque)
 
     def blocked(self, key: str, now: float | None = None) -> bool:
-        q = self.fails[key]
+        q = self.fails.get(key)  # .get: a lookup must not create an entry
+        if not q:
+            return False
         t = now or time.time()
         while q and q[0] < t - self.window_s:
             q.popleft()
         return len(q) >= self.limit
 
     def fail(self, key: str, now: float | None = None) -> None:
-        self.fails[key].append(now or time.time())
+        t = now or time.time()
+        if len(self.fails) >= self.MAX_KEYS and key not in self.fails:
+            cutoff = t - self.window_s
+            for k in [k for k, q in self.fails.items() if not q or q[-1] < cutoff]:
+                del self.fails[k]
+        self.fails[key].append(t)
 
     def clear(self, key: str) -> None:
         self.fails.pop(key, None)

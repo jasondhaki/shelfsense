@@ -178,9 +178,17 @@ class ControlResponse(BaseModel):
     speed: int
 
 
+class EventPayload(BaseModel):
+    """Typed so junk can't reach the engine, the event log or every WebSocket client."""
+
+    model_config = {"extra": "forbid"}
+    skus: list[str] | None = Field(None, max_length=8)  # cold_chain_delay; None = default SKUs
+    immediate: bool = False  # cold_chain_delay: emergency delivery now
+
+
 class EventRequest(BaseModel):
     type: EventType
-    payload: dict = {}
+    payload: EventPayload = EventPayload()
 
 
 class EventResponse(BaseModel):

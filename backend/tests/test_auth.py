@@ -89,3 +89,16 @@ def test_login_limiter():
     for _ in range(3):
         lim.fail("x", now)
     assert lim.blocked("x", now) and not lim.blocked("x", now + 61)
+
+
+def test_hostile_tokens_never_crash(client):
+    assert read_token("a.é", "s") is None  # non-ASCII signature used to raise TypeError
+    with client.websocket_connect("/ws/sim?session=hostile-token-1&token=a.%C3%A9") as ws:
+        assert ws.receive_json()["type"] == "hello"  # falls back to the guest session
+
+
+def test_limiter_lookups_do_not_grow_memory():
+    lim = LoginLimiter(limit=3, window_s=60)
+    for i in range(100):
+        lim.blocked(f"nobody{i}@example.com")
+    assert not lim.fails

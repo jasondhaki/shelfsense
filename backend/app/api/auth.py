@@ -19,6 +19,15 @@ from app.services.users import (
 router = APIRouter(prefix="/api/auth")
 EMAIL = re.compile(r"^[^@\s]+@[^@\s]+\.[^@\s]+$")
 limiter = LoginLimiter()
+# signups cost a 16 MB scrypt + a DB row: cap per client and overall per instance.
+# ponytail: client = first X-Forwarded-For hop (spoofable; the global cap is the real bound)
+signup_per_client = LoginLimiter(limit=10, window_s=3600)
+signup_global = LoginLimiter(limit=200, window_s=3600)
+
+
+def _client(request: Request) -> str:
+    xff = request.headers.get("x-forwarded-for", "").split(",")[0].strip()
+    return xff or (request.client.host if request.client else "?")
 
 
 def _email(v: str) -> str:
@@ -106,6 +115,11 @@ def _me(request: Request) -> User:
 
 @router.post("/signup", response_model=AuthResponse, status_code=201)
 def signup(body: SignupRequest, request: Request) -> AuthResponse:
+    who = _client(request)
+    if signup_per_client.blocked(who) or signup_global.blocked("all"):
+        raise HTTPException(429, "Too many sign-ups right now. Try again later.")
+    signup_per_client.fail(who)
+    signup_global.fail("all")
     try:
         u = _store(request).create(body.email, body.name, body.store, body.password)
     except EmailTaken:

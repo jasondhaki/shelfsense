@@ -60,6 +60,9 @@ def test_validation_error_envelope(client):
         "/api/sim/events", json={"type": "cold_chain_delay", "payload": {"skus": ["NOPE-01"]}}
     )
     assert r.status_code == 409
+    for bad in ({"skus": 5}, {"skus": None, "junk": "x"}, {"skus": [["x"]]}, {"immediate": "x"}):
+        r = client.post("/api/sim/events", json={"type": "cold_chain_delay", "payload": bad})
+        assert r.status_code == 422, bad  # used to be a 500, or junk stored + broadcast
 
 
 def test_formula(client):
@@ -185,3 +188,38 @@ def test_ui_fields_for_freshness_and_sparklines(client):
     last = s["chart"][-1]
     assert last["co2e_avoided_kg"] == pytest.approx(s["kpis"]["co2e_avoided_kg"])
     assert last["net_margin_recovered_usd"] == pytest.approx(s["kpis"]["net_margin_recovered_usd"])
+
+
+def test_oversized_bodies_rejected(client):
+    from app.main import MAX_BODY_BYTES
+
+    big = b"\xff\xd8\xff" + b"0" * (MAX_BODY_BYTES + 10)
+    r = client.post("/api/vision/scan", files={"file": ("x.jpg", big, "image/jpeg")})
+    assert r.status_code == 413
+
+    def chunks():  # no Content-Length: the streaming check must still stop it
+        for _ in range(7):
+            yield b"0" * (1024 * 1024)
+
+    r = client.post(
+        "/api/sim/events", content=chunks(), headers={"content-type": "application/json"}
+    )
+    assert r.status_code == 413
+
+
+def test_tokens_redacted_from_server_logs():
+    import logging
+
+    from app.main import _RedactTokens
+
+    rec = logging.LogRecord(
+        "uvicorn.error",
+        20,
+        "",
+        0,
+        '%s - "WebSocket %s"',
+        ("ip", "/ws/sim?session=x&token=abc.def"),
+        None,
+    )
+    _RedactTokens().filter(rec)
+    assert "abc.def" not in rec.getMessage() and "token=***" in rec.getMessage()

@@ -57,7 +57,7 @@ async def sim_control(body: ControlRequest, request: Request) -> ControlResponse
 @router.post("/sim/events", response_model=EventResponse)
 def sim_events(body: EventRequest, request: Request) -> EventResponse:
     try:
-        tick = ctl(request).queue_event(body.type, body.payload)
+        tick = ctl(request).queue_event(body.type, body.payload.model_dump(exclude_defaults=True))
     except EventRejected as e:
         raise HTTPException(409, str(e)) from None
     return EventResponse(queued=True, apply_at_tick=tick)
