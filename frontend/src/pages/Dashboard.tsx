@@ -99,7 +99,7 @@ export default function Dashboard() {
             history={series(ch, 'reduction')}
             Icon={Sprout}
             tile="bg-mint text-accent"
-            color="#0F7B57"
+            color="rgb(var(--c-accent))"
             hint="Food wasted by this store vs its baseline twin, same shoppers"
           />
           <StatCard
@@ -109,7 +109,7 @@ export default function Dashboard() {
             change={change('diverted', (n) => `${n.toFixed(1)} kg`)}
             history={series(ch, 'diverted')}
             Icon={ShoppingBasket}
-            tile="bg-[#DDF4F1] text-[#0F766E]"
+            tile="bg-[#DDF4F1] text-[#0F766E] dark:bg-teal-400/15 dark:text-teal-300"
             color="#14B8A6"
             hint="Kilograms the baseline store threw away that this store sold instead"
           />
@@ -120,7 +120,7 @@ export default function Dashboard() {
             change={change('co2e', (n) => `${n.toFixed(1)} kg`)}
             history={series(ch, 'co2e')}
             Icon={Cloud}
-            tile="bg-[#EFE9FE] text-[#7C3AED]"
+            tile="bg-[#EFE9FE] text-[#7C3AED] dark:bg-violet-400/15 dark:text-violet-300"
             color="#A78BFA"
             hint="Diverted food × category emission factors (Poore & Nemecek 2018)"
           />
@@ -131,7 +131,7 @@ export default function Dashboard() {
             change={change('margin', (n) => usd(n))}
             history={series(ch, 'margin')}
             Icon={CircleDollarSign}
-            tile="bg-[#FEF3C7] text-[#B45309]"
+            tile="bg-[#FEF3C7] text-[#B45309] dark:bg-amber-400/15 dark:text-amber-300"
             color="#F59E0B"
             hint="Gross margin of this store minus the baseline store's"
           />

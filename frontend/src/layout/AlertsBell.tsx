@@ -27,7 +27,7 @@ export default function AlertsBell() {
         <Bell size={24} aria-hidden strokeWidth={1.8} />
         {alerts.length > 0 && (
           <span
-            className={`absolute right-1 top-1 grid h-5 min-w-5 place-items-center rounded-full px-1 text-[10px] font-bold text-white ${urgent ? 'bg-crit' : 'bg-accent'}`}
+            className={`absolute right-1 top-1 grid h-5 min-w-5 place-items-center rounded-full px-1 text-[10px] font-bold text-white dark:text-forest-950 ${urgent ? 'bg-crit' : 'bg-accent'}`}
             aria-hidden
           >
             {alerts.length}

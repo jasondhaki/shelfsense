@@ -73,7 +73,7 @@ export default function FreshnessHero() {
         )}
       </div>
 
-      <div className="absolute inset-x-3 bottom-3 rounded-xl sm:inset-x-auto sm:bottom-auto sm:right-4 sm:top-4 sm:max-w-[300px] border border-white/60 bg-white/85 p-3 shadow-card backdrop-blur-md">
+      <div className="absolute inset-x-3 bottom-3 rounded-xl sm:inset-x-auto sm:bottom-auto sm:right-4 sm:top-4 sm:max-w-[300px] border border-white/60 bg-white/85 p-3 dark:border-white/10 dark:bg-panel/85 shadow-card backdrop-blur-md">
         <div className="flex items-center gap-1.5 text-sm font-bold">
           Freshness scanner
           <span className="font-semibold text-muted">|</span>

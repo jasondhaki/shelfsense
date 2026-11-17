@@ -2,6 +2,63 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Colour tokens as RGB channels so Tailwind's /alpha modifiers work. Light = frontend.jpg,
+   dark = darkTheme.jpg (text tokens keep 4.5:1 on panel and bg in both). */
+:root {
+  --c-bg: 238 243 240;
+  --c-panel: 255 255 255;
+  --c-panel-2: 244 247 245;
+  --c-line: 221 230 225;
+  --c-text: 15 42 31;
+  --c-muted: 86 103 94;
+  --c-ok: 21 128 61;
+  --c-warn: 180 83 9;
+  --c-crit: 185 28 28;
+  --c-accent: 15 123 87;
+  --c-baseline: 135 150 166;
+  --c-chart-a: 135 150 166;
+  --c-mint: 220 245 232;
+  --c-grid: 231 238 234;
+  --c-forest-950: 6 38 28;
+  --c-forest-900: 10 51 39;
+  --c-forest-800: 14 66 50;
+  --c-forest-700: 21 90 67;
+  --c-forest-600: 30 117 86;
+  --c-agent-vision: 124 58 237;
+  --c-agent-rag: 15 118 110;
+  --c-agent-demand: 3 105 161;
+  --c-agent-pricing: 180 83 9;
+  --c-agent-procurement: 77 124 15;
+  color-scheme: light;
+}
+.dark {
+  --c-bg: 10 16 13;
+  --c-panel: 17 26 21;
+  --c-panel-2: 22 33 27;
+  --c-line: 38 53 45;
+  --c-text: 230 240 234;
+  --c-muted: 148 167 156;
+  --c-ok: 74 222 128;
+  --c-warn: 251 191 36;
+  --c-crit: 248 113 113;
+  --c-accent: 74 222 128;
+  --c-baseline: 135 150 166;
+  --c-chart-a: 135 150 166;
+  --c-mint: 21 48 31;
+  --c-grid: 31 43 36;
+  --c-forest-950: 7 12 9;
+  --c-forest-900: 12 22 17;
+  --c-forest-800: 26 107 55;
+  --c-forest-700: 33 122 64;
+  --c-forest-600: 42 148 80;
+  --c-agent-vision: 167 139 250;
+  --c-agent-rag: 45 212 191;
+  --c-agent-demand: 56 189 248;
+  --c-agent-pricing: 251 191 36;
+  --c-agent-procurement: 163 230 53;
+  color-scheme: dark;
+}
+
 html,
 body,
 #root {
@@ -15,13 +72,13 @@ body {
 
 @layer components {
   .zone {
-    @apply rounded-2xl border border-line/70 bg-panel shadow-card;
+    @apply rounded-2xl border border-line/70 bg-panel shadow-card dark:shadow-none;
   }
   .btn {
     @apply inline-flex items-center gap-1.5 rounded-full border border-line bg-panel px-3 py-1.5 text-xs font-semibold text-text transition-colors hover:border-accent/60 hover:text-accent disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:border-line disabled:hover:text-text;
   }
   .btn-primary {
-    @apply inline-flex items-center gap-1.5 rounded-full bg-forest-800 px-3.5 py-1.5 text-xs font-semibold text-white transition-colors hover:bg-forest-700 disabled:cursor-not-allowed disabled:opacity-50;
+    @apply inline-flex items-center gap-1.5 rounded-full bg-forest-800 px-3.5 py-1.5 text-xs font-semibold text-white transition-colors hover:bg-forest-700 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-accent dark:text-forest-950 dark:hover:bg-accent/85;
   }
   .btn-icon {
     @apply grid h-8 w-8 place-items-center rounded-full border border-line bg-panel text-text transition-colors hover:border-accent/60 hover:text-accent disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:border-line disabled:hover:text-text;
@@ -60,7 +117,7 @@ body {
 }
 
 :focus-visible {
-  outline: 2px solid theme('colors.accent');
+  outline: 2px solid rgb(var(--c-accent));
   outline-offset: 2px;
 }
 

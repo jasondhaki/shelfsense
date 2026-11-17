@@ -17,15 +17,17 @@ import type { ChartPoint, EslView } from '../types/contracts'
 
 // Validated with the dataviz script on #FFFFFF: green/violet pass all checks; the baseline is a
 // deliberately recessive grey, always dashed and labelled (secondary encoding).
-const GREEN = '#0F7B57'
-const VIOLET = '#7C3AED'
-const GREY = '#8796A6'
-const GRID = '#E7EEEA'
-const AXIS = { fontSize: 11, fill: '#56675E' }
+const GREEN = 'rgb(var(--c-accent))'
+const VIOLET = 'rgb(var(--c-agent-vision))'
+const GREY = 'rgb(var(--c-chart-a))'
+const GRID = 'rgb(var(--c-grid))'
+const AXIS = { fontSize: 11, fill: 'rgb(var(--c-muted))' }
 
 const tipStyle = {
   borderRadius: 12,
-  border: '1px solid #DDE6E1',
+  border: '1px solid rgb(var(--c-line))',
+  background: 'rgb(var(--c-panel))',
+  color: 'rgb(var(--c-text))',
   boxShadow: '0 8px 24px -12px rgba(15,42,31,0.25)',
   fontSize: 12,
 }
@@ -99,7 +101,7 @@ export default function DemandWasteCard({ esl, chart }: { esl: EslView[]; chart:
               <YAxis tick={AXIS} tickLine={false} axisLine={false} allowDecimals={false} />
               <Tooltip
                 contentStyle={tipStyle}
-                cursor={{ fill: 'rgba(15,123,87,0.06)' }}
+                cursor={{ fill: 'rgb(var(--c-accent) / 0.06)' }}
                 labelFormatter={(_, p) => (p?.[0]?.payload as { full?: string } | undefined)?.full ?? ''}
               />
               <Legend iconType="circle" iconSize={8} wrapperStyle={{ fontSize: 12 }} />

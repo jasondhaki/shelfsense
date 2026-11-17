@@ -14,10 +14,10 @@ import type { ChartPoint } from '../types/contracts'
 
 // Checked with the dataviz validator on #FFFFFF: normal-vision ΔE 18.4, CVD ΔE 14.3, contrast ≥ 3:1.
 // The baseline is a deliberately recessive grey (low chroma), always dashed and labelled.
-const A = '#8796A6'
-const B = '#0F7B57'
-const GRID = '#E7EEEA'
-const MUTED = '#56675E'
+const A = 'rgb(var(--c-chart-a))'
+const B = 'rgb(var(--c-accent))'
+const GRID = 'rgb(var(--c-grid))'
+const MUTED = 'rgb(var(--c-muted))'
 
 interface TipProps {
   active?: boolean
@@ -144,7 +144,7 @@ function endLabel(
   const higher = v > other || (v === other && name === 'Baseline')
   const dy = close && higher ? -17 : -5
   return (
-    <text x={p.x + 6} y={p.y} dy={dy} fontSize={10} fill="#0F2A1F" fontFamily="JetBrains Mono, monospace">
+    <text x={p.x + 6} y={p.y} dy={dy} fontSize={10} fill="rgb(var(--c-text))" fontFamily="JetBrains Mono, monospace">
       {name} {v.toFixed(v < 10 ? 1 : 0)} kg
     </text>
   )

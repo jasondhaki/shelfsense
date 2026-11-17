@@ -2,6 +2,7 @@ import { ChevronDown, MapPin } from 'lucide-react'
 import { greeting } from '../lib/insights'
 import { simClock } from '../lib/format'
 import { useSim } from '../store/simStore'
+import ThemeToggle from '../components/ThemeToggle'
 import AlertsBell from './AlertsBell'
 import ProfileMenu from './ProfileMenu'
 
@@ -80,8 +81,9 @@ export default function TopBar() {
         </span>
       </div>
 
-      <div className="order-2 flex items-center gap-2 sm:gap-4 lg:order-3">
+      <div className="order-2 flex items-center gap-1 sm:gap-3 lg:order-3">
         <span className="hidden h-8 w-px bg-line lg:block" aria-hidden />
+        <ThemeToggle />
         <AlertsBell />
         <ProfileMenu />
       </div>

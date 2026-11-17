@@ -17,7 +17,7 @@ export default function Gauge({ value, target }: { value: number | null; target:
           cy="60"
           r={R}
           fill="none"
-          stroke="#DDE6E1"
+          stroke="rgb(var(--c-line))"
           strokeWidth="10"
           strokeLinecap="round"
           strokeDasharray={`${C * ARC} ${C}`}
@@ -28,14 +28,14 @@ export default function Gauge({ value, target }: { value: number | null; target:
           cy="60"
           r={R}
           fill="none"
-          stroke="#0E4232"
+          stroke="rgb(var(--c-forest-800))"
+          className="transition-[stroke-dasharray] duration-500 dark:!stroke-accent"
           strokeWidth="10"
           strokeLinecap="round"
           strokeDasharray={`${C * ARC * v} ${C}`}
           transform="rotate(135 60 60)"
-          className="transition-[stroke-dasharray] duration-500"
         />
-        <circle cx={tx} cy={ty} r="3.5" fill="#FFFFFF" stroke="#B45309" strokeWidth="2" />
+        <circle cx={tx} cy={ty} r="3.5" fill="rgb(var(--c-panel))" stroke="rgb(var(--c-warn))" strokeWidth="2" />
       </svg>
       <div className="absolute inset-0 flex flex-col items-center justify-center pt-1">
         <span className="text-3xl font-extrabold tracking-tight">{value === null ? '—' : `${value.toFixed(1)}%`}</span>

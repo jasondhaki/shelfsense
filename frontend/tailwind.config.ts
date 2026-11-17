@@ -1,37 +1,38 @@
 import type { Config } from 'tailwindcss'
 
 export default {
+  darkMode: 'class',
   content: ['./index.html', './src/**/*.{ts,tsx}'],
   theme: {
     extend: {
       colors: {
-        // Light "fresh market" theme (frontend.jpg). Text tokens meet 4.5:1 on panel and bg.
-        bg: '#EEF3F0',
-        panel: '#FFFFFF',
-        'panel-2': '#F4F7F5',
-        line: '#DDE6E1',
-        text: '#0F2A1F',
-        muted: '#56675E',
-        ok: '#15803D',
-        warn: '#B45309',
-        crit: '#B91C1C',
-        accent: '#0F7B57',
-        baseline: '#8796A6',
-        'chart-a': '#8796A6',
-        mint: '#DCF5E8',
+        // Tokens live in src/index.css (:root = light, .dark = dark) so one class name serves both themes.
+        bg: 'rgb(var(--c-bg) / <alpha-value>)',
+        panel: 'rgb(var(--c-panel) / <alpha-value>)',
+        'panel-2': 'rgb(var(--c-panel-2) / <alpha-value>)',
+        line: 'rgb(var(--c-line) / <alpha-value>)',
+        text: 'rgb(var(--c-text) / <alpha-value>)',
+        muted: 'rgb(var(--c-muted) / <alpha-value>)',
+        ok: 'rgb(var(--c-ok) / <alpha-value>)',
+        warn: 'rgb(var(--c-warn) / <alpha-value>)',
+        crit: 'rgb(var(--c-crit) / <alpha-value>)',
+        accent: 'rgb(var(--c-accent) / <alpha-value>)',
+        baseline: 'rgb(var(--c-baseline) / <alpha-value>)',
+        'chart-a': 'rgb(var(--c-chart-a) / <alpha-value>)',
+        mint: 'rgb(var(--c-mint) / <alpha-value>)',
         forest: {
-          950: '#06261C',
-          900: '#0A3327',
-          800: '#0E4232',
-          700: '#155A43',
-          600: '#1E7556',
+          950: 'rgb(var(--c-forest-950) / <alpha-value>)',
+          900: 'rgb(var(--c-forest-900) / <alpha-value>)',
+          800: 'rgb(var(--c-forest-800) / <alpha-value>)',
+          700: 'rgb(var(--c-forest-700) / <alpha-value>)',
+          600: 'rgb(var(--c-forest-600) / <alpha-value>)',
         },
         agent: {
-          vision: '#7C3AED',
-          rag: '#0F766E',
-          demand: '#0369A1',
-          pricing: '#B45309',
-          procurement: '#4D7C0F',
+          vision: 'rgb(var(--c-agent-vision) / <alpha-value>)',
+          rag: 'rgb(var(--c-agent-rag) / <alpha-value>)',
+          demand: 'rgb(var(--c-agent-demand) / <alpha-value>)',
+          pricing: 'rgb(var(--c-agent-pricing) / <alpha-value>)',
+          procurement: 'rgb(var(--c-agent-procurement) / <alpha-value>)',
         },
       },
       fontFamily: {

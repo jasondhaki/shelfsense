@@ -13,9 +13,10 @@ import {
 import { useEffect, useId, useState, type FormEvent, type ReactNode } from 'react'
 import type { LucideIcon } from 'lucide-react'
 import { api } from '../lib/api'
+import ThemeToggle from '../components/ThemeToggle'
 import { useSim } from '../store/simStore'
 
-/** Light login from the owner's mock (login.jpg): form left, produce photo behind a green wave
+/** Login from the owner's mock (login.jpg, light and dark rows): form left, produce photo behind a green wave
  *  right; on phones the photo becomes a corner blob. The mock's Google/Microsoft row is replaced
  *  by "Continue as guest" (no OAuth here), and "Forgot your password?" is a real email-code reset. */
 
@@ -74,7 +75,7 @@ function Pill({
       <input
         {...input}
         placeholder={label}
-        className="h-12 w-full rounded-full border border-[#CFE3D5] bg-white pl-11 pr-12 text-[15px] text-text placeholder:text-muted/90 focus:border-[#3DBE4F] focus:outline-none focus:ring-4 focus:ring-[#3DBE4F]/15"
+        className="h-12 w-full rounded-full border border-[#CFE3D5] bg-white pl-11 dark:border-white/20 dark:bg-white/[0.03] pr-12 text-[15px] text-text placeholder:text-muted/90 focus:border-[#3DBE4F] focus:outline-none focus:ring-4 focus:ring-[#3DBE4F]/15"
       />
       {trailing && <span className="absolute right-2 top-1/2 -translate-y-1/2">{trailing}</span>}
     </label>
@@ -147,9 +148,9 @@ function PhotoPanel() {
             <stop offset="1" stopColor="#7EE891" />
           </linearGradient>
         </defs>
-        <path d={wave(48)} fill="#C9F7D2" opacity=".85" />
+        <path d={wave(48)} fill="#C9F7D2" opacity=".85" className="dark:fill-[#14532D]" />
         <path d={wave(28)} fill={`url(#${id})`} />
-        <path d={wave(0)} fill="#fff" />
+        <path d={wave(0)} className="fill-white dark:fill-[#07130D]" />
       </svg>
     </div>
   )
@@ -283,16 +284,16 @@ export default function AuthScreen() {
       }
 
   return (
-    <div className="relative min-h-full overflow-hidden bg-[#F3FAF5] sm:px-6 sm:py-8 lg:grid lg:place-items-center lg:px-10">
+    <div className="relative min-h-full overflow-hidden bg-[#F3FAF5] dark:bg-[#04110A] sm:px-6 sm:py-8 lg:grid lg:place-items-center lg:px-10">
       {/* soft page swooshes, as in the mock's background */}
-      <div className="pointer-events-none absolute -right-40 -top-40 hidden h-[520px] w-[520px] rounded-full bg-[#86EFAC]/35 blur-3xl sm:block" aria-hidden />
-      <div className="pointer-events-none absolute -bottom-48 -left-40 hidden h-[520px] w-[520px] rounded-full bg-[#BBF7D0]/50 blur-3xl sm:block" aria-hidden />
+      <div className="pointer-events-none absolute -right-40 -top-40 hidden h-[520px] w-[520px] rounded-full bg-[#86EFAC]/35 blur-3xl dark:bg-[#22C55E]/20 sm:block" aria-hidden />
+      <div className="pointer-events-none absolute -bottom-48 -left-40 hidden h-[520px] w-[520px] rounded-full bg-[#BBF7D0]/50 blur-3xl dark:bg-[#15803D]/25 sm:block" aria-hidden />
 
-      <main className="relative mx-auto grid min-h-[100dvh] w-full overflow-hidden bg-white sm:min-h-0 sm:max-w-md sm:rounded-[32px] sm:border-2 sm:border-[#7EE891]/70 sm:shadow-[0_30px_80px_-30px_rgba(21,128,61,0.35)] lg:min-h-[640px] lg:max-w-[1120px] lg:grid-cols-[minmax(0,1fr)_minmax(0,1.05fr)]">
+      <main className="relative mx-auto grid min-h-[100dvh] w-full overflow-hidden bg-white dark:bg-[#07130D] sm:min-h-0 sm:max-w-md sm:rounded-[32px] sm:border-2 sm:border-[#7EE891]/70 sm:shadow-[0_30px_80px_-30px_rgba(21,128,61,0.35)] dark:sm:border-[#4ADE80]/70 dark:sm:shadow-[0_0_60px_-20px_rgba(74,222,128,0.45)] lg:min-h-[640px] lg:max-w-[1120px] lg:grid-cols-[minmax(0,1fr)_minmax(0,1.05fr)]">
         <PhotoBlob />
         {/* bottom swoosh on phones */}
         <svg className="pointer-events-none absolute -bottom-1 left-0 h-14 w-full lg:hidden" viewBox="0 0 400 60" preserveAspectRatio="none" aria-hidden>
-          <path d="M0,60 V38 C90,18 170,58 260,40 C320,28 360,8 400,0 V60 Z" fill="#BBF7D0" />
+          <path d="M0,60 V38 C90,18 170,58 260,40 C320,28 360,8 400,0 V60 Z" fill="#BBF7D0" className="dark:fill-[#14532D]" />
           <path d="M0,60 V48 C100,30 180,62 270,50 C330,42 370,24 400,16 V60 Z" fill="#3DBE4F" opacity=".55" />
         </svg>
 
@@ -372,12 +373,12 @@ export default function AuthScreen() {
             ) : (
               <div className="text-center">
                 <div className="my-5 flex items-center gap-3 text-sm text-text/70" aria-hidden>
-                  <span className="h-px flex-1 bg-[#D7E7DC]" /> or <span className="h-px flex-1 bg-[#D7E7DC]" />
+                  <span className="h-px flex-1 bg-[#D7E7DC] dark:bg-white/15" /> or <span className="h-px flex-1 bg-[#D7E7DC] dark:bg-white/15" />
                 </div>
                 <button
                   type="button"
                   onClick={continueAsGuest}
-                  className="flex h-12 w-full items-center justify-center gap-2 rounded-full border-2 border-[#3DBE4F]/45 bg-white text-[15px] font-bold text-text transition hover:border-[#3DBE4F] hover:bg-mint/60 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[#3DBE4F]/25"
+                  className="flex h-12 w-full items-center justify-center gap-2 rounded-full border-2 border-[#3DBE4F]/45 bg-white text-[15px] dark:bg-transparent font-bold text-text transition hover:border-[#3DBE4F] hover:bg-mint/60 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[#3DBE4F]/25"
                 >
                   <UserRound size={18} aria-hidden /> Continue as guest <ArrowRight size={16} aria-hidden />
                 </button>
@@ -400,6 +401,7 @@ export default function AuthScreen() {
         </section>
 
         <PhotoPanel />
+        <ThemeToggle className="absolute left-3 top-3 z-20 grid h-10 w-10 place-items-center rounded-full bg-panel/80 text-text shadow-sm backdrop-blur hover:bg-panel" />
       </main>
     </div>
   )
