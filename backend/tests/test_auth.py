@@ -102,3 +102,55 @@ def test_limiter_lookups_do_not_grow_memory():
     for i in range(100):
         lim.blocked(f"nobody{i}@example.com")
     assert not lim.fails
+
+
+def test_logout_revokes_every_token(client):
+    r = signup(client, "logout@example.com")
+    old = r.json()["token"]
+    other_device = client.post(
+        "/api/auth/login", json={"email": "logout@example.com", "password": "correct horse"}
+    ).json()["token"]
+    auth = {"Authorization": f"Bearer {old}"}
+    assert client.post("/api/auth/logout", headers=auth).status_code == 204
+    for t in (old, other_device):  # both devices are signed out
+        assert (
+            client.get("/api/auth/me", headers={"Authorization": f"Bearer {t}"}).status_code == 401
+        )
+    fresh = client.post(
+        "/api/auth/login", json={"email": "logout@example.com", "password": "correct horse"}
+    ).json()["token"]  # signing back in right away works
+    assert (
+        client.get("/api/auth/me", headers={"Authorization": f"Bearer {fresh}"}).status_code == 200
+    )
+    assert client.post("/api/auth/logout").status_code == 401
+
+
+def test_signup_limit_keys_on_edge_ip_not_forwarded_for(client):
+    from app.api import auth
+
+    auth.signup_per_client.fails.clear()
+    for i in range(10):  # a rotating X-Forwarded-For must not reset the per-client count
+        h = {"X-Forwarded-For": f"10.0.0.{i}", "CF-Connecting-IP": "203.0.113.9"}
+        client.post(
+            "/api/auth/signup",
+            json={
+                "email": f"rl{i}@example.com",
+                "password": "correct horse",
+                "name": "A",
+                "store": "B",
+            },
+            headers=h,
+        )
+    h = {"X-Forwarded-For": "10.9.9.9", "CF-Connecting-IP": "203.0.113.9"}
+    r = client.post(
+        "/api/auth/signup",
+        json={
+            "email": "rl-last@example.com",
+            "password": "correct horse",
+            "name": "A",
+            "store": "B",
+        },
+        headers=h,
+    )
+    assert r.status_code == 429
+    auth.signup_per_client.fails.clear()

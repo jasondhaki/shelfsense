@@ -62,6 +62,8 @@ export const api = {
   signup: (body: SignupRequest) =>
     request<AuthResponse>('/auth/signup', { method: 'POST', body: JSON.stringify(body) }),
   login: (body: LoginRequest) => request<AuthResponse>('/auth/login', { method: 'POST', body: JSON.stringify(body) }),
+  /** Signs this user out on every device (server revokes all tokens issued so far). */
+  logout: () => request<null>('/auth/logout', { method: 'POST' }),
   me: () => request<UserOut>('/auth/me'),
   updateMe: (body: ProfileUpdate) => request<UserOut>('/auth/me', { method: 'PATCH', body: JSON.stringify(body) }),
   state: () => request<SimSnapshot>('/sim/state'),

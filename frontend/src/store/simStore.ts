@@ -134,7 +134,7 @@ interface SimStore {
   signIn(email: string, password: string): Promise<string | null>
   signUp(body: SignupRequest): Promise<string | null>
   continueAsGuest(): void
-  signOut(): void
+  signOut(): Promise<void>
   exportReport(): Promise<void>
   dismissNotice(): void
   selectFrame(id: FrameId): void
@@ -324,7 +324,8 @@ export const useSim = create<SimStore>()((set, get) => ({
     set({ auth: 'guest', user: null, profile: guestProfile() })
   },
 
-  signOut: () => {
+  signOut: async () => {
+    await api.logout().catch(() => undefined) // offline: still sign out here
     setToken(null)
     store('session')?.removeItem(GUEST_KEY)
     location.hash = ''

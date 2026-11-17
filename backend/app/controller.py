@@ -226,7 +226,9 @@ SHARED = "shared"
 class Sessions:
     """One SimController per browser session (X-Session-Id header / ?session= on the WebSocket).
     Requests without a valid id share one simulation. LRU-capped so a free instance's memory
-    stays bounded; an evicted session's loop is paused."""
+    stays bounded; an evicted session's loop is paused. Guests (any id) and signed-in users
+    (`u-` keys, only reachable with a valid token) have separate caps, so minting guest ids
+    can't push out a user's run; within a pool, runs nobody is watching go first."""
 
     def __init__(self, factory, cap: int = 25) -> None:
         self.factory = factory
@@ -238,11 +240,17 @@ class Sessions:
         c = self.items.get(key)
         if c is None:
             c = self.items[key] = self.factory()
-            while len(self.items) > self.cap:
-                _, old = self.items.popitem(last=False)
-                old.playing = False  # its loop exits at the next tick boundary
+            self._evict(key)
         self.items.move_to_end(key)
         return c
+
+    def _evict(self, new: str) -> None:
+        users = new.startswith("u-")
+        pool = [k for k in self.items if k.startswith("u-") == users and k != new]  # oldest 1st
+        for _ in range(len(pool) + 1 - self.cap):
+            victim = next((k for k in pool if not self.items[k].subscribers), pool[0])
+            pool.remove(victim)
+            self.items.pop(victim).playing = False  # its loop exits at the next tick boundary
 
     async def pause_all(self) -> None:
         for c in self.items.values():

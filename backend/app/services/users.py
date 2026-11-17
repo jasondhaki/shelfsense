@@ -28,9 +28,13 @@ SCHEMA = """CREATE TABLE IF NOT EXISTS users (
     name TEXT NOT NULL,
     store TEXT NOT NULL,
     password_hash TEXT NOT NULL,
-    created_at DOUBLE PRECISION NOT NULL
+    created_at DOUBLE PRECISION NOT NULL,
+    sessions_after DOUBLE PRECISION NOT NULL DEFAULT 0
 )"""
+# tables made before sign-out existed; SQLite has no ADD COLUMN IF NOT EXISTS, so try and ignore
+MIGRATE = "ALTER TABLE users ADD COLUMN sessions_after DOUBLE PRECISION NOT NULL DEFAULT 0"
 FIELDS = "id, email, name, store, password_hash"
+REVOKE_CACHE_S = 600  # sign-out updates the cache directly, so this only bounds DB reads
 
 
 @dataclass
@@ -64,6 +68,10 @@ def verify_password(password: str, stored: str) -> bool:
     return hmac.compare_digest(got.hex(), digest)
 
 
+# verified when the email is unknown, so a failed login takes the same time either way
+DUMMY_HASH = hash_password(secrets.token_urlsafe(16))
+
+
 def _b64(b: bytes) -> str:
     return base64.urlsafe_b64encode(b).rstrip(b"=").decode()
 
@@ -73,15 +81,22 @@ def _unb64(s: str) -> bytes:
 
 
 def make_token(user_id: str, secret: str, now: float | None = None) -> str:
-    payload = _b64(
-        json.dumps({"uid": user_id, "exp": int((now or time.time()) + TOKEN_TTL_S)}).encode()
-    )
+    t = now or time.time()
+    claims = {"uid": user_id, "iat": t, "exp": int(t + TOKEN_TTL_S)}
+    payload = _b64(json.dumps(claims).encode())
     sig = _b64(hmac.new(secret.encode(), payload.encode(), hashlib.sha256).digest())
     return f"{payload}.{sig}"
 
 
 def read_token(token: str | None, secret: str, now: float | None = None) -> str | None:
     """The user id inside a valid, unexpired token, else None."""
+    claims = read_claims(token, secret, now)
+    return claims["uid"] if claims else None
+
+
+def read_claims(token: str | None, secret: str, now: float | None = None) -> dict | None:
+    """{uid, iat} from a valid, unexpired token, else None. Tokens from before sign-out
+    existed carry no iat: they read as 0, so a later sign-out still revokes them."""
     if not token or token.count(".") != 1:
         return None
     payload, sig = token.split(".")
@@ -95,8 +110,10 @@ def read_token(token: str | None, secret: str, now: float | None = None) -> str 
         return None
     if not isinstance(data, dict) or data.get("exp", 0) < (now or time.time()):
         return None
-    uid = data.get("uid")
-    return uid if isinstance(uid, str) else None
+    uid, iat = data.get("uid"), data.get("iat", 0)
+    if not isinstance(uid, str) or not isinstance(iat, (int, float)):
+        return None
+    return {"uid": uid, "iat": float(iat)}
 
 
 class LoginLimiter:
@@ -147,6 +164,12 @@ class UserStore:
         if not self.pg:
             sqlite_path.parent.mkdir(parents=True, exist_ok=True)
         self._exec(SCHEMA)
+        try:
+            self._exec(MIGRATE)
+        except Exception as e:  # column already there (fresh table or migrated before)
+            if "duplicate" not in str(e).lower() and "already exists" not in str(e).lower():
+                raise
+        self._after: dict[str, tuple[float, float]] = {}  # uid -> (sessions_after, read at)
 
     @property
     def backend(self) -> str:
@@ -190,3 +213,29 @@ class UserStore:
 
     def update_profile(self, user_id: str, name: str, store: str) -> None:
         self._exec("UPDATE users SET name = ?, store = ? WHERE id = ?", (name, store, user_id))
+
+    # --- sign-out (token revocation) --------------------------------------------------
+
+    def sign_out_everywhere(self, user_id: str, now: float | None = None) -> None:
+        """Every token issued before now stops working, on every device."""
+        t = now or time.time()
+        self._exec("UPDATE users SET sessions_after = ? WHERE id = ?", (t, user_id))
+        self._after[user_id] = (t, time.monotonic())
+
+    def revoked(self, user_id: str, issued_at: float) -> bool:
+        """True when the token was issued before this user's last sign-out. Cached so routing
+        a request rarely touches the DB. ponytail: per-process cache; with several instances
+        a sign-out reaches the others within REVOKE_CACHE_S."""
+        hit = self._after.get(user_id)
+        if hit is None or time.monotonic() - hit[1] > REVOKE_CACHE_S:
+            try:
+                rows = self._exec(
+                    "SELECT sessions_after FROM users WHERE id = ?", (user_id,), fetch=True
+                )
+            except Exception as e:  # DB blip: keep the last known value rather than sign out
+                log.warning("sign-out check failed: %s", e)
+                return bool(hit and issued_at < hit[0])
+            if not rows:
+                return True  # account no longer exists
+            hit = self._after[user_id] = (float(rows[0][0]), time.monotonic())
+        return issued_at < hit[0]

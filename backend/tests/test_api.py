@@ -154,6 +154,7 @@ def test_session_cap_evicts_least_recent():
 
     class Fake:
         playing = True
+        subscribers: set = set()
 
     s = Sessions(lambda: made.append(Fake()) or made[-1], cap=2)
     first = s.get("session-0001")
@@ -223,3 +224,22 @@ def test_tokens_redacted_from_server_logs():
     )
     _RedactTokens().filter(rec)
     assert "abc.def" not in rec.getMessage() and "token=***" in rec.getMessage()
+
+
+def test_guest_churn_cannot_evict_signed_in_or_watched_runs():
+    from app.controller import Sessions
+
+    class Fake:
+        def __init__(self):
+            self.subscribers = set()
+            self.playing = True
+
+    s = Sessions(Fake, cap=3)
+    user = s.get("u-" + "a" * 32)
+    watched = s.get("guest-watched-1")
+    watched.subscribers.add(object())
+    for i in range(20):
+        s.get(f"guest-churn-{i:04d}")
+    assert s.items["u-" + "a" * 32] is user and user.playing
+    assert s.items["guest-watched-1"] is watched
+    assert sum(not k.startswith("u-") for k in s.items) == 3
