@@ -200,13 +200,6 @@ works too (llama.cpp's `llama-server`, LM Studio): `LLM_PROVIDER=openai_compat`,
   same Postgres as `DATABASE_URL`) and `scripts.sync_neo4j` (the knowledge graph into Neo4j AuraDB
   Free or a local Neo4j). The app itself reads the committed files, so neither is required.
 
-### Share your local copy
-
-Run backend and frontend as above, then expose the Vite port with a free tunnel:
-`cloudflared tunnel --url http://localhost:5173` (or `ngrok http 5173`). The Vite proxy forwards
-`/api` and `/ws`, so one tunnel serves the whole app; Vite already allows `*.trycloudflare.com`
-and `*.ngrok-free.app` hosts.
-
 ## Data and credits
 
 | Source | Used for |
