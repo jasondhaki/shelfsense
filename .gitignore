@@ -29,3 +29,6 @@ Thumbs.db
 
 # Local analytics warehouse (scripts/export_warehouse.py)
 backend/data/warehouse/
+
+# hackathon scoring rubric (private)
+project_submission_scoring_rubric.md
