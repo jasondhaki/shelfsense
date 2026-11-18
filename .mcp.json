@@ -2,11 +2,60 @@
   "mcpServers": {
     "shelfsense-sim": {
       "command": "uv",
-      "args": ["run", "--directory", "backend", "python", "-m", "app.mcp.sim_server"]
+      "args": [
+        "run",
+        "--directory",
+        "backend",
+        "python",
+        "-m",
+        "app.mcp.sim_server"
+      ]
     },
     "shelfsense-knowledge": {
       "command": "uv",
-      "args": ["run", "--directory", "backend", "python", "-m", "app.mcp.knowledge_server"]
+      "args": [
+        "run",
+        "--directory",
+        "backend",
+        "python",
+        "-m",
+        "app.mcp.knowledge_server"
+      ]
+    },
+    "shelfsense-vision": {
+      "command": "uv",
+      "args": [
+        "run",
+        "--directory",
+        "backend",
+        "python",
+        "-m",
+        "app.mcp.vision_server"
+      ]
+    },
+    "shelfsense-demand": {
+      "command": "uv",
+      "args": [
+        "run",
+        "--directory",
+        "backend",
+        "python",
+        "-m",
+        "app.mcp.demand_server"
+      ]
+    },
+    "shelfsense-warehouse": {
+      "command": "uv",
+      "args": [
+        "run",
+        "--directory",
+        "backend",
+        "--group",
+        "seed",
+        "python",
+        "-m",
+        "app.mcp.warehouse_server"
+      ]
     }
   }
 }

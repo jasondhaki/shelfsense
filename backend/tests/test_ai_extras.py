@@ -78,3 +78,32 @@ def test_mcp_servers_list_and_call_tools():
     asyncio.run(go())
     assert sim_server.run_week(42, "demo", 24)["hours"] == 24
     assert sim_server.price_formula("STRW-01", hour=30)["sku_id"] == "STRW-01"
+
+
+def test_vision_and_demand_mcp_servers():
+    from app.mcp import demand_server, vision_server
+
+    frames = vision_server.list_frames()
+    assert {f["frame_id"] for f in frames} == {"frame1", "frame2", "frame3"}
+    g = vision_server.grade_frame("frame1")
+    assert g["source"] == "fixture" and 1.0 <= g["alpha_vision"] <= 3.0
+    f = demand_server.demand_forecast("STRW-01", from_hour=0, hours=24)
+    assert len(f["hourly"]) == 24 and f["total_units"] > 0
+    assert demand_server.demand_forecast("STRW-01", 0, 24) == f  # deterministic
+
+
+def test_warehouse_mcp_is_read_only(tmp_path, monkeypatch):
+    import pytest
+
+    duckdb = pytest.importorskip("duckdb")
+    from app.mcp import warehouse_server
+
+    db = tmp_path / "w.duckdb"
+    with duckdb.connect(str(db)) as con:
+        con.execute("CREATE TABLE runs AS SELECT 1 AS seed, 50.0 AS waste_reduction_pct")
+    monkeypatch.setattr(warehouse_server, "DB", db)
+    assert warehouse_server.query("SELECT seed FROM runs")["rows"] == [(1,)]
+    assert "runs" in warehouse_server.tables()
+    for bad in ("DROP TABLE runs", "SELECT 1; DROP TABLE runs", "SELECT * FROM read_csv('x.csv')"):
+        with pytest.raises((ValueError, duckdb.Error)):
+            warehouse_server.query(bad)

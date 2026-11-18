@@ -238,7 +238,7 @@ export interface ExplainRequest {
 export interface Explanation {
   text: string
   mode: 'llm' | 'template'
-  provider: 'gemini' | 'ollama' | null
+  provider: 'gemini' | 'ollama' | 'openai_compat' | null
   model: string | null
   guardrail: string | null
   facts: string[]

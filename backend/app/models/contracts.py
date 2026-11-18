@@ -306,7 +306,7 @@ class ExplainRequest(BaseModel):
 class Explanation(BaseModel):
     text: str
     mode: Literal["llm", "template"]
-    provider: Literal["gemini", "ollama"] | None = None
+    provider: Literal["gemini", "ollama", "openai_compat"] | None = None
     model: str | None = None
     guardrail: str | None = None  # why an LLM answer was replaced by the template
     facts: list[str]  # knowledge-graph facts given to the model

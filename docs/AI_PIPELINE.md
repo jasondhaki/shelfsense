@@ -147,7 +147,7 @@ The RAG agent logs: `Retrieved "Strawberries — refrigerator storage" (USDA Foo
 
 1. **Context (RAG generation):** the log line and its `data` (trimmed to 1,200 characters), knowledge-graph facts for its SKU, and up to 4 knowledge chunks from `graph_retrieve` (top 3 for the SKU + the best ethylene chunk of each product it clashes with).
 2. **Prompt:** `app/agents/prompts/explain.txt` (system) + the context (user). Temperature 0, output capped. Snippets are declared reference text, not instructions.
-3. **Model:** `LLM_PROVIDER=gemini` (`GEMINI_TEXT_MODEL`, default the vision model) or `ollama` (`OLLAMA_MODEL`, a local open-weight model such as `qwen2.5:3b` at `OLLAMA_URL`). `none` (default, and on the public demo) → template text.
+3. **Model:** `LLM_PROVIDER=gemini` (`GEMINI_TEXT_MODEL`, default the vision model) or `ollama` (`OLLAMA_MODEL`, a local open-weight model such as `qwen2.5:3b` at `OLLAMA_URL`) or `openai_compat` (any OpenAI-compatible local server, e.g. llama.cpp `llama-server`, at `OPENAI_COMPAT_URL`). Local models get 4× the output cap so reasoning models (DeepSeek-R1) can finish thinking; `<think>` blocks are stripped. `none` (default, and on the public demo) → template text.
 4. **Guardrail:** every number in the answer must appear in the context (also accepted as a fraction ↔ percent). Otherwise the template is shown and `guardrail` says why. The UI labels which it is.
 5. **Cost:** answers are cached in-process by (request, model); failed calls aren't cached.
 

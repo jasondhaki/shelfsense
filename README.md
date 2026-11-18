@@ -83,15 +83,21 @@ Expand any agent log line and press **Explain in plain words**. The answer is gr
 line's numbers, knowledge-graph facts and cited sources, and is rejected (template text shown
 instead) if it contains a number that isn't in them. `LLM_PROVIDER=gemini` uses your Gemini key;
 for a fully local model install [Ollama](https://ollama.com), `ollama pull qwen2.5:3b`, then set
-`LLM_PROVIDER=ollama` and `OLLAMA_MODEL=qwen2.5:3b`. Without either it shows template text.
+`LLM_PROVIDER=ollama` and `OLLAMA_MODEL=qwen2.5:3b`. Any OpenAI-compatible local server works too
+(llama.cpp's `llama-server`, LM Studio): `LLM_PROVIDER=openai_compat`, `OPENAI_COMPAT_URL`,
+`OPENAI_COMPAT_MODEL`. Without any of these it shows template text.
 
 ### MCP servers, automation, analytics
 
-- **MCP:** `shelfsense-sim` (run a week, benchmark seeds, price formula, list products) and
+- **MCP:** five read-only servers, all reusing the app's own modules —
+  `shelfsense-sim` (run a week, benchmark seeds, price formula, list products),
   `shelfsense-knowledge` (cited search, product graph, explain a decision; resources for the
-  credits and the graph). Claude Code picks them up from [`.mcp.json`](.mcp.json); elsewhere run
-  `uv run python -m app.mcp.sim_server` (stdio) or add `--http` for streamable HTTP on
-  `http://127.0.0.1:8765/mcp` (knowledge: 8766).
+  credits and the graph), `shelfsense-vision` (grade a preset frame or a local photo → α),
+  `shelfsense-demand` (live weather with snapshot fallback, hourly demand forecast per SKU) and
+  `shelfsense-warehouse` (read-only SQL over the DuckDB warehouse; build it first with
+  `scripts.export_warehouse`). Claude Code picks them up from [`.mcp.json`](.mcp.json); elsewhere
+  run `uv run python -m app.mcp.sim_server` (stdio) or add `--http` for streamable HTTP on
+  `http://127.0.0.1:8765/mcp` (knowledge 8766, vision 8767, warehouse 8768, demand 8769).
 - **Report API:** `GET /api/report?seed=42&scenario=demo` returns a whole simulated week as JSON
   (deterministic, cached).
 - **n8n:** import [`automation/n8n/shelfsense_daily_report.json`](automation/n8n/shelfsense_daily_report.json):
