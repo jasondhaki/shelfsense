@@ -516,4 +516,10 @@ export const BN = {
   'Written by {model}; every number is checked against the log and sources.': '{model} লিখেছে; প্রতিটি সংখ্যা লগ ও উৎসের সঙ্গে মিলিয়ে দেখা হয়েছে।',
   'Template text: no language model is configured, or it did not answer.': 'টেমপ্লেট লেখা: কোনো ভাষা মডেল সেট করা নেই, অথবা সেটি উত্তর দেয়নি।',
   'The model’s answer was rejected: it used a number that is not in the log or sources.': 'মডেলের উত্তর বাতিল করা হয়েছে: এতে এমন একটি সংখ্যা ছিল যা লগ বা উৎসে নেই।',
+  'Shelf health': 'তাকের অবস্থা',
+  'Units on shelf by freshness left.': 'বাকি তাজাভাব অনুযায়ী তাকের ইউনিট।',
+  'Fresh': 'তাজা',
+  'Ageing': 'পুরোনো হচ্ছে',
+  'At risk': 'ঝুঁকিতে',
+  'on shelf': 'তাকে আছে',
 }

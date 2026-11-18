@@ -12,6 +12,7 @@ import { useT } from '../lib/i18n'
 import { useSim } from '../store/simStore'
 
 const DemandWasteCard = lazy(() => import('../components/DemandWasteCard'))
+const ShelfHealthCard = lazy(() => import('../components/ShelfHealthCard'))
 
 const TARGET = 30
 
@@ -152,6 +153,9 @@ export default function Dashboard() {
           <MobileSection title={t('Insight & agents')} Icon={Bot} link={{ label: t('Reasoning log'), onClick: () => setPage('agents') }}>
             <AgentsCard />
           </MobileSection>
+          <Suspense fallback={<div className="zone h-[190px]" aria-busy />}>
+            <ShelfHealthCard rows={rows} />
+          </Suspense>
         </div>
       </div>
 
