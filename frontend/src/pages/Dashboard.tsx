@@ -22,8 +22,6 @@ function AgentsCard() {
   const setPage = useSim((s) => s.setPage)
   const t = useT()
   const active = activeAgents(logs, tick)
-  const last = [...logs].reverse().find((l) => l.agent !== 'SYSTEM')
-  const chip = AGENT_CHIPS.find((c) => c.agent === last?.agent)
   return (
     <section aria-labelledby="ag-title" className="zone p-3">
       <div className="flex items-center justify-between gap-2">
@@ -47,12 +45,6 @@ function AgentsCard() {
           )
         })}
       </ul>
-      {last && (
-        <p className="mt-2 line-clamp-2 rounded-lg bg-panel-2 px-2.5 py-1.5 text-xs">
-          <span className={`font-bold ${chip?.tone ?? 'text-muted'}`}>{chip ? t(chip.label) : last.agent}</span>{' '}
-          <span className="text-muted">[{last.sim_time}]</span> {last.message}
-        </p>
-      )}
     </section>
   )
 }
@@ -62,7 +54,7 @@ function AlertsCard() {
   const t = useT()
   const alerts = snap ? deriveAlerts(snap, t) : []
   return (
-    <section aria-labelledby="al-title" className="zone p-4">
+    <section aria-labelledby="al-title" className="zone h-full p-4">
       <h2 id="al-title" className="h-card">
         {t('Real-time alerts')}
       </h2>
@@ -148,7 +140,7 @@ export default function Dashboard() {
         <MobileSection title={t('Shelf inventory & quick actions')} Icon={Package} link={{ label: t('View all'), onClick: () => setPage('inventory') }}>
           <InventoryTable rows={rows} limit={10} featured />
         </MobileSection>
-        <div className="space-y-5">
+        <div className="flex flex-col gap-5">
           <FreshnessHero />
           <MobileSection title={t('Insight & agents')} Icon={Bot} link={{ label: t('Reasoning log'), onClick: () => setPage('agents') }}>
             <AgentsCard />
@@ -156,31 +148,29 @@ export default function Dashboard() {
           <Suspense fallback={<div className="zone h-[190px]" aria-busy />}>
             <ShelfHealthCard rows={rows} />
           </Suspense>
+          <div className="flex-1">
+            <AlertsCard />
+          </div>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 gap-5 xl:grid-cols-[minmax(0,1.7fr)_minmax(0,1fr)]">
+      <div className="grid grid-cols-1 gap-5 xl:grid-cols-[minmax(0,2.2fr)_minmax(0,1fr)]">
         <MobileSection title={t('Demand & waste analytics')} Icon={BarChart3} defaultOpen>
           <Suspense fallback={<div className="zone h-[320px]" aria-busy />}>
             <DemandWasteCard esl={snap.esl} chart={ch} />
           </Suspense>
         </MobileSection>
-        <div className="space-y-5">
-          <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-1">
-            <AlertsCard />
-            <section aria-labelledby="wr-title" className="zone flex flex-col items-center p-4">
-              <h2 id="wr-title" className="h-card self-start">
-                {t('Waste reduction progress')}
-              </h2>
-              <div className="mt-2 w-full">
-                <Gauge value={k.waste_reduction_pct} target={TARGET} />
-              </div>
-              <p className="mt-1 text-center text-xs text-muted">
-                {t('{b} kg wasted vs {a} kg at the baseline', { b: k.waste_kg_b.toFixed(1), a: k.waste_kg_a.toFixed(1) })}
-              </p>
-            </section>
+        <section aria-labelledby="wr-title" className="zone flex flex-col items-center p-4">
+          <h2 id="wr-title" className="h-card self-start">
+            {t('Waste reduction progress')}
+          </h2>
+          <div className="mt-2 w-full">
+            <Gauge value={k.waste_reduction_pct} target={TARGET} />
           </div>
-        </div>
+          <p className="mt-1 text-center text-xs text-muted">
+            {t('{b} kg wasted vs {a} kg at the baseline', { b: k.waste_kg_b.toFixed(1), a: k.waste_kg_a.toFixed(1) })}
+          </p>
+        </section>
       </div>
     </div>
   )
