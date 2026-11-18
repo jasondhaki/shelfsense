@@ -1,5 +1,4 @@
 import { Leaf } from 'lucide-react'
-import { CYCLE_TICKS } from '../lib/format'
 import { useT } from '../lib/i18n'
 import { useSim } from '../store/simStore'
 import { FOOT, NAV } from './nav'
@@ -32,9 +31,6 @@ function Item({ id, label, Icon }: (typeof NAV)[number]) {
 }
 
 export default function Sidebar() {
-  const kpis = useSim((s) => s.snapshot?.kpis)
-  const tick = useSim((s) => s.snapshot?.tick ?? 0)
-  const day = Math.min(Math.floor(tick / 24) + 1, 7)
   const t = useT()
 
   return (
@@ -61,21 +57,6 @@ export default function Sidebar() {
             <Item key={n.id} {...n} />
           ))}
         </ul>
-
-        <div className="mt-auto rounded-2xl border border-white/10 bg-gradient-to-b from-forest-800 to-forest-900 p-4">
-          <div className="flex items-center gap-2 text-sm font-bold">
-            <Leaf size={16} aria-hidden className="text-[#4ADE80]" />
-            {t('Reduce food waste')}
-          </div>
-          <p className="mt-1 text-xs leading-relaxed text-white/75">
-            {kpis && kpis.food_diverted_kg > 0
-              ? t('{kg} kg kept out of the bin so far — day {day} of 7.', { kg: kpis.food_diverted_kg.toFixed(1), day })
-              : t('Run the simulated week to see how much food the AI store saves.')}
-          </p>
-          <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-white/10" aria-hidden>
-            <div className="h-full rounded-full bg-[#4ADE80]" style={{ width: `${(tick / CYCLE_TICKS) * 100}%` }} />
-          </div>
-        </div>
       </nav>
     </aside>
   )
