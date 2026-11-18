@@ -62,7 +62,7 @@ function AlertsCard() {
         <p className="mt-2 text-sm text-muted">{t('All clear. Alerts appear when stock nears expiry or orders change.')}</p>
       ) : (
         <ul className="mt-3 space-y-2">
-          {alerts.slice(0, 3).map((a) => (
+          {alerts.slice(0, 2).map((a) => (
             <AlertItem key={a.id} a={a} />
           ))}
         </ul>
@@ -160,16 +160,36 @@ export default function Dashboard() {
             <DemandWasteCard esl={snap.esl} chart={ch} />
           </Suspense>
         </MobileSection>
-        <section aria-labelledby="wr-title" className="zone flex flex-col items-center p-4">
-          <h2 id="wr-title" className="h-card self-start">
+        <section aria-labelledby="wr-title" className="zone flex flex-col p-4">
+          <h2 id="wr-title" className="h-card">
             {t('Waste reduction progress')}
           </h2>
-          <div className="mt-2 w-full">
-            <Gauge value={k.waste_reduction_pct} target={TARGET} />
+          <div className="flex flex-1 items-center justify-center py-1">
+            <div className="w-full max-w-[180px]">
+              <Gauge value={k.waste_reduction_pct} target={TARGET} />
+            </div>
           </div>
-          <p className="mt-1 text-center text-xs text-muted">
-            {t('{b} kg wasted vs {a} kg at the baseline', { b: k.waste_kg_b.toFixed(1), a: k.waste_kg_a.toFixed(1) })}
-          </p>
+          <div className="rounded-xl bg-panel-2 p-3">
+            <h3 className="text-xs font-semibold text-muted">{t('Food wasted')}</h3>
+            <ul className="mt-2 space-y-2 text-sm">
+              {(
+                [
+                  ['ShelfSense store', k.waste_kg_b, 'bg-accent'],
+                  ['Baseline twin', k.waste_kg_a, 'bg-baseline'],
+                ] as const
+              ).map(([label, kg, bar]) => (
+                <li key={label}>
+                  <div className="flex justify-between">
+                    <span>{t(label)}</span>
+                    <span className="font-bold">{kg.toFixed(1)} kg</span>
+                  </div>
+                  <div className="mt-1 h-2 overflow-hidden rounded-full bg-line" aria-hidden>
+                    <div className={`h-full rounded-full ${bar}`} style={{ width: `${(kg / Math.max(k.waste_kg_a, k.waste_kg_b, 1e-9)) * 100}%` }} />
+                  </div>
+                </li>
+              ))}
+            </ul>
+          </div>
         </section>
       </div>
     </div>

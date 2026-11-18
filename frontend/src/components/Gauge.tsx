@@ -13,7 +13,7 @@ export default function Gauge({ value, target }: { value: number | null; target:
   const tx = 60 + Math.cos(a) * R
   const ty = 60 + Math.sin(a) * R
   return (
-    <div className="relative mx-auto w-40" role="meter" aria-label={t('Waste reduction')} aria-valuemin={0} aria-valuemax={100} aria-valuenow={value ?? 0}>
+    <div className="relative mx-auto w-full" role="meter" aria-label={t('Waste reduction')} aria-valuemin={0} aria-valuemax={100} aria-valuenow={value ?? 0}>
       <svg viewBox="0 0 120 120" className="w-full -rotate-0" aria-hidden>
         <circle
           cx="60"
