@@ -1,4 +1,4 @@
-import { ChevronDown, MapPin } from 'lucide-react'
+import { MapPin } from 'lucide-react'
 import { greeting } from '../lib/insights'
 import { simClock } from '../lib/format'
 import { rich, useT } from '../lib/i18n'
@@ -61,22 +61,31 @@ export default function TopBar() {
       </div>
 
       <div className="order-3 grid basis-full grid-cols-2 items-center gap-2 sm:flex sm:flex-wrap sm:gap-3 lg:order-2 lg:basis-auto">
-        <label className="relative flex min-w-0 items-center gap-1.5 rounded-full border border-line bg-panel py-2.5 pl-3 pr-8 text-sm font-semibold shadow-sm sm:gap-2 sm:py-2 sm:pl-3.5 sm:pr-9 sm:text-sm">
-          <MapPin size={16} aria-hidden className="text-muted" />
-          <span className="sr-only">{t('Which store’s shelves to show')}</span>
-          <select
-            value={which}
-            onChange={(e) => setWhich(e.target.value as 'A' | 'B')}
-            className="min-w-0 flex-1 appearance-none truncate bg-transparent pr-1 font-semibold focus:outline-none"
-          >
-            <option value="B">{t('Store: {name}', { name: store })}</option>
-            <option value="A">{t('Baseline twin')}</option>
-          </select>
-          <ChevronDown size={16} aria-hidden className="pointer-events-none absolute right-3 text-muted" />
-        </label>
+        <div
+          role="radiogroup"
+          aria-label={t('Which store’s shelves to show')}
+          className="col-span-2 flex min-w-0 items-center gap-1 rounded-full border border-line bg-panel p-1 text-sm font-semibold shadow-sm sm:col-span-1"
+        >
+          {(['B', 'A'] as const).map((id) => (
+            <button
+              key={id}
+              type="button"
+              role="radio"
+              aria-checked={which === id}
+              title={id === 'B' ? t('ShelfSense store') : t('Baseline twin')}
+              onClick={() => setWhich(id)}
+              className={`flex min-w-0 flex-1 items-center justify-center gap-1.5 rounded-full px-3 py-1.5 transition-colors sm:flex-none ${
+                which === id ? 'bg-forest-800 text-white shadow-sm' : 'text-muted hover:text-text'
+              }`}
+            >
+              {id === 'B' && <MapPin size={15} aria-hidden className="shrink-0" />}
+              <span className="truncate">{id === 'B' ? store : t('Baseline twin')}</span>
+            </button>
+          ))}
+        </div>
 
         <span
-          className="flex min-w-0 items-center gap-2 truncate rounded-full border border-line bg-panel px-3 py-2.5 text-sm font-semibold shadow-sm sm:px-3.5 sm:py-2"
+          className="col-span-2 flex min-w-0 items-center gap-2 truncate rounded-full sm:col-span-1 border border-line bg-panel px-3 py-2.5 text-sm font-semibold shadow-sm sm:px-3.5 sm:py-2"
           role="status"
         >
           <span
