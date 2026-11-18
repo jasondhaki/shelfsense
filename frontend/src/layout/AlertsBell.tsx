@@ -1,5 +1,5 @@
 import { Bell } from 'lucide-react'
-import { useCallback, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import AlertItem from '../components/AlertItem'
 import { deriveAlerts } from '../lib/insights'
 import { useDismiss } from '../lib/useDismiss'
@@ -14,25 +14,35 @@ export default function AlertsBell() {
   const close = useCallback(() => setOpen(false), [])
   useDismiss(root, open, close)
 
+  const seen = useSim((s) => s.seenAlerts)
+  const setSeen = useSim((s) => s.setSeenAlerts)
+
   const alerts = snap ? deriveAlerts(snap, t) : []
-  const urgent = alerts.filter((a) => a.tone !== 'info').length
+  const unread = alerts.filter((a) => !seen.includes(a.id))
+  const urgent = unread.filter((a) => a.tone !== 'info').length
+  const ids = alerts.map((a) => a.id).join('|')
+
+  // while the panel is open, everything in it counts as read
+  useEffect(() => {
+    if (open) setSeen(ids ? ids.split('|') : [])
+  }, [open, ids, setSeen])
 
   return (
     <div ref={root} className="relative">
       <button
         type="button"
         className="relative grid h-11 w-11 place-items-center rounded-full text-text hover:bg-panel"
-        aria-label={t(urgent ? 'Alerts: {n}, {u} urgent' : 'Alerts: {n}', { n: alerts.length, u: urgent })}
+        aria-label={t(urgent ? 'Alerts: {n}, {u} urgent' : 'Alerts: {n}', { n: unread.length, u: urgent })}
         aria-expanded={open}
         onClick={() => setOpen((o) => !o)}
       >
         <Bell size={24} aria-hidden strokeWidth={1.8} />
-        {alerts.length > 0 && (
+        {unread.length > 0 && (
           <span
             className={`absolute right-1 top-1 grid h-5 min-w-5 place-items-center rounded-full px-1 text-[10px] font-bold text-white dark:text-forest-950 ${urgent ? 'bg-crit' : 'bg-accent'}`}
             aria-hidden
           >
-            {alerts.length}
+            {unread.length}
           </span>
         )}
       </button>

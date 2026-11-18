@@ -113,6 +113,8 @@ interface SimStore {
   formula: FormulaBreakdown | null
   activeTab: 'procurement' | 'bundles'
   eslStore: 'B' | 'A'
+  /** alert ids the user has already seen in the bell (shared by desktop + mobile bells) */
+  seenAlerts: string[]
   page: Page
   profile: Profile
   auth: AuthMode
@@ -132,6 +134,7 @@ interface SimStore {
   closeFormula(): void
   setTab(t: 'procurement' | 'bundles'): void
   setEslStore(s: 'B' | 'A'): void
+  setSeenAlerts(ids: string[]): void
   setPage(p: Page): void
   syncPage(): void
   saveProfile(p: Profile): Promise<boolean>
@@ -171,6 +174,7 @@ export const useSim = create<SimStore>()((set, get) => ({
   formula: null,
   activeTab: 'procurement',
   eslStore: 'B',
+  seenAlerts: [],
   page: pageFromHash(),
   profile: getToken() ? { name: '', store: '' } : guestProfile(),
   auth: initialMode(),
@@ -265,6 +269,7 @@ export const useSim = create<SimStore>()((set, get) => ({
   closeFormula: () => set({ selectedSku: null, formula: null }),
   setTab: (activeTab) => set({ activeTab }),
   setEslStore: (eslStore) => set({ eslStore }),
+  setSeenAlerts: (seenAlerts) => set({ seenAlerts }),
   setPage: (page) => {
     if (location.hash !== `#/${page}`) location.hash = `/${page}`
     set({ page })
