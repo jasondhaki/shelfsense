@@ -41,9 +41,11 @@ interface Props {
   /** Dashboard shows the most urgent few and a "View all" link; the Inventory page shows all. */
   limit?: number
   detailed?: boolean
+  /** Dashboard's main card: accent ring, and the table layout from xl up (it gets the wide column). */
+  featured?: boolean
 }
 
-export default function InventoryTable({ rows, limit, detailed = false }: Props) {
+export default function InventoryTable({ rows, limit, detailed = false, featured = false }: Props) {
   const [filter, setFilter] = useState<Filter>('all')
   const which = useSim((s) => s.eslStore)
   const openFormula = useSim((s) => s.openFormula)
@@ -64,10 +66,10 @@ export default function InventoryTable({ rows, limit, detailed = false }: Props)
   ]
 
   return (
-    <section aria-labelledby="inv-title" className="zone flex flex-col p-4">
+    <section aria-labelledby="inv-title" className={`zone flex flex-col ${featured ? 'p-4 ring-2 ring-accent/40 sm:p-5' : 'p-4'}`}>
       <div className="flex items-start justify-between gap-3">
         <div>
-          <h2 id="inv-title" className="h-card">
+          <h2 id="inv-title" className={featured ? 'text-lg font-extrabold tracking-tight sm:text-xl' : 'h-card'}>
             {t('Shelf inventory & quick actions')}
           </h2>
           <p className="text-sm text-muted">
@@ -96,9 +98,9 @@ export default function InventoryTable({ rows, limit, detailed = false }: Props)
         ))}
       </div>
 
-      {/* cards on phones, and in the dashboard's half-width column below 1700 px; a table above */}
+      {/* cards on phones / narrow columns, a table once there is room */}
       <ul
-        className={`mt-3 space-y-2 ${detailed ? 'sm:grid sm:grid-cols-2 sm:gap-2 sm:space-y-0 md:hidden' : 'min-[1700px]:hidden'}`}
+        className={`mt-3 space-y-2 ${detailed ? 'sm:grid sm:grid-cols-2 sm:gap-2 sm:space-y-0 md:hidden' : featured ? 'sm:grid sm:grid-cols-2 sm:gap-2 sm:space-y-0 xl:hidden' : 'min-[1700px]:hidden'}`}
       >
         {shown.map((e) => {
           const nutri = e.nutri_score?.toLowerCase()
@@ -154,7 +156,7 @@ export default function InventoryTable({ rows, limit, detailed = false }: Props)
         })}
       </ul>
 
-      <div className={`mt-3 hidden overflow-x-auto ${detailed ? 'md:block' : 'min-[1700px]:block'}`}>
+      <div className={`mt-3 hidden overflow-x-auto ${detailed ? 'md:block' : featured ? 'xl:block' : 'min-[1700px]:block'}`}>
         <table className="w-full min-w-[580px] border-separate border-spacing-y-1.5 text-sm">
           <caption className="sr-only">{t('Shelf items sorted by shelf life left')}</caption>
           <thead>
