@@ -522,4 +522,5 @@ export const BN = {
   'Ageing': 'পুরোনো হচ্ছে',
   'At risk': 'ঝুঁকিতে',
   'on shelf': 'তাকে আছে',
+  'ShelfSense: go to dashboard': 'ShelfSense: ড্যাশবোর্ডে যান',
 }

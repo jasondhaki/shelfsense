@@ -10,10 +10,18 @@ import ProfileMenu from './ProfileMenu'
 
 const TABS: Page[] = ['dashboard', 'inventory', 'forecast']
 
-function Brand() {
+function Brand({ onHome }: { onHome: () => void }) {
   const t = useT()
   return (
-    <div className="flex min-w-0 items-center gap-2">
+    <a
+      href="#/dashboard"
+      onClick={(e) => {
+        e.preventDefault()
+        onHome()
+      }}
+      aria-label={t('ShelfSense: go to dashboard')}
+      className="flex min-w-0 items-center gap-2 rounded-xl"
+    >
       <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-gradient-to-br from-[#4ADE80] to-[#15803D] text-white">
         <Leaf size={20} aria-hidden />
       </span>
@@ -21,7 +29,7 @@ function Brand() {
         <div className="text-lg font-extrabold tracking-tight">ShelfSense</div>
         <div className="truncate text-xs text-muted">{t('Food Waste Zero')}</div>
       </div>
-    </div>
+    </a>
   )
 }
 
@@ -47,7 +55,7 @@ export default function MobileNav() {
         <button type="button" className="grid h-11 w-11 shrink-0 place-items-center rounded-full hover:bg-panel" aria-label={t('Open menu')} onClick={open}>
           <Menu size={26} aria-hidden strokeWidth={2} />
         </button>
-        <Brand />
+        <Brand onHome={() => go('dashboard')} />
         <div className="ml-auto flex items-center gap-1">
           <AlertsBell />
           <ProfileMenu />
@@ -62,7 +70,7 @@ export default function MobileNav() {
       >
         <nav className="flex h-full flex-col bg-gradient-to-b from-forest-900 to-forest-950 px-4 py-4 text-white">
           <div className="flex items-center justify-between gap-2 text-white [&_.text-muted]:text-white/70">
-            <Brand />
+            <Brand onHome={() => go('dashboard')} />
             <button type="button" className="grid h-11 w-11 place-items-center rounded-full hover:bg-white/10" aria-label={t('Close menu')} onClick={() => drawer.current?.close()}>
               <X size={22} aria-hidden />
             </button>

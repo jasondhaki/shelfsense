@@ -31,11 +31,20 @@ function Item({ id, label, Icon }: (typeof NAV)[number]) {
 }
 
 export default function Sidebar() {
+  const setPage = useSim((s) => s.setPage)
   const t = useT()
 
   return (
     <aside className="sticky top-0 hidden h-screen w-[260px] shrink-0 flex-col bg-gradient-to-b from-forest-900 to-forest-950 px-4 py-6 text-white lg:flex">
-      <div className="flex items-center gap-3 px-2">
+      <a
+        href="#/dashboard"
+        onClick={(e) => {
+          e.preventDefault()
+          setPage('dashboard')
+        }}
+        aria-label={t('ShelfSense: go to dashboard')}
+        className="flex items-center gap-3 rounded-2xl px-2"
+      >
         <span className="grid h-11 w-11 place-items-center rounded-2xl bg-gradient-to-br from-[#4ADE80] to-[#15803D] shadow-lg">
           <Leaf size={24} aria-hidden className="text-white" />
         </span>
@@ -43,7 +52,7 @@ export default function Sidebar() {
           <div className="text-xl font-extrabold leading-tight tracking-tight">ShelfSense</div>
           <div className="text-xs text-white/70">{t('Food Waste Zero')}</div>
         </div>
-      </div>
+      </a>
 
       <nav aria-label={t('Main')} className="mt-8 flex min-h-0 flex-1 flex-col overflow-y-auto">
         <ul className="space-y-1">
