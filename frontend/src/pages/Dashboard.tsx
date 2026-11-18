@@ -137,7 +137,7 @@ export default function Dashboard() {
 
       {/* the shelf is the main job: widest column, highlighted */}
       <div className="grid grid-cols-1 gap-5 xl:grid-cols-[minmax(0,2.2fr)_minmax(0,1fr)]">
-        <MobileSection title={t('Shelf inventory & quick actions')} Icon={Package} link={{ label: t('View all'), onClick: () => setPage('inventory') }}>
+        <MobileSection title={t('Shelf inventory & quick actions')} Icon={Package} defaultOpen link={{ label: t('View all'), onClick: () => setPage('inventory') }}>
           <InventoryTable rows={rows} limit={10} featured />
         </MobileSection>
         <div className="flex flex-col gap-5">
