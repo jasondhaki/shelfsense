@@ -3,6 +3,11 @@
  *  Latin so numbers match the charts, CSV export and agent log. */
 export const BN = {
   // shell
+  'Open menu': 'মেনু খুলুন',
+  'Close menu': 'মেনু বন্ধ করুন',
+  More: 'আরও',
+  'Show {section}': '{section} দেখান',
+  'Hide {section}': '{section} লুকান',
   Main: 'প্রধান মেনু',
   'Food Waste Zero': 'খাদ্য অপচয় শূন্য',
   Dashboard: 'ড্যাশবোর্ড',

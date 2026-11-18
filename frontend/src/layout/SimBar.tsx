@@ -24,8 +24,8 @@ export default function SimBar() {
   const coldPending = snap.active_events.some((e) => e.type === 'cold_chain_delay')
 
   return (
-    <section aria-label={t('Simulation controls')} className="zone flex flex-wrap items-center gap-x-4 gap-y-2 px-4 py-2.5">
-      <div className="flex items-center gap-1.5" role="group" aria-label={t('Playback')}>
+    <section aria-label={t('Simulation controls')} className="zone flex flex-wrap items-center gap-x-2 gap-y-3 p-4 lg:gap-x-4 lg:gap-y-2 lg:px-4 lg:py-2.5">
+      <div className="flex flex-wrap items-center gap-1 max-lg:[&>.btn-icon]:h-10 max-lg:[&>.btn-icon]:w-10 lg:gap-1.5" role="group" aria-label={t('Playback')}>
         <button
           type="button"
           className={`btn-icon ${playing && snap.speed === 1 ? 'btn-on' : ''}`}
@@ -88,8 +88,8 @@ export default function SimBar() {
         )}
       </div>
 
-      <div className="min-w-[230px] flex-1 sm:max-w-xs">
-        <div className="flex items-baseline justify-between gap-2 whitespace-nowrap text-xs font-semibold">
+      <div className="min-w-[230px] flex-1 max-lg:order-first max-lg:basis-full lg:max-w-xs">
+        <div className="flex items-baseline justify-between gap-2 whitespace-nowrap text-sm font-bold lg:text-xs lg:font-semibold">
           <span>
             {t('Simulated week')} · <span className="text-accent">{simClock(snap.tick)}</span>
           </span>
@@ -109,8 +109,8 @@ export default function SimBar() {
         </div>
       </div>
 
-      <div className="flex flex-wrap items-center gap-2 sm:ml-auto" role="group" aria-label={t('Disruptions')}>
-        <span className="hidden text-xs font-semibold text-muted sm:inline">{t('Test a disruption:')}</span>
+      <div className="flex flex-wrap items-center gap-2 max-lg:ml-auto max-lg:flex-col max-lg:items-stretch max-lg:border-l max-lg:border-line max-lg:pl-2 max-lg:[&_.btn]:px-2 lg:ml-auto" role="group" aria-label={t('Disruptions')}>
+        <span className="hidden text-xs font-semibold text-muted lg:inline">{t('Test a disruption:')}</span>
         <button type="button" className="btn" disabled={finished || !!storm} onClick={() => triggerEvent('rainstorm')}>
           <CloudRain size={14} aria-hidden />
           {storm ? t('Storm: {h} h left', { h: stormLeft }) : t('Rainstorm')}

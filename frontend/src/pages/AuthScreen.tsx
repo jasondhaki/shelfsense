@@ -18,8 +18,8 @@ import ThemeToggle from '../components/ThemeToggle'
 import { useT, type Key } from '../lib/i18n'
 import { useSim } from '../store/simStore'
 
-/** Login from the owner's mock (login.jpg, light and dark rows): form left, produce photo behind a green wave
- *  right; on phones the photo becomes a corner blob. The mock's Google/Microsoft row is replaced
+/** Login from the owner's mock (login.jpg): full-window, form left, produce photo behind a green wave
+ *  right (no outer card); on phones the photo becomes a corner blob. The mock's Google/Microsoft row is replaced
  *  by "Continue as guest" (no OAuth here), and "Forgot your password?" is a real email-code reset. */
 
 type Mode = 'signin' | 'signup' | 'verify' | 'forgot' | 'reset'
@@ -289,12 +289,7 @@ export default function AuthScreen() {
       }
 
   return (
-    <div className="relative min-h-full overflow-hidden bg-[#F3FAF5] dark:bg-[#04110A] sm:px-6 sm:py-8 lg:grid lg:place-items-center lg:px-10">
-      {/* soft page swooshes, as in the mock's background */}
-      <div className="pointer-events-none absolute -right-40 -top-40 hidden h-[520px] w-[520px] rounded-full bg-[#86EFAC]/35 blur-3xl dark:bg-[#22C55E]/20 sm:block" aria-hidden />
-      <div className="pointer-events-none absolute -bottom-48 -left-40 hidden h-[520px] w-[520px] rounded-full bg-[#BBF7D0]/50 blur-3xl dark:bg-[#15803D]/25 sm:block" aria-hidden />
-
-      <main className="relative mx-auto grid min-h-[100dvh] w-full overflow-hidden bg-white dark:bg-[#07130D] sm:min-h-0 sm:max-w-md sm:rounded-[32px] sm:border-2 sm:border-[#7EE891]/70 sm:shadow-[0_30px_80px_-30px_rgba(21,128,61,0.35)] dark:sm:border-[#4ADE80]/70 dark:sm:shadow-[0_0_60px_-20px_rgba(74,222,128,0.45)] lg:min-h-[640px] lg:max-w-[1120px] lg:grid-cols-[minmax(0,1fr)_minmax(0,1.05fr)]">
+    <main className="relative grid min-h-[100dvh] w-full overflow-hidden bg-white dark:bg-[#07130D] lg:grid-cols-[minmax(0,1fr)_minmax(0,1.05fr)]">
         <PhotoBlob />
         {/* bottom swoosh on phones */}
         <svg className="pointer-events-none absolute -bottom-1 left-0 h-14 w-full lg:hidden" viewBox="0 0 400 60" preserveAspectRatio="none" aria-hidden>
@@ -302,7 +297,7 @@ export default function AuthScreen() {
           <path d="M0,60 V48 C100,30 180,62 270,50 C330,42 370,24 400,16 V60 Z" fill="#3DBE4F" opacity=".55" />
         </svg>
 
-        <section className="relative z-10 flex flex-col justify-center px-6 pb-20 pt-36 text-center sm:px-10 sm:pt-40 lg:px-16 lg:py-12 lg:text-left">
+        <section className="relative z-10 flex flex-col justify-center px-6 pb-20 pt-36 text-center sm:px-10 sm:pt-44 lg:py-12 lg:pl-[clamp(4rem,9vw,10rem)] lg:pr-12 lg:text-left">
           <div className="mx-auto w-full max-w-[380px] lg:mx-0">
             <Brand />
             <div className="mt-6">
@@ -410,7 +405,6 @@ export default function AuthScreen() {
           <ThemeToggle className="grid h-10 w-10 place-items-center rounded-full bg-panel/80 text-text shadow-sm backdrop-blur hover:bg-panel" />
           <LangToggle className="flex h-10 items-center gap-1.5 rounded-full bg-panel/80 px-3 text-sm font-bold text-text shadow-sm backdrop-blur hover:bg-panel" />
         </div>
-      </main>
-    </div>
+    </main>
   )
 }

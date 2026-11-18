@@ -42,15 +42,15 @@ export default function FreshnessHero() {
   const worst = det.find((d) => d.severity === 'clearance_required') ?? det.find((d) => d.severity === 'accelerated_ripening') ?? det[0]
 
   return (
-    <section aria-label={t('Freshness scanner')} className="zone relative min-h-[300px] overflow-hidden sm:min-h-[260px]">
-      <div ref={box} className="absolute inset-0">
+    <section aria-label={t('Freshness scanner')} className="zone relative min-h-[190px] overflow-hidden max-sm:border-accent/50 sm:min-h-[260px]">
+      <div ref={box} className="absolute inset-y-0 right-0 w-[62%] sm:inset-x-0 sm:w-auto">
         <img
           src={v.imageUrl}
           alt={t('Shelf camera view of the fresh produce aisle')}
           onLoad={(e) => onLoad(e.currentTarget)}
           className="h-full w-full object-cover"
         />
-        <div className="absolute inset-0 bg-gradient-to-r from-forest-950/35 via-transparent to-transparent" aria-hidden />
+        <div className="absolute inset-0 bg-gradient-to-r from-panel via-panel/30 to-transparent sm:from-forest-950/35 sm:via-transparent" aria-hidden />
         {det.map((d, i) => {
           const [ymin, xmin, ymax, xmax] = d.box_2d
           const s = SEVERITY[d.severity]
@@ -75,7 +75,7 @@ export default function FreshnessHero() {
         )}
       </div>
 
-      <div className="absolute inset-x-3 bottom-3 rounded-xl sm:inset-x-auto sm:bottom-auto sm:right-4 sm:top-4 sm:max-w-[300px] border border-white/60 bg-white/85 p-3 dark:border-white/10 dark:bg-panel/85 shadow-card backdrop-blur-md">
+      <div className="relative z-10 w-[74%] p-4 sm:absolute sm:right-4 sm:top-4 sm:w-auto sm:max-w-[300px] sm:rounded-xl sm:border sm:border-white/60 sm:bg-white/85 sm:p-3 sm:shadow-card sm:backdrop-blur-md sm:dark:border-white/10 sm:dark:bg-panel/85">
         <div className="flex items-center gap-1.5 text-sm font-bold">
           {t('Freshness scanner')}
           <span className="font-semibold text-muted">|</span>
@@ -101,7 +101,7 @@ export default function FreshnessHero() {
             </div>
           </div>
         ) : (
-          <p className="mt-1 text-sm text-muted">{t('Grade this shelf with the vision agent. Damage shortens shelf life and reprices the label.')}</p>
+          <p className="mt-1 line-clamp-2 text-sm text-muted sm:line-clamp-none">{t('Grade this shelf with the vision agent. Damage shortens shelf life and reprices the label.')}</p>
         )}
         <div className="mt-2 flex items-center gap-3">
           <button type="button" className="btn-primary" disabled={v.scanning} onClick={() => scan()}>

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import {
   Area,
   AreaChart,
@@ -12,6 +12,7 @@ import {
   YAxis,
 } from 'recharts'
 import { simClock } from '../lib/format'
+import { useMedia } from '../lib/useMedia'
 import { useT } from '../lib/i18n'
 import { shortName } from '../lib/insights'
 import type { ChartPoint, EslView } from '../types/contracts'
@@ -35,21 +36,9 @@ const tipStyle = {
 
 type Tab = 'demand' | 'waste'
 
-/** Narrow screens tilt the product labels so all eight stay readable. */
-function useNarrow(q = '(max-width: 639px)') {
-  const [narrow, setNarrow] = useState(() => window.matchMedia(q).matches)
-  useEffect(() => {
-    const m = window.matchMedia(q)
-    const on = () => setNarrow(m.matches)
-    m.addEventListener('change', on)
-    return () => m.removeEventListener('change', on)
-  }, [q])
-  return narrow
-}
-
 export default function DemandWasteCard({ esl, chart }: { esl: EslView[]; chart: ChartPoint[] }) {
   const [tab, setTab] = useState<Tab>('demand')
-  const narrow = useNarrow()
+  const narrow = useMedia('(max-width: 639px)')
   const t = useT()
   const demand = esl.map((e) => ({
     name: shortName(e.name).split(' ').slice(-1)[0],

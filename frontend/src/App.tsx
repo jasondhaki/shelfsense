@@ -87,7 +87,7 @@ function Notice() {
   return (
     <div
       role="alert"
-      className="fixed bottom-4 left-1/2 z-40 flex -translate-x-1/2 items-center gap-3 rounded-full border border-warn/40 bg-panel px-4 py-2 text-sm font-semibold shadow-card"
+      className="fixed bottom-24 left-1/2 z-40 lg:bottom-4 flex -translate-x-1/2 items-center gap-3 rounded-full border border-warn/40 bg-panel px-4 py-2 text-sm font-semibold shadow-card"
     >
       <span className="text-warn">{text}</span>
       {connection !== 'closed' && (
@@ -118,7 +118,7 @@ function Shell() {
       <Sidebar />
       <div className="min-w-0 flex-1">
         <MobileNav />
-        <main className="mx-auto max-w-[1680px] space-y-5 px-4 py-5 sm:px-6 lg:px-8">
+        <main className="mx-auto max-w-[1680px] space-y-5 px-4 pb-28 pt-4 sm:px-6 lg:px-8 lg:py-5">
           <TopBar />
           <SimBar />
           <Current />

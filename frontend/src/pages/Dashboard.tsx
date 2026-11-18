@@ -1,9 +1,10 @@
-import { ArrowRight, CircleDollarSign, Cloud, ShoppingBasket, Sprout } from 'lucide-react'
+import { ArrowRight, BarChart3, Bot, CircleDollarSign, Cloud, Package, ShoppingBasket, Sprout } from 'lucide-react'
 import { lazy, Suspense } from 'react'
 import AlertItem from '../components/AlertItem'
 import FreshnessHero from '../components/FreshnessHero'
 import Gauge from '../components/Gauge'
 import InventoryTable from '../components/InventoryTable'
+import MobileSection from '../components/MobileSection'
 import StatCard from '../components/StatCard'
 import { usd } from '../lib/format'
 import { activeAgents, AGENT_CHIPS, dayChange, deriveAlerts, series, type KpiKey } from '../lib/insights'
@@ -80,6 +81,7 @@ function AlertsCard() {
 export default function Dashboard() {
   const snap = useSim((s) => s.snapshot)
   const which = useSim((s) => s.eslStore)
+  const setPage = useSim((s) => s.setPage)
   const t = useT()
   if (!snap) return <div className="zone h-96 animate-pulse" aria-busy />
 
@@ -144,12 +146,18 @@ export default function Dashboard() {
       </div>
 
       <div className="grid grid-cols-1 gap-5 xl:grid-cols-[minmax(0,1.25fr)_minmax(0,1fr)]">
-        <InventoryTable rows={rows} limit={8} />
+        <MobileSection title={t('Shelf inventory & quick actions')} Icon={Package} link={{ label: t('View all'), onClick: () => setPage('inventory') }}>
+          <InventoryTable rows={rows} limit={8} />
+        </MobileSection>
         <div className="space-y-5">
-          <AgentsCard />
-          <Suspense fallback={<div className="zone h-[320px]" aria-busy />}>
-            <DemandWasteCard esl={snap.esl} chart={ch} />
-          </Suspense>
+          <MobileSection title={t('Insight & agents')} Icon={Bot} link={{ label: t('Reasoning log'), onClick: () => setPage('agents') }}>
+            <AgentsCard />
+          </MobileSection>
+          <MobileSection title={t('Demand & waste analytics')} Icon={BarChart3} defaultOpen>
+            <Suspense fallback={<div className="zone h-[320px]" aria-busy />}>
+              <DemandWasteCard esl={snap.esl} chart={ch} />
+            </Suspense>
+          </MobileSection>
           <div className="grid grid-cols-1 gap-5 sm:grid-cols-[minmax(0,1.3fr)_minmax(0,1fr)]">
             <AlertsCard />
             <section aria-labelledby="wr-title" className="zone flex flex-col items-center p-4">

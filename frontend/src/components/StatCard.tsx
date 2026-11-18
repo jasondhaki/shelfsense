@@ -48,7 +48,7 @@ function Sparkline({ data, color }: { data: number[]; color: string }) {
   const xy = pts.map((v, i) => [(i / (pts.length - 1)) * W, H - 4 - ((v - min) / span) * (H - 10)])
   const line = xy.map(([x, y], i) => `${i ? 'L' : 'M'}${x.toFixed(1)},${y.toFixed(1)}`).join('')
   return (
-    <svg viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none" className="absolute inset-x-0 bottom-0 h-12 w-full" aria-hidden>
+    <svg viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none" className="absolute inset-x-0 bottom-0 hidden h-12 w-full sm:block" aria-hidden>
       <defs>
         <linearGradient id={id} x1="0" x2="0" y1="0" y2="1">
           <stop offset="0" stopColor={color} stopOpacity="0.28" />
@@ -81,13 +81,13 @@ export default function StatCard({ label, value, format, change, history, Icon, 
   const up = change && change.value >= 0
   const moved = change && Math.abs(change.value) >= 0.05
   return (
-    <article className="zone relative overflow-hidden p-3 pb-11 sm:p-4 sm:pb-12" title={hint}>
+    <article className="zone relative overflow-hidden p-3 sm:p-4 sm:pb-12" title={hint}>
       <div className="flex items-center gap-3">
-        <span className={`hidden h-12 w-12 shrink-0 place-items-center rounded-full sm:grid ${tile}`}>
-          <Icon size={24} aria-hidden />
+        <span className={`grid h-10 w-10 shrink-0 place-items-center rounded-full sm:h-12 sm:w-12 ${tile}`}>
+          <Icon size={22} aria-hidden />
         </span>
         <div className="min-w-0">
-          <h3 className="truncate text-xs font-semibold text-muted sm:text-sm">{label}</h3>
+          <h3 className="text-xs font-semibold leading-tight text-muted sm:truncate sm:text-sm">{label}</h3>
           <div className="flex flex-wrap items-baseline gap-x-2">
             <span className="text-xl font-extrabold tracking-tight sm:text-2xl">{value === null ? '—' : format(shown)}</span>
             {moved && change && (
