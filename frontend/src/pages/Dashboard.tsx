@@ -24,7 +24,7 @@ function AgentsCard() {
   const last = [...logs].reverse().find((l) => l.agent !== 'SYSTEM')
   const chip = AGENT_CHIPS.find((c) => c.agent === last?.agent)
   return (
-    <section aria-labelledby="ag-title" className="zone p-4">
+    <section aria-labelledby="ag-title" className="zone p-3">
       <div className="flex items-center justify-between gap-2">
         <h2 id="ag-title" className="h-card">
           {t('Insight & agents')}
@@ -33,12 +33,12 @@ function AgentsCard() {
           {t('Reasoning log')} <ArrowRight size={14} aria-hidden />
         </button>
       </div>
-      <p className="mt-1 text-sm text-muted">{active.size ? t('Workforce: {n} agents active in the last 6 h', { n: [...active].filter((a) => a !== 'SYSTEM').length }) : t('Workforce: agents idle until the week runs')}</p>
-      <ul className="mt-3 flex flex-wrap gap-2">
+      <p className="mt-0.5 text-xs text-muted">{active.size ? t('Workforce: {n} agents active in the last 6 h', { n: [...active].filter((a) => a !== 'SYSTEM').length }) : t('Workforce: agents idle until the week runs')}</p>
+      <ul className="mt-2 flex flex-wrap gap-1.5">
         {AGENT_CHIPS.slice(0, 4).map((c) => {
           const on = active.has(c.agent)
           return (
-            <li key={c.agent} className="chip border-line bg-panel-2">
+            <li key={c.agent} className="chip border-line bg-panel-2 px-2 py-0.5 text-xs">
               <span className={c.tone}>{t(c.label)}</span>
               <span className={`h-2 w-2 rounded-full ${on ? 'bg-ok' : 'bg-baseline/50'}`} aria-hidden />
               <span className="sr-only">{t(on ? 'active' : 'idle')}</span>
@@ -47,7 +47,7 @@ function AgentsCard() {
         })}
       </ul>
       {last && (
-        <p className="mt-3 line-clamp-2 rounded-xl bg-panel-2 px-3 py-2 text-xs">
+        <p className="mt-2 line-clamp-2 rounded-lg bg-panel-2 px-2.5 py-1.5 text-xs">
           <span className={`font-bold ${chip?.tone ?? 'text-muted'}`}>{chip ? t(chip.label) : last.agent}</span>{' '}
           <span className="text-muted">[{last.sim_time}]</span> {last.message}
         </p>
@@ -143,7 +143,7 @@ export default function Dashboard() {
       </div>
 
       {/* the shelf is the main job: widest column, highlighted */}
-      <div className="grid grid-cols-1 gap-5 xl:grid-cols-[minmax(0,1.7fr)_minmax(0,1fr)]">
+      <div className="grid grid-cols-1 gap-5 xl:grid-cols-[minmax(0,2.2fr)_minmax(0,1fr)]">
         <MobileSection title={t('Shelf inventory & quick actions')} Icon={Package} link={{ label: t('View all'), onClick: () => setPage('inventory') }}>
           <InventoryTable rows={rows} limit={10} featured />
         </MobileSection>
