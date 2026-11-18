@@ -3,13 +3,23 @@
   "nodes": [
     {
       "parameters": {
-        "rule": { "interval": [{ "field": "days", "triggerAtHour": 7 }] }
+        "rule": {
+          "interval": [
+            {
+              "field": "days",
+              "triggerAtHour": 7
+            }
+          ]
+        }
       },
       "id": "b1f0c6a2-0001-4c1e-9a10-000000000001",
       "name": "Every morning 07:00",
       "type": "n8n-nodes-base.scheduleTrigger",
       "typeVersion": 1.2,
-      "position": [0, 0]
+      "position": [
+        0,
+        0
+      ]
     },
     {
       "parameters": {
@@ -22,16 +32,45 @@
       "name": "On demand (webhook)",
       "type": "n8n-nodes-base.webhook",
       "typeVersion": 2,
-      "position": [0, 200],
+      "position": [
+        0,
+        200
+      ],
       "webhookId": "5c0a3f4e-2d7b-4b8e-9f61-0a7e5e1f5e01"
+    },
+    {
+      "parameters": {},
+      "id": "b1f0c6a2-0008-4c1e-9a10-000000000008",
+      "name": "Run now (manual)",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        400
+      ]
     },
     {
       "parameters": {
         "assignments": {
           "assignments": [
-            { "id": "c1", "name": "api", "value": "https://shelfsense-api-66nh.onrender.com", "type": "string" },
-            { "id": "c2", "name": "seed", "value": 42, "type": "number" },
-            { "id": "c3", "name": "alert_webhook", "value": "", "type": "string" }
+            {
+              "id": "c1",
+              "name": "api",
+              "value": "https://shelfsense-api-66nh.onrender.com",
+              "type": "string"
+            },
+            {
+              "id": "c2",
+              "name": "seed",
+              "value": 42,
+              "type": "number"
+            },
+            {
+              "id": "c3",
+              "name": "alert_webhook",
+              "value": "",
+              "type": "string"
+            }
           ]
         },
         "options": {}
@@ -40,7 +79,10 @@
       "name": "Settings (edit me)",
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
-      "position": [240, 100]
+      "position": [
+        240,
+        100
+      ]
     },
     {
       "parameters": {
@@ -48,17 +90,31 @@
         "sendQuery": true,
         "queryParameters": {
           "parameters": [
-            { "name": "seed", "value": "={{ $json.seed }}" },
-            { "name": "scenario", "value": "demo" }
+            {
+              "name": "seed",
+              "value": "={{ $json.seed }}"
+            },
+            {
+              "name": "scenario",
+              "value": "demo"
+            }
           ]
         },
-        "options": { "timeout": 90000 }
+        "options": {
+          "timeout": 90000
+        }
       },
       "id": "b1f0c6a2-0004-4c1e-9a10-000000000004",
       "name": "Run the simulated week",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [480, 100]
+      "position": [
+        480,
+        100
+      ],
+      "retryOnFail": true,
+      "maxTries": 5,
+      "waitBetweenTries": 5000
     },
     {
       "parameters": {
@@ -68,18 +124,29 @@
       "name": "Summarise",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [720, 100]
+      "position": [
+        720,
+        100
+      ]
     },
     {
       "parameters": {
         "conditions": {
-          "options": { "caseSensitive": true, "leftValue": "", "typeValidation": "loose" },
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose"
+          },
           "conditions": [
             {
               "id": "d1",
               "leftValue": "={{ $json.alert_webhook }}",
               "rightValue": "",
-              "operator": { "type": "string", "operation": "notEmpty", "singleValue": true }
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
             }
           ],
           "combinator": "and"
@@ -90,7 +157,10 @@
       "name": "Alert webhook set?",
       "type": "n8n-nodes-base.if",
       "typeVersion": 2,
-      "position": [960, 100]
+      "position": [
+        960,
+        100
+      ]
     },
     {
       "parameters": {
@@ -105,17 +175,94 @@
       "name": "Post to Slack / Discord",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [1200, 0]
+      "position": [
+        1200,
+        0
+      ]
     }
   ],
   "connections": {
-    "Every morning 07:00": { "main": [[{ "node": "Settings (edit me)", "type": "main", "index": 0 }]] },
-    "On demand (webhook)": { "main": [[{ "node": "Settings (edit me)", "type": "main", "index": 0 }]] },
-    "Settings (edit me)": { "main": [[{ "node": "Run the simulated week", "type": "main", "index": 0 }]] },
-    "Run the simulated week": { "main": [[{ "node": "Summarise", "type": "main", "index": 0 }]] },
-    "Summarise": { "main": [[{ "node": "Alert webhook set?", "type": "main", "index": 0 }]] },
-    "Alert webhook set?": { "main": [[{ "node": "Post to Slack / Discord", "type": "main", "index": 0 }], []] }
+    "Every morning 07:00": {
+      "main": [
+        [
+          {
+            "node": "Settings (edit me)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "On demand (webhook)": {
+      "main": [
+        [
+          {
+            "node": "Settings (edit me)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Settings (edit me)": {
+      "main": [
+        [
+          {
+            "node": "Run the simulated week",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Run the simulated week": {
+      "main": [
+        [
+          {
+            "node": "Summarise",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Summarise": {
+      "main": [
+        [
+          {
+            "node": "Alert webhook set?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Alert webhook set?": {
+      "main": [
+        [
+          {
+            "node": "Post to Slack / Discord",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    },
+    "Run now (manual)": {
+      "main": [
+        [
+          {
+            "node": "Settings (edit me)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
   },
-  "settings": { "executionOrder": "v1" },
+  "settings": {
+    "executionOrder": "v1"
+  },
   "pinData": {}
 }
