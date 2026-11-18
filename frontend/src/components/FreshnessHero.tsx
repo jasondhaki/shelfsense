@@ -43,7 +43,7 @@ export default function FreshnessHero() {
 
   return (
     <section aria-label={t('Freshness scanner')} className="zone relative min-h-[190px] overflow-hidden max-sm:border-accent/50 sm:min-h-[260px]">
-      <div ref={box} className="absolute inset-y-0 right-0 w-[62%] sm:inset-x-0 sm:w-auto">
+      <div ref={box} className="absolute inset-y-0 right-0 w-[62%] overflow-hidden sm:inset-x-0 sm:w-auto">
         <img
           src={v.imageUrl}
           alt={t('Shelf camera view of the fresh produce aisle')}

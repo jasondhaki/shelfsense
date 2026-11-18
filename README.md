@@ -19,6 +19,10 @@ Sign in, create an account (confirmed with a 6-digit code by email), or continue
 
 <img src="docs/signin.jpg" alt="Sign-in screen in the dark theme: create an account or continue as a guest" width="420"> <img src="docs/signin-bn.jpg" alt="The same sign-in screen in Bengali" width="420">
 
+On a phone the sidebar becomes a hamburger menu and a bottom tab bar, and the dashboard's inventory, agent and analytics panels fold away.
+
+<img src="docs/phone.jpg" alt="Phone dashboard in the dark theme on Day 4: app bar with menu, alerts and profile; week controls; KPI cards; freshness scanner; bottom tab bar" width="260"> <img src="docs/phone-menu.jpg" alt="The phone hamburger menu open, listing every page with language and theme buttons" width="260">
+
 The app is split into tabs: Dashboard, Inventory, Forecast, Pricing & Discounts, AI Agents, Orders,
 Analytics, Data Ingestion, Settings (profile name and store, saved in the browser) and Help. A sun/moon button switches
 between the light and dark themes (it follows the OS setting until you pick one). A language button switches the interface

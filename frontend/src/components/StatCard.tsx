@@ -92,12 +92,12 @@ export default function StatCard({ label, value, format, change, history, Icon, 
             <span className="text-xl font-extrabold tracking-tight sm:text-2xl">{value === null ? '—' : format(shown)}</span>
             {moved && change && (
               <span
-                className={`inline-flex items-center gap-0.5 rounded-full px-1.5 py-0.5 text-[11px] font-bold ${up ? 'bg-mint text-accent' : 'bg-crit/10 text-crit'}`}
+                className={`inline-flex items-center gap-0.5 whitespace-nowrap rounded-full px-1.5 py-0.5 text-[11px] font-bold ${up ? 'bg-mint text-accent' : 'bg-crit/10 text-crit'}`}
                 title={t('Change over the last 24 simulated hours')}
               >
                 {up ? <ArrowUpRight size={12} aria-hidden /> : <ArrowDownRight size={12} aria-hidden />}
                 {change.text}
-                <span className="font-semibold opacity-70">/ {t('24 h')}</span>
+                <span className="hidden font-semibold opacity-70 sm:inline">/ {t('24 h')}</span>
               </span>
             )}
           </div>
