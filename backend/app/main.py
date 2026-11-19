@@ -162,6 +162,13 @@ def create_app() -> FastAPI:
         loc = ".".join(str(x) for x in first.get("loc", []))
         return _error(422, "invalid_request", f"{loc}: {first.get('msg', 'invalid request')}")
 
+    # Uptime-monitor target (Better Stack pings it to keep the free Render instance awake).
+    # No state, no I/O, and HEAD as well as GET, since some monitors send HEAD.
+    @app.api_route("/", methods=["GET", "HEAD"], include_in_schema=False)
+    @app.api_route("/healthz", methods=["GET", "HEAD"], include_in_schema=False)
+    def ping() -> dict:
+        return {"status": "ok", "service": "shelfsense-api", "version": VERSION}
+
     @app.get("/api/health")
     def health(request: Request) -> dict:
         r = getattr(request.app.state, "retriever", None)
